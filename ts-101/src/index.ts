@@ -328,3 +328,84 @@ function logDetails(value: UserGuard | PersonGuard): void {
         console.log(value.firstname, value.age)
     }
 }
+
+/**
+ * reusable interfaces
+ */
+
+
+interface hasQuantity {
+    quantity: number
+}
+
+const somethingReusable: hasQuantity = { quantity: 50}
+
+function printQuantity(item: hasQuantity): void {
+    console.log(`the quantity of the item is ${item.quantity}`);
+}
+
+const fruit = {
+    name: 'mango',
+    quantity: 50,
+}
+
+const vehicle = {
+    type: 'car',
+    quantity: 50,
+}
+
+const personReusable = {
+    name: 'mario',
+    age: 30,
+}
+
+printQuantity(fruit)
+printQuantity(vehicle)
+//error printQuantity(personReusable)
+
+/**
+ * function signatures
+ */
+
+type Calculator = (numOne: number, numTwo: number) => number
+
+function multiplyTwoNumbers(first: number, second: number){
+    return first * second
+}
+
+function squareNumber(num: number){
+    return num * num
+}
+
+function joinTwoNumbers(numOne: number, numTwo: number){
+    return `${numOne}${numTwo}`
+}
+
+let calcs: Calculator[] = []
+
+calcs.push(multiplyTwoNumbers)
+calcs.push(squareNumber)
+//calcs.push(joinTwoNumbers)
+
+/**
+ * funciton signatures on interfaces
+ */
+
+interface HasArea {
+    name: string
+    calcArea: (a: number) => number
+}
+
+const shapeOne: HasArea = {
+    name: 'square',
+    calcArea(l: number) {
+        return l * l
+    }
+}
+
+const shapeTwo: HasArea = {
+    name: 'circle',
+    calcArea(r: number){
+        return Math.PI * r^2
+    }
+}

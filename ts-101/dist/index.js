@@ -195,4 +195,46 @@ function logDetails(value) {
         console.log(value.firstname, value.age);
     }
 }
+const somethingReusable = { quantity: 50 };
+function printQuantity(item) {
+    console.log(`the quantity of the item is ${item.quantity}`);
+}
+const fruit = {
+    name: 'mango',
+    quantity: 50,
+};
+const vehicle = {
+    type: 'car',
+    quantity: 50,
+};
+const personReusable = {
+    name: 'mario',
+    age: 30,
+};
+printQuantity(fruit);
+printQuantity(vehicle);
+function multiplyTwoNumbers(first, second) {
+    return first * second;
+}
+function squareNumber(num) {
+    return num * num;
+}
+function joinTwoNumbers(numOne, numTwo) {
+    return `${numOne}${numTwo}`;
+}
+let calcs = [];
+calcs.push(multiplyTwoNumbers);
+calcs.push(squareNumber);
+const shapeOne = {
+    name: 'square',
+    calcArea(l) {
+        return l * l;
+    }
+};
+const shapeTwo = {
+    name: 'circle',
+    calcArea(r) {
+        return Math.PI * r ^ 2;
+    }
+};
 //# sourceMappingURL=index.js.map
