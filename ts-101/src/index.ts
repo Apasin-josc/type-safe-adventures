@@ -61,3 +61,19 @@ let person = {
 }
 
 const personAge = person.age
+
+/* 🦔 functions 🦔 */
+
+
+/**
+ * functions
+ */
+
+function addTwoNumbers(a, b){
+    return a + b
+}
+
+
+/**
+ * return type inference
+ */

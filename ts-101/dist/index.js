@@ -45,4 +45,11 @@ let person = {
     age: 28
 };
 const personAge = person.age;
+/* 🦔 functions 🦔 */
+/**
+ * functions
+ */
+/**
+ * return type inference
+ */ 
 //# sourceMappingURL=index.js.map
