@@ -284,7 +284,7 @@ For objects they're nearly interchangeable. Rule of thumb:
 - **`type`** → everything else: unions, tuples, aliases for primitives, functions.
 
 Not worth agonizing over; both work. (They also differ in *how* you extend them —
-`extends` vs `&`, see section 12.)
+`extends` vs `&`, see section 15.)
 
 ---
 
@@ -386,7 +386,149 @@ actions, API responses, loading states...).
 
 ---
 
-## 11. Extending interfaces
+## 11. Reusable interfaces
+
+An interface doesn't have to describe a *whole* object. It can describe just the
+one slice a function actually cares about:
+
+```ts
+interface hasQuantity {
+    quantity: number
+}
+
+function printQuantity(item: hasQuantity): void {
+    console.log(`the quantity of the item is ${item.quantity}`)
+}
+```
+
+Now anything with a `quantity: number` fits, no matter what else it carries:
+
+```ts
+const fruit   = { name: 'mango', quantity: 50 }
+const vehicle = { type: 'car',   quantity: 50 }
+const personReusable = { name: 'mario', age: 30 }
+
+printQuantity(fruit)          // ✅ has quantity (extra 'name' is fine)
+printQuantity(vehicle)        // ✅ has quantity (extra 'type' is fine)
+// printQuantity(personReusable)  ❌ no 'quantity' anywhere
+```
+
+This is structural typing again, but used *deliberately* as a design tool: type the
+**minimum requirement**, not the full object. It's how you write functions that stay
+reusable — `printQuantity` doesn't care about fruit or cars, only about `quantity`.
+
+> Naming nit: interfaces are conventionally PascalCase, so this would usually be
+> `HasQuantity`. Purely cosmetic, TS doesn't care.
+
+### ⚠️ Gotcha: extra properties, variable vs literal
+
+Passing `fruit` works even though it has an extra `name`. But passing the **same
+shape written inline** fails:
+
+```ts
+printQuantity(fruit)                              // ✅
+printQuantity({ name: 'kiwi', quantity: 3 })      // ❌ 'name' does not exist in type 'hasQuantity'
+```
+
+That's the **excess property check**: TS is stricter with fresh object literals passed
+directly to a function, because an extra property there is almost always a typo or a
+misunderstanding. Once the object lives in a variable, TS assumes you know what you're
+doing and only checks that the required parts are present. Confusing the first time
+you hit it — the error looks like a contradiction, but it isn't.
+
+---
+
+## 12. Function signatures
+
+You can type a **function itself** — not what it returns, but its whole shape:
+what it takes in and what it gives back.
+
+```ts
+type Calculator = (numOne: number, numTwo: number) => number
+```
+
+Read it as: "takes two numbers, returns a number". Note the `=>` here is part of the
+*type*, not an arrow function. It says nothing about *how* the function works — any
+implementation matching that shape qualifies.
+
+```ts
+function multiplyTwoNumbers(first: number, second: number) {
+    return first * second
+}
+
+function joinTwoNumbers(numOne: number, numTwo: number) {
+    return `${numOne}${numTwo}`     // returns a string!
+}
+
+let calcs: Calculator[] = []
+
+calcs.push(multiplyTwoNumbers)   // ✅
+// calcs.push(joinTwoNumbers)    ❌ returns string, not number
+```
+
+### The surprising one: fewer parameters is allowed
+
+```ts
+function squareNumber(num: number) {
+    return num * num
+}
+
+calcs.push(squareNumber)   // ✅ ... even though Calculator takes TWO numbers
+```
+
+This isn't a bug. A function that **ignores** arguments it's handed is always safe —
+whoever calls it through `Calculator` passes two numbers, `squareNumber` uses the
+first and drops the second. Nothing breaks. The reverse would be unsafe: a function
+needing *three* params would read an argument nobody passed.
+
+It's the same reason `arr.map(x => x * 2)` works even though `map` hands your callback
+three arguments (item, index, array) — you just take the one you need.
+
+---
+
+## 13. Function signatures inside interfaces
+
+Same idea, used as a property of an object shape:
+
+```ts
+interface HasArea {
+    name: string,
+    calcArea: (a: number) => number
+}
+```
+
+The interface says a `HasArea` must have a name **and** a method taking one number
+and returning a number. What that number *means* is up to each implementation:
+
+```ts
+const shapeOne: HasArea = {
+    name: 'square',
+    calcArea(l: number) {        // l = side length
+        return l * l
+    }
+}
+
+const shapeTwo: HasArea = {
+    name: 'circle',
+    calcArea(r: number) {        // r = radius
+        return Math.PI * r ** 2
+    }
+}
+```
+
+Both satisfy `HasArea` while doing completely different math. That's the payoff of
+typing *shape* instead of implementation — and it's the same pattern as the
+`format(): string` in section 14, just written with the arrow style.
+
+> 🐛 **Bug alert from the source file**: `Math.PI * r^2` compiles, but it's wrong.
+> In JavaScript `^` is **bitwise XOR**, not exponentiation — `5^2` is `7`, not `25`.
+> The exponent operator is `**`, so it must be `r ** 2`. TypeScript can't catch this
+> because XOR between two numbers *is* a valid `number`. A good reminder that types
+> verify shape, never meaning.
+
+---
+
+## 14. Extending interfaces
 
 An interface can build on another one with `extends`. The child gets everything the
 parent has, plus whatever it adds:
@@ -472,7 +614,7 @@ the object literal it's written in.
 
 ---
 
-## 12. Extending type aliases (intersections)
+## 15. Extending type aliases (intersections)
 
 Type aliases can't use `extends`. Their equivalent is `&`, the **intersection**
 operator: "everything from A **and** everything from B".
