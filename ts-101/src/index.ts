@@ -328,3 +328,80 @@ function logDetails(value: UserGuard | PersonGuard): void {
         console.log(value.firstname, value.age)
     }
 }
+
+/* 🦔 extending inferfaces 🦔 */
+
+interface HasFormatter {
+    format(): string
+}
+
+interface Bill extends HasFormatter {
+    id: string | number,
+    amount: number
+    server: string
+}
+
+const userInterface = {
+    id: 1,
+    format(): string{
+        return `This user has an id of ${this.id}`
+    }
+}
+
+const bill = {
+    id: 2,
+    amount: 50,
+    server: 'mario',
+    format(): string {
+        return `bill with id ${this.id} has ${this.amount} to pay`
+    }
+}
+
+function printFormatted(val: HasFormatter): void{
+    console.log(val.format())
+}
+
+printFormatted(userInterface)
+printFormatted(bill)
+
+function printBill(bill: Bill): void {
+    console.log(`server: ${bill.server}`)
+    console.log(bill.format())
+}
+
+//printBill(userInterface)
+printBill(bill)
+
+/* 🦔 extending type aliases 🦔 */
+
+type Person = {
+    id: string | number,
+    firstName: string
+}
+
+type UserAlias = Person & {
+    email: string
+}
+
+const personOne: Person = {
+    id: 1,
+    firstName: 'Mario'
+}
+
+const personTwo: UserAlias = {
+    id: '1',
+    firstName: 'Yoshi',
+    email: 'yoshi@gmail.com'
+}
+
+const personThree = {
+    email: 'peach@gmail.com'
+}
+
+function printUser(user: UserAlias){
+    console.log(`${user.id}, ${user.email}, ${user.firstName}`)
+}
+
+//printUser(personOne)
+printUser(personTwo)
+//printUser(personThree)
