@@ -8,16 +8,17 @@ type Base = 'classic' | 'thick' | 'thin' | 'garlic'
 
 class Pizza {
     //constructor
-    constructor(title: string, price: number){
-        this.title = title
-        this.price = price
+    constructor(private title: string, private price: number){
+        //this.title = title
+        //this.price = price
     }
 
     //properties of the pizza
-    title: string
-    price: number
-    base: Base = 'classic'
-    toppings: string[] = []
+    //access modifiers public | private
+    //private title: string
+    //private price: number
+    private base: Base = 'classic'
+    private toppings: string[] = []
 
     //methods over the pizza class
     addTopping(topping: string): void {
