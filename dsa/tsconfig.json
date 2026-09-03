@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    // Node 26 corre los .ts directo, así que tsc NUNCA emite:
+    // aquí solo type-checkea. No hay dist/.
+    "noEmit": true,
+    "allowImportingTsExtensions": true,   // en ESM los imports llevan './x.ts'
+
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleDetection": "force",           // cada archivo es módulo -> puedes llamarle 'Node' sin chocar con el del DOM
+    "verbatimModuleSyntax": true,         // obliga 'import type' -> Node no deja imports fantasma al borrar tipos
+
+    "strict": true,
+    "erasableSyntaxOnly": true,           // avisa al escribir si usas sintaxis que Node no puede correr
+                                          // (parameter properties, enum, namespace)
+
+    // noUncheckedIndexedAccess a propósito APAGADO:
+    // en sorting/DP indexas arrays mil veces (arr[i] > arr[j], dp[i-1][j])
+    // y volver todo 'T | undefined' estorba más de lo que ayuda.
+
+    "skipLibCheck": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "dsa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "check:watch": "tsc --noEmit --watch"
+  }
+}
