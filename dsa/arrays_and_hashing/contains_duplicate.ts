@@ -4,12 +4,11 @@ class Solution {
      * @return {boolean}
      */
     hasDuplicate(nums: number[]): boolean {
-        let numberSet = new Set<number>();
-        for(let num of nums){
-            if(numberSet.has(num)){
-                return true
-            }
-            numberSet.add(num)
+        let seen_numbers = new Set()
+
+        for(const num of nums){
+            if(seen_numbers.has(num)) return true
+            seen_numbers.add(num)
         }
         return false
     }
