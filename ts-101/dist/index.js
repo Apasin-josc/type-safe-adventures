@@ -237,4 +237,47 @@ const shapeTwo = {
         return Math.PI * r ^ 2;
     }
 };
+const userInterface = {
+    id: 1,
+    format() {
+        return `This user has an id of ${this.id}`;
+    }
+};
+const bill = {
+    id: 2,
+    amount: 50,
+    server: 'mario',
+    format() {
+        return `bill with id ${this.id} has ${this.amount} to pay`;
+    }
+};
+function printFormatted(val) {
+    console.log(val.format());
+}
+printFormatted(userInterface);
+printFormatted(bill);
+function printBill(bill) {
+    console.log(`server: ${bill.server}`);
+    console.log(bill.format());
+}
+//printBill(userInterface)
+printBill(bill);
+const personOne = {
+    id: 1,
+    firstName: 'Mario'
+};
+const personTwo = {
+    id: '1',
+    firstName: 'Yoshi',
+    email: 'yoshi@gmail.com'
+};
+const personThree = {
+    email: 'peach@gmail.com'
+};
+function printUser(user) {
+    console.log(`${user.id}, ${user.email}, ${user.firstName}`);
+}
+//printUser(personOne)
+printUser(personTwo);
+//printUser(personThree)
 //# sourceMappingURL=index.js.map

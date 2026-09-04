@@ -676,25 +676,230 @@ Same advice as section 8: pick one and stay consistent, don't agonize.
 
 ---
 
+## 16. Classes
+
+> 📄 This topic lives in its own file: `src/class.ts`.
+
+A class is a **blueprint for an object**. Instead of writing objects one by one, you
+describe once what they look like and how they behave, then stamp out as many as you
+want with `new`.
+
+```ts
+const pizza = new Pizza('mario special', 15)
+```
+
+### Constructor + access modifiers
+
+The `constructor` runs when you call `new`. **Access modifiers** say who can touch
+each property:
+
+- **`public`** → reachable from anywhere (the default if you write nothing).
+- **`private`** → only reachable *inside* the class.
+
+`title` and `price` are private, so `pizza.title` from outside is an error. That's
+**encapsulation**: the class decides what the outside world gets to see. If someone
+should be able to read it, you expose it deliberately (see the getter below).
+
+### Parameter properties (the shorthand)
+
+This is the trick that makes the class so short:
+
+```ts
+constructor(private title: string, private price: number) {}
+```
+
+Putting a modifier on a constructor parameter declares the property **and** assigns it,
+all in one line. That's why the long version is commented out in the file — these three
+things are equivalent:
+
+```ts
+private title: string          // 1. declare
+constructor(title: string) {
+    this.title = title         // 2. assign
+}
+```
+
+Without a modifier it's just a plain parameter, not a property. The keyword is doing
+the work, not the name.
+
+### Properties with defaults
+
+Not everything comes from the constructor. These start with a value and get changed
+by methods later:
+
+```ts
+private base: Base = 'classic'
+private toppings: string[] = []
+```
+
+Note `Base` is a union of string literals (section 9), reused here as a property type:
+
+```ts
+type Base = 'classic' | 'thick' | 'thin' | 'garlic'
+```
+
+So `pizza.selectBase('garlic')` works and `pizza.selectBase('cheesy')` is caught at
+compile time. Way better than typing it as `string`.
+
+### Methods
+
+Regular functions living inside the class, operating on `this`:
+
+```ts
+addTopping(topping: string): void {
+    this.toppings.push(topping)
+}
+
+removeTopping(topping: string): void {
+    this.toppings = this.toppings.filter((t) => t !== topping)
+}
+```
+
+Since `toppings` is private, **the only way in is through these methods**. Nobody can
+shove garbage into the array from outside — the class controls its own state.
+
+### Getters
+
+A getter looks like a property from the outside, but runs code:
+
+```ts
+get details(): string {
+    return `${this.title} - $ ${this.price}`
+}
+```
+
+Used as `item.details` — **no parentheses**. It's the clean way to expose something
+derived from private data without making the data itself public.
+
+### A class is also a type
+
+This is the part that feels like magic coming from JS. Once `Pizza` exists, you can
+use it as a type:
+
+```ts
+function addMushroomsToPizzas(pizzas: Pizza[]): void {
+    for (const p of pizzas) {
+        p.addTopping('mushrooms')
+    }
+}
+```
+
+`Pizza` is two things at once: a **value** (something you can `new`) and a **type**
+(a shape you can annotate with). No extra interface needed.
+
+---
+
+## 17. Inheritance, `abstract` and `implements`
+
+Three separate ideas that show up together in `class.ts`:
+
+```ts
+abstract class MenuItem implements HasFormatter {
+    constructor(private title: string, private price: number) {}
+    get details(): string { ... }
+    format() { ... }
+}
+
+class Pizza extends MenuItem { ... }
+```
+
+### `extends` — inheritance
+
+`Pizza extends MenuItem` means Pizza gets everything MenuItem has (`details`,
+`format`) for free, and adds its own stuff on top. Shared behavior gets written once
+in the parent; a future `Drink` or `Dessert` would extend the same base.
+
+### `super()`
+
+A child constructor **must** call `super()` before using `this` — it's what runs the
+parent's constructor:
+
+```ts
+constructor(title: string, price: number) {
+    super(title, price)     // 👈 hands them to MenuItem
+}
+```
+
+That's why `this.title = title` is commented out in the file: MenuItem already owns
+those properties. Note the child's params have no modifiers — they're just
+pass-through, the parent declares them.
+
+### `abstract` — a class you can't instantiate
+
+`abstract class MenuItem` means `new MenuItem(...)` is an **error**. It only exists to
+be extended. Which makes sense: a "menu item" isn't a real thing you'd serve — a pizza
+is. It's a base, not a product.
+
+But it still works as a **type**:
+
+```ts
+function printMenuItem(item: MenuItem): void {
+    console.log(item.details)
+}
+
+printMenuItem(pizzaOne)   // ✅ a Pizza IS a MenuItem
+```
+
+### `implements` — the contract check
+
+`implements HasFormatter` doesn't give the class anything. It's a **promise checked
+at compile time**: "this class will have a `format()` returning a string". Delete the
+`format` method and the error points at the class, right where the mistake is.
+
+```ts
+interface HasFormatter {
+    format(): string
+}
+
+function printFormatted(val: HasFormatter): void {
+    console.log(val.format())
+}
+
+printFormatted(pizzaOne)   // ✅
+```
+
+Remember from section 14 that `printFormatted(pizzaOne)` would work **even without**
+`implements`, thanks to structural typing — Pizza has a `format()`, so it fits.
+`implements` is there to catch the mistake early and to document intent, not to make
+the call legal.
+
+**Quick summary of the three:**
+
+| Keyword | Question it answers | Gives you code? |
+|---|---|---|
+| `extends` | where do I inherit from? | ✅ yes |
+| `implements` | what contract do I promise to fulfill? | ❌ no, only checks |
+| `abstract` | can this be instantiated directly? | — blocks `new` |
+
+> 💡 Notice `HasFormatter` and `printFormatted` exist in **both** `index.ts` and
+> `class.ts` with no conflict. Thanks to `moduleDetection: "force"`, each file is its
+> own module with its own scope — so the ugly suffixes I needed inside `index.ts`
+> (`personTup`, `UserGuard`) aren't necessary once topics live in separate files.
+
+---
+
 ## Notes about this project
 
-- Everything lives in **one file** (`src/index.ts`), in the chronological order I
-  learned it, split by `/* 🦔 topic 🦔 */` banners.
-- Since it's a single scope, **names can't repeat**. That's why there are odd
-  suffixes like `personTup`, `userTup`, `UserGuard`, `IdGuard` — it's not style,
-  redeclaring the same name is an actual error.
+- Most of it lives in **one file** (`src/index.ts`), in the chronological order I
+  learned it, split by `/* 🦔 topic 🦔 */` banners. Classes were the first topic to
+  get its own file (`src/class.ts`).
+- Inside a single file **names can't repeat**. That's why there are odd suffixes like
+  `personTup`, `userTup`, `UserGuard`, `IdGuard` — it's not style, redeclaring the
+  same name is an actual error. Across separate files it's a non-issue.
 - Workflow (two terminals):
   ```
-  tsc --watch                  # recompile on save
-  node --watch dist/index.js   # run the output
+  tsc --watch                  # recompiles EVERYTHING under src/
+  node --watch dist/index.js   # run the output (swap for dist/class.js as needed)
   ```
+  `tsc --watch` picks up any new file in `src/` automatically. `node` runs one entry
+  point at a time, so point it at whichever topic you're practicing.
 - `dist/` is in `.gitignore` — it gets regenerated, never edited.
 
 ---
 
 ## What's next 🚀
 
-- Finish "pure" TypeScript: generics, enums, classes, `unknown` vs `any`,
+- Finish "pure" TypeScript: generics, enums, `unknown` vs `any`,
   utility types (`Partial`, `Pick`, `Omit`...).
 - **Node + Express with TypeScript** → typing `req` and `res`, `@types/node`,
   `@types/express`, and finally a real `package.json`.
