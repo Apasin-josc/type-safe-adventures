@@ -23,3 +23,17 @@ function same(arr1: number[], arr2: number[]): boolean{
 
 console.log(same([1,2,3], [1,4,9]))
 
+
+function same_frequency(arr1: number[], arr2: number[]): boolean{
+    
+    const arr1_freq = new Map<number, number>()
+    arr1.forEach(element => {
+           if(!arr1_freq.has(element)){
+                arr1_freq.set(element, 1)
+           }else {
+                arr1_freq.set(element, arr1_freq.get(element)! + 1)
+           }
+    });
+
+    return true
+}
