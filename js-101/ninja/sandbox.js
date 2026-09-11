@@ -99,3 +99,22 @@ console.log(typeof score)
 //let result = String(50)
 let result = Boolean(50) //positive numbers are truthy, negative numbers are falsy
 console.log(result, typeof result)
+
+
+/**
+ * switch brakes
+ * const
+ */
+
+const grade = 'A'
+
+switch(grade){
+    case 'A':
+        console.log('you got an A!');
+    
+    case 'B':
+        console.log('you got an B!');
+    
+    default:
+        console.log('not a valid grade');
+}
