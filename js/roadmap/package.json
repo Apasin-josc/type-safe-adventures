@@ -1,0 +1,19 @@
+{
+  "name": "js-quest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JS Quest: curso personal de JavaScript para DSA, de cero a FAANG",
+  "scripts": {
+    "start": "node server.js",
+    "wifi": "node server.js --wifi",
+    "user": "node tools/users.js",
+    "check": "node check.js",
+    "verify": "node check.js --solutions"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0"
+  }
+}

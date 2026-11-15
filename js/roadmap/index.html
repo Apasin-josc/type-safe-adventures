@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>JS Quest</title>
+    <script>
+      // Aplica el tema antes de pintar nada, para que no haya un parpadeo del tema equivocado.
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('jsquest-theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = t;
+        var l = null;
+        try { l = localStorage.getItem('jsquest-lang'); } catch (e) {}
+        if (l !== 'es' && l !== 'en') l = (navigator.language || 'es').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
+        document.documentElement.lang = l;
+      })();
+    </script>
+    <link rel="stylesheet" href="app/style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="top">
+        <a class="brand" href="#/" title="Inicio"><span class="emblem">⚔</span></a>
+        <a id="play" class="play" href="#/" data-i18n="continue_btn">▶ Continuar</a>
+        <nav id="acts" class="acts" aria-label="Actos" data-i18n-label="acts_label"></nav>
+
+        <div class="top-right">
+          <div class="stat" title="Experiencia" data-i18n-title="xp_title">
+            <span class="stat-label">XP</span>
+            <div class="xp-bar"><i id="xp-fill"></i></div>
+            <span id="xp-text" class="stat-value"></span>
+          </div>
+          <div id="streak" class="streak"></div>
+          <button type="button" id="lang" class="lang-toggle"><span data-l="es">ES</span><span data-l="en">EN</span></button>
+          <button type="button" id="sound" class="theme-toggle"></button>
+          <button type="button" id="theme" class="theme-toggle"></button>
+          <button type="button" id="hero-name" class="profile" title="Ver perfil" data-i18n-title="view_profile">
+            <span class="avatar"><canvas id="avatar" width="9" height="9"></canvas><b id="lvl-num"></b></span>
+            <span class="profile-text"><strong id="hero-label"></strong><small id="lvl-badge"></small></span>
+          </button>
+        </div>
+      </header>
+
+      <nav id="zones" class="zones" aria-label="Zonas" data-i18n-label="zones_label"></nav>
+
+      <footer class="side-foot">
+        <div id="week" class="week-box"></div>
+        <label class="free"><input type="checkbox" id="free-mode" /> <span data-i18n="free_mode">Modo libre (todo desbloqueado)</span></label>
+        <p id="mode" class="mode"></p>
+        <button type="button" id="logout" class="btn ghost logout" hidden data-i18n="logout">Cerrar sesión</button>
+      </footer>
+
+      <main id="main">
+        <section class="scene" aria-label="Escena de aventura" data-i18n-label="scene_label">
+          <canvas id="scene" width="320" height="110"></canvas>
+          <div id="banner" class="banner"></div>
+          <div id="hud-mob" class="hud hud-mob"></div>
+          <div id="hud-hero" class="hud hud-hero"></div>
+          <div id="floats" class="floats" aria-hidden="true"></div>
+        </section>
+        <div id="view" class="view"></div>
+      </main>
+    </div>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <script src="app/core.js"></script>
+    <script src="app/i18n.js"></script>
+    <script src="content/act1.js"></script>
+    <script src="content/act1.en.js"></script>
+    <script src="app/sfx.js"></script>
+    <script src="app/achievements.js"></script>
+    <script src="app/viz.js"></script>
+    <script src="app/editor.js"></script>
+    <script src="app/draw.js"></script>
+    <script src="app/game.js"></script>
+    <script src="app/app.js"></script>
+  </body>
+</html>
