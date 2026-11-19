@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../data/models.dart';
 import '../data/progress.dart';
 import '../ui/chunky.dart';
+import '../ui/dressed.dart';
 import '../ui/i18n.dart';
 import '../ui/salsa.dart';
 import '../ui/sfx.dart';
@@ -280,7 +281,7 @@ class _CourseMapState extends ConsumerState<_CourseMap> with SingleTickerProvide
               return Positioned(
                 left: at.dx - w / 2,
                 top: at.dy - 44 - w * SalsaPainter.vh / SalsaPainter.vw + 10,
-                child: IgnorePointer(child: Salsa(size: w, mood: mood, flip: nextX < -1)),
+                child: IgnorePointer(child: DressedSalsa(size: w, mood: mood, flip: nextX < -1)),
               );
             },
           ),

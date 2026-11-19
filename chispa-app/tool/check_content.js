@@ -19,10 +19,14 @@ const bilingual = (where, v) => {
   if (v && typeof v === 'object' && !Array.isArray(v) && (!v.es || !v.en)) bad(where, 'le falta es o en');
 };
 function run(code, fnName, tests, wrap) {
-  const ctx = { console: { log() {} }, setTimeout, Promise };
+  // Todo (definir y probar) corre dentro de la caja con límite de tiempo, por si hay un loop infinito.
+  const ctx = { console: { log() {} }, setTimeout, Promise, __tests: JSON.parse(JSON.stringify(tests)) };
   vm.createContext(ctx);
-  vm.runInContext(code + `\n;globalThis.__fn = ${wrap ? `(${wrap})` : fnName};`, ctx, { timeout: 2000 });
-  return tests.map((t) => JSON.stringify(ctx.__fn(...JSON.parse(JSON.stringify(t.args)))) === JSON.stringify(t.expect));
+  const src = `${code}
+;globalThis.__fn = ${wrap ? `(${wrap})` : fnName};
+globalThis.__out = __tests.map((t) => JSON.stringify(__fn(...t.args)) === JSON.stringify(t.expect));`;
+  vm.runInContext(src, ctx, { timeout: 2000 });
+  return ctx.__out;
 }
 
 for (const c of global.COURSES) {

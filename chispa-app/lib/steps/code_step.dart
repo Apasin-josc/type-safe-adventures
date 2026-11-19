@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../data/hints.dart';
 import '../data/runner.dart';
 import '../ui/chunky.dart';
 import '../ui/code.dart';
+import '../ui/dressed.dart';
+import '../ui/rich.dart';
+import '../ui/sfx.dart';
 import '../ui/theme.dart';
+import '../ui/voice.dart';
 import 'common.dart';
 
 /// Controlador que pinta el código con colores mientras escribes.
@@ -51,6 +56,13 @@ class _CodeStepState extends State<CodeStep> {
   String status = '';
   bool showSolution = false;
 
+  // Pistas de Salsa (Claude): máximo 3 por reto, y nunca en modo entrevista.
+  static const maxHints = 3;
+  final List<String> hints = [];
+  bool asking = false;
+  String? hintError;
+  final _hintKey = GlobalKey();
+
   List get tests => widget.c.step['tests'] as List;
   String get fnName => widget.c.step['fnName'] as String;
 
@@ -61,6 +73,8 @@ class _CodeStepState extends State<CodeStep> {
     c.retryable = true;
     c.onCheck = _run;
     c.onReveal = () => setState(() => showSolution = true);
+    c.canHint = () => _canHint;
+    c.onHint = _askHint;
     c.setReady(true);
     focus.addListener(() => setState(() {}));
   }
@@ -73,6 +87,60 @@ class _CodeStepState extends State<CodeStep> {
   }
 
   String _call(List args, [Object? label]) => label != null ? widget.c.tx(label) : '$fnName(${args.map(show).join(', ')})';
+
+  /// Lleva la pantalla hasta la burbuja de Salsa.
+  void _reveal() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _hintKey.currentContext;
+        if (ctx != null && ctx.mounted) Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300), alignment: 0.9, curve: Curves.easeOut);
+      });
+
+  bool get _canHint => !widget.c.interview && result != null && !result!.allPass && hints.length < maxHints;
+
+  /// Manda el enunciado, tu código y qué pruebas fallaron; Salsa contesta con una pista corta.
+  Future<void> _askHint() async {
+    if (!_canHint || asking) return;
+    final c = widget.c;
+    final r = result!;
+    final fails = <Map<String, String>>[
+      for (var i = 0; i < r.results.length && i < tests.length; i++)
+        if (!r.results[i].ok)
+          {
+            'call': _call((tests[i] as Map)['args'] as List, (tests[i] as Map)['label']),
+            'expected': show((tests[i] as Map)['expect']),
+            'got': r.results[i].got,
+          },
+    ];
+    HapticFeedback.selectionClick();
+    sfx.play(Sfx.tap);
+    setState(() {
+      asking = true;
+      hintError = null;
+    });
+    _reveal();
+    try {
+      final h = await HintClient.ask(
+        lang: c.lang,
+        prompt: c.tx(c.step['prompt']),
+        code: ctl.text,
+        fails: fails.take(4).toList(),
+        error: r.error == null ? null : status,
+      );
+      if (!mounted) return;
+      setState(() => hints.add(h));
+      _reveal();
+      sfx.play(Sfx.unlock);
+      voice.speak(h, c.lang);
+    } on HintError catch (e) {
+      if (!mounted) return;
+      setState(() => hintError = c.t(switch (e.code) {
+            'offline' || 'token' || 'nokey' || 'rate' => 'hint_${e.code}',
+            _ => 'hint_fail',
+          }));
+      _reveal();
+    } finally {
+      if (mounted) setState(() => asking = false);
+    }
+  }
 
   Future<CheckResult> _run() async {
     final c = widget.c;
@@ -184,9 +252,54 @@ class _CodeStepState extends State<CodeStep> {
           child: Text(result!.logs.join('\n'), style: monoStyle(size: 13, color: p.codeInk)),
         ),
       ],
+      for (final h in hints) _hintBubble(p, h),
+      if (asking) _hintBubble(p, c.t('hint_thinking'), thinking: true),
+      if (hintError != null && !asking)
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(hintError!, style: TextStyle(color: p.bad, fontSize: 14, fontWeight: FontWeight.w700)),
+        ),
+      SizedBox(key: _hintKey, height: 0),
+      if (_canHint && !asking) ...[
+        const SizedBox(height: 10),
+        ChunkyButton(
+          label: hints.isEmpty ? c.t('hint_ask') : c.t('hint_more', [maxHints - hints.length]),
+          kind: ChunkyKind.ghost,
+          onPressed: _askHint,
+        ),
+      ],
       if (showSolution) ...[SmallLabel(c.t('solution')), CodeBlock(c.step['solution'] as String? ?? '', size: 13)],
     ]);
   }
+
+  Widget _hintBubble(Palette p, String text, {bool thinking = false}) => Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          const DressedSalsa(size: 58),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              decoration: BoxDecoration(
+                color: p.surface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
+                  bottomLeft: Radius.circular(4),
+                ),
+                border: Border.all(color: p.accent, width: 2),
+              ),
+              child: thinking
+                  ? Text(text, style: TextStyle(color: p.muted, fontStyle: FontStyle.italic, fontSize: 15))
+                  : Rich(_md(text), style: TextStyle(color: p.ink, fontSize: 15.5, height: 1.35)),
+            ),
+          ),
+        ]),
+      );
+
+  /// Los `backticks` de la pista se ven como código.
+  String _md(String s) => _esc(s).replaceAllMapped(RegExp(r'`([^`]+)`'), (m) => '<code>${m[1]}</code>');
 
   Widget _testRow(Palette p, int i) {
     final tc = tests[i] as Map;

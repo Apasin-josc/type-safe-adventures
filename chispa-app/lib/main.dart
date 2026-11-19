@@ -7,9 +7,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'data/models.dart';
 import 'data/progress.dart';
 import 'screens/course_screen.dart';
+import 'screens/closet_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/interview_screen.dart';
 import 'screens/lesson_screen.dart';
 import 'ui/sfx.dart';
+import 'ui/voice.dart';
 import 'ui/theme.dart';
 
 Future<void> main() async {
@@ -17,7 +20,10 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final courses = await loadCourses(rootBundle);
   await sfx.init();
-  sfx.enabled = LocalProgressRepository(prefs).load().sound;
+  final saved = LocalProgressRepository(prefs).load();
+  sfx.enabled = saved.sound;
+  await voice.init();
+  voice.enabled = saved.voice;
   runApp(ProviderScope(
     overrides: [
       prefsProvider.overrideWithValue(prefs),
@@ -46,6 +52,8 @@ final _router = GoRouter(
         child: LessonScreen(courseId: state.pathParameters['course']!, lessonId: state.pathParameters['lesson']!, mode: PlayMode.practice),
       ),
     ),
+    GoRoute(path: '/interview', pageBuilder: (context, state) => CupertinoLikePage(key: state.pageKey, child: const InterviewScreen())),
+    GoRoute(path: '/closet', pageBuilder: (context, state) => CupertinoLikePage(key: state.pageKey, child: const ClosetScreen())),
     GoRoute(
       path: '/mission',
       pageBuilder: (context, state) => CupertinoLikePage(key: state.pageKey, child: const LessonScreen(mode: PlayMode.mission)),

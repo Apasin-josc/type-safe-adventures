@@ -13,13 +13,14 @@ import '../data/progress.dart';
 import '../steps/common.dart';
 import '../steps/registry.dart';
 import '../ui/chunky.dart';
+import '../ui/dressed.dart';
 import '../ui/i18n.dart';
 import '../ui/rich.dart';
 import '../ui/salsa.dart';
-import '../ui/salsa_face.dart';
 import '../ui/sfx.dart';
 import '../ui/streak.dart';
 import '../ui/theme.dart';
+import '../ui/voice.dart';
 
 const _graded = {'choice', 'tap', 'number', 'fill', 'order', 'code', 'classify'};
 
@@ -148,6 +149,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         }
         HapticFeedback.mediumImpact();
         sfx.correct(attempts == 1 ? combo : 1);
+        voice.say(attempts == 1 && combo >= 3 ? SalsaLine.combo : SalsaLine.correct, lang);
         ctl.onFeedback?.call(true);
         final praise = t('praise').split('|');
         final title = attempts == 1 && combo >= 2 ? t('combo', [combo]) : praise[math.Random().nextInt(praise.length)];
@@ -156,6 +158,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       }
       HapticFeedback.heavyImpact();
       sfx.play(Sfx.wrong);
+      if (attempts == 1) voice.say(SalsaLine.wrong, lang);
       combo = 0;
       ctl.onFeedback?.call(false);
       final msg = r.msg ?? (step['hint'] != null ? tx(step['hint'], lang) : t('wrong_generic'));
@@ -163,6 +166,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       if (ctl.retryable) {
         sheet = _Sheet('bad', t('wrong'), msg, [
           (t('retry'), retry, attempts >= 2 ? ChunkyKind.ghost : ChunkyKind.primary),
+          // Pista de Salsa con Claude: cierra la hoja y la burbuja aparece junto a tu código.
+          if (ctl.canHint?.call() == true)
+            (
+              t('hint_ask'),
+              () {
+                retry();
+                ctl.onHint?.call();
+              },
+              ChunkyKind.ghost,
+            ),
           if (attempts >= 2)
             (
               t('see_solution'),
@@ -196,6 +209,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         notifier.winMission();
     }
     sfx.play(Sfx.complete);
+    Future.delayed(const Duration(milliseconds: 1300), () {
+      voice.say(mode == PlayMode.mission ? SalsaLine.mission : (streakUp ? SalsaLine.streak : SalsaLine.lessonDone), lang);
+    });
     if (streakUp) Future.delayed(const Duration(milliseconds: 1500), () => sfx.play(Sfx.streak));
     finished = true;
     HapticFeedback.mediumImpact();
@@ -221,7 +237,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Salsa(size: 140),
+                const DressedSalsa(size: 140),
                 const SizedBox(height: 16),
                 Text(t('mission_locked'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 20),
@@ -325,7 +341,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   child: SingleChildScrollView(
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Row(children: [
-                        if (s.kind == 'good') const Padding(padding: EdgeInsets.only(right: 10), child: Salsa(size: 62, mood: SalsaMood.cheer)),
+                        if (s.kind == 'good') const Padding(padding: EdgeInsets.only(right: 10), child: DressedSalsa(size: 62, mood: SalsaMood.cheer)),
                         Expanded(child: Text(s.title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: titleColor))),
                       ]),
                       if (s.body.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 6, bottom: 4), child: Rich(s.body, style: const TextStyle(fontSize: 16.5, height: 1.4))),
@@ -366,7 +382,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: Column(children: [
-            const SalsaCelebration(size: 190),
+            const DressedCelebration(size: 190),
             const SizedBox(height: 20),
             Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
             const SizedBox(height: 4),

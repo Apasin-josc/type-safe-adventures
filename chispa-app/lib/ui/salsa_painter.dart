@@ -31,12 +31,13 @@ class SalsaPose {
 /// con el mismo patrón para todo: así no hay costuras y las rayas siguen el mismo pelaje.
 /// [sweater] le pone su suéter gris de cuello de tortuga (para el invierno).
 class SalsaPainter extends CustomPainter {
-  SalsaPainter({this.pose = const SalsaPose(), this.flip = false, this.shadow = true, this.sweater = false});
+  SalsaPainter({this.pose = const SalsaPose(), this.flip = false, this.shadow = true, this.sweater = false, this.ball = false});
 
   final SalsaPose pose;
   final bool flip;
   final bool shadow;
   final bool sweater;
+  final bool ball; // su pelotita de tenis junto a las patas
 
   static const vw = 126.0, vh = 108.0;
   static const ground = 101.0; // donde pisan las patas
@@ -183,6 +184,24 @@ class SalsaPainter extends CustomPainter {
     if (sweater) _sweater(canvas);
 
     canvas.restore();
+
+    // La pelotita se queda en el piso (no se mueve cuando Salsa respira ni cuando salta).
+    if (ball && p.tuck < 0.2) {
+      canvas.save();
+      final sc = math.min(size.width / vw, size.height / vh);
+      canvas.translate((size.width - vw * sc) / 2, size.height - vh * sc);
+      canvas.scale(sc);
+      if (flip) {
+        canvas.translate(vw, 0);
+        canvas.scale(-1, 1);
+      }
+      const c = Offset(112, ground - 3.6);
+      canvas.drawOval(Rect.fromCenter(center: const Offset(112, ground + 1), width: 8, height: 2), _fill(const Color(0x22000000)));
+      canvas.drawCircle(c, 3.8, _fill(const Color(0xFFD7E84A)));
+      canvas.drawArc(Rect.fromCircle(center: c + const Offset(-2.6, 0), radius: 3), -0.9, 1.8, false, _stroke(Colors.white.withValues(alpha: 0.9), 0.7));
+      canvas.drawArc(Rect.fromCircle(center: c + const Offset(2.6, 0), radius: 3), math.pi - 0.9, 1.8, false, _stroke(Colors.white.withValues(alpha: 0.9), 0.7));
+      canvas.restore();
+    }
   }
 
   void _headTransform(Canvas canvas, SalsaPose p) {
@@ -418,6 +437,7 @@ class SalsaPainter extends CustomPainter {
   bool shouldRepaint(SalsaPainter old) =>
       old.flip != flip ||
       old.sweater != sweater ||
+      old.ball != ball ||
       old.shadow != shadow ||
       old.pose.breath != pose.breath ||
       old.pose.blink != pose.blink ||

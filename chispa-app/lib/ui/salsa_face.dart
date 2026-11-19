@@ -17,6 +17,7 @@ class SalsaFacePainter extends CustomPainter {
     this.blink = 1,
     this.tilt = 0,
     this.tongue = 0,
+    this.lens = const [Color(0xFF2B2E45), Color(0xFF0E0F18)],
   });
 
   final double glasses; // 0 = arriba, fuera de la cara; 1 = puestos en los ojos
@@ -25,6 +26,7 @@ class SalsaFacePainter extends CustomPainter {
   final double blink; // 1 abiertos, 0 cerrados
   final double tilt; // radianes, ladea la cabeza
   final double tongue; // 0..1 la lengüita de fuera
+  final List<Color> lens; // color de los lentes (arriba → abajo)
 
   static const vw = 100.0, vh = 112.0;
   static const _bounds = Rect.fromLTWH(-20, -30, vw + 40, vh + 40);
@@ -231,7 +233,7 @@ class SalsaFacePainter extends CustomPainter {
     canvas.drawLine(const Offset(28.4, 43), const Offset(23, 38), _stroke(const Color(0xFF111118), 2.2));
     canvas.drawLine(const Offset(71.6, 43), const Offset(77, 38), _stroke(const Color(0xFF111118), 2.2));
     final lensPaint = Paint()
-      ..shader = ui.Gradient.linear(const Offset(0, 40), const Offset(0, 54), const [Color(0xFF2B2E45), Color(0xFF0E0F18)]);
+      ..shader = ui.Gradient.linear(const Offset(0, 40), const Offset(0, 54), lens);
     canvas.drawRRect(left, lensPaint);
     canvas.drawRRect(right, lensPaint);
     canvas.drawRRect(left, _stroke(const Color(0xFF07070C), 1.6));
@@ -265,14 +267,15 @@ class SalsaFacePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SalsaFacePainter old) =>
-      old.glasses != glasses || old.glint != glint || old.ear != ear || old.blink != blink || old.tilt != tilt || old.tongue != tongue;
+      old.glasses != glasses || old.lens != lens || old.glint != glint || old.ear != ear || old.blink != blink || old.tilt != tilt || old.tongue != tongue;
 }
 
 /// El festejo de fin de lección: Salsa de frente aparece con rebote, se pone los lentes oscuros,
 /// le brillan, levanta las orejas de gusto y cae confeti. Después se queda respirando tranquila.
 class SalsaCelebration extends StatefulWidget {
-  const SalsaCelebration({super.key, this.size = 190});
+  const SalsaCelebration({super.key, this.size = 190, this.lens});
   final double size;
+  final List<Color>? lens; // lentes de color del clóset
   @override
   State<SalsaCelebration> createState() => _SalsaCelebrationState();
 }
@@ -317,7 +320,7 @@ class _SalsaCelebrationState extends State<SalsaCelebration> with SingleTickerPr
           valueListenable: _t,
           builder: (context, t, _) {
             if (reduce) {
-              return Center(child: CustomPaint(size: Size(w, h), painter: SalsaFacePainter(glasses: 1)));
+              return Center(child: CustomPaint(size: Size(w, h), painter: SalsaFacePainter(glasses: 1, lens: widget.lens ?? const [Color(0xFF2B2E45), Color(0xFF0E0F18)])));
             }
             final pop = Curves.elasticOut.transform(_seg(t, 0, 0.7));
             final glasses = Curves.bounceOut.transform(_seg(t, 0.45, 1.1));
@@ -334,7 +337,7 @@ class _SalsaCelebrationState extends State<SalsaCelebration> with SingleTickerPr
                   scale: 0.3 + 0.7 * pop,
                   child: CustomPaint(
                     size: Size(w, h),
-                    painter: SalsaFacePainter(glasses: glasses, glint: glint, ear: earUp.clamp(0, 1), tilt: tilt, tongue: tongue),
+                    painter: SalsaFacePainter(glasses: glasses, glint: glint, ear: earUp.clamp(0, 1), tilt: tilt, tongue: tongue, lens: widget.lens ?? const [Color(0xFF2B2E45), Color(0xFF0E0F18)]),
                   ),
                 ),
               ),
@@ -379,4 +382,11 @@ class _ConfettiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ConfettiPainter old) => old.t != t;
+}
+
+/// Los lentes según lo que Salsa trae puesto.
+List<Color>? lensFor(List<String> equipped) {
+  if (equipped.contains('glasses_gold')) return const [Color(0xFFFFE08A), Color(0xFFB8860B)];
+  if (equipped.contains('glasses_pink')) return const [Color(0xFFFF9EC4), Color(0xFFC2185B)];
+  return null;
 }

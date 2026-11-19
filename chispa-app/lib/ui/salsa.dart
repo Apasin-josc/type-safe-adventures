@@ -13,12 +13,13 @@ enum SalsaMood { idle, jump, cheer }
 /// al saltar y brinca con la lengua de fuera cuando festeja. Todo se calcula con el reloj de la
 /// pantalla, así que se mueve a 60 o 120 cuadros por segundo sin saltos.
 class Salsa extends StatefulWidget {
-  const Salsa({super.key, this.size = 90, this.mood = SalsaMood.idle, this.flip = false});
+  const Salsa({super.key, this.size = 90, this.mood = SalsaMood.idle, this.flip = false, this.sweater = false, this.ball = false});
 
   /// Ancho en pixeles. El alto sale solo (120 × 100).
   final double size;
   final SalsaMood mood;
   final bool flip; // mirando a la izquierda
+  final bool sweater, ball; // lo que trae puesto del clóset
 
   @override
   State<Salsa> createState() => _SalsaState();
@@ -111,7 +112,7 @@ class _SalsaState extends State<Salsa> with SingleTickerProviderStateMixin {
             final (pose, lift) = _pose(t, reduce);
             return Transform.translate(
               offset: Offset(0, lift * w / 120),
-              child: CustomPaint(size: Size(w, h), painter: SalsaPainter(pose: pose, flip: widget.flip, shadow: lift == 0)),
+              child: CustomPaint(size: Size(w, h), painter: SalsaPainter(pose: pose, flip: widget.flip, shadow: lift == 0, sweater: widget.sweater, ball: widget.ball)),
             );
           },
         ),

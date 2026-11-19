@@ -1,0 +1,15 @@
+{
+  "name": "salsa-hints",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidorcito de pistas de Salsa: guarda tu API key de Anthropic en tu Mac y le da pistas a la app",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0"
+  }
+}

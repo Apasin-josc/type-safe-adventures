@@ -26,9 +26,13 @@ class StepController extends ChangeNotifier {
 
   bool ready = false;
   bool retryable = false; // código: reintentos sin límite
+  bool interview = false; // modo entrevista: sin pistas
   Future<CheckResult> Function()? onCheck; // null = pantalla de explorar
   void Function(bool ok)? onFeedback;
   VoidCallback? onReveal;
+  /// Pista de Salsa (solo retos de código): si se puede pedir una ahorita, y cómo pedirla.
+  bool Function()? canHint;
+  VoidCallback? onHint;
   VoidCallback? onSubmit; // lo pone el reproductor: "Enter" en un campo de texto
 
   void setReady(bool v) {

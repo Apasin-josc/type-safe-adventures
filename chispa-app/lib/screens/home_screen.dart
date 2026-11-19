@@ -5,16 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/closet.dart';
 import '../data/mission.dart';
 import '../data/models.dart';
 import '../data/progress.dart';
 import '../ui/chunky.dart';
+import '../ui/dressed.dart';
 import '../ui/i18n.dart';
 import '../ui/salsa.dart';
 import '../ui/sfx.dart';
 import '../ui/streak.dart';
 import '../ui/theme.dart';
 import '../ui/top_bar.dart';
+import '../ui/voice.dart';
 
 /// Un curso que todavía no existe pero ya se ve en el menú.
 class _Soon {
@@ -45,14 +48,108 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  bool _checkedUnlocks = false;
+
+  /// Si desbloqueaste algo para Salsa, te lo enseña una vez.
+  void _maybeShowUnlock(Progress prog, Tr t, String lang) {
+    if (_checkedUnlocks) return;
+    _checkedUnlocks = true;
+    final fresh = newUnlocks(prog);
+    if (fresh.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final n = ref.read(progressProvider.notifier);
+      n.markSeen([for (final i in fresh) i.id]);
+      sfx.play(Sfx.streak);
+      voice.say(SalsaLine.hire, lang);
+      final item = fresh.first;
+      showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: context.pal.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          title: Text(t('unlock_title'), textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w900)),
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(item.icon, style: const TextStyle(fontSize: 56)),
+            const SizedBox(height: 8),
+            Text(item.title[lang] ?? item.title['es']!, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+            if (fresh.length > 1) Text('+${fresh.length - 1}', style: TextStyle(color: context.pal.muted)),
+          ]),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(t('unlock_later'))),
+            FilledButton(
+              onPressed: () {
+                for (final i in fresh) {
+                  n.equip(i.id, true);
+                }
+                Navigator.of(ctx).pop();
+              },
+              child: Text(t('unlock_wear')),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   void _pet() {
     HapticFeedback.mediumImpact();
     sfx.correct(6);
+    voice.say(SalsaLine.hello, ref.read(progressProvider).effectiveLang);
     setState(() => mood = SalsaMood.cheer);
     _calm?.cancel();
     _calm = Timer(const Duration(milliseconds: 2800), () {
       if (mounted) setState(() => mood = SalsaMood.idle);
     });
+  }
+
+  void _settings(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: context.pal.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Consumer(builder: (ctx, ref, _) {
+        final prog = ref.watch(progressProvider);
+        final n = ref.read(progressProvider.notifier);
+        final t = translator(prog.effectiveLang);
+        final dark = Theme.of(context).brightness == Brightness.dark;
+        Widget row(String icon, String label, bool value, ValueChanged<bool> onChanged) => SwitchListTile.adaptive(
+              value: value,
+              onChanged: (v) {
+                HapticFeedback.selectionClick();
+                onChanged(v);
+              },
+              title: Text('$icon  $label', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            );
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              row('🔊', t('set_sound'), prog.sound, (v) {
+                sfx.enabled = v;
+                n.setSound(v);
+              }),
+              row('🗣️', t('set_voice'), prog.voice, (v) {
+                voice.enabled = v;
+                n.setVoice(v);
+                if (v) voice.say(SalsaLine.hello, prog.effectiveLang);
+              }),
+              row('🌙', t('set_dark'), dark, (v) => n.setTheme(v ? 'dark' : 'light')),
+              ListTile(
+                title: Text('👕  ${t('closet')}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  context.go('/closet');
+                },
+              ),
+            ]),
+          ),
+        );
+      }),
+    );
   }
 
   @override
@@ -63,8 +160,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final lang = prog.effectiveLang;
     final t = translator(lang);
     final st = prog.streak();
-    final dark = Theme.of(context).brightness == Brightness.dark;
     final notifier = ref.read(progressProvider.notifier);
+    _maybeShowUnlock(prog, t, lang);
 
     return Scaffold(
       body: SafeArea(
@@ -84,16 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               const SizedBox(width: 6),
               Pill(label: 'ES / EN', onTap: () => notifier.setLang(lang == 'es' ? 'en' : 'es'), child: Text(lang.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w900))),
               const SizedBox(width: 6),
-              Pill(
-                label: prog.sound ? 'Sound on' : 'Sound off',
-                onTap: () {
-                  sfx.enabled = !prog.sound;
-                  notifier.setSound(!prog.sound);
-                },
-                child: Text(prog.sound ? '🔊' : '🔇'),
-              ),
-              const SizedBox(width: 6),
-              Pill(label: 'Theme', onTap: () => notifier.setTheme(dark ? 'light' : 'dark'), child: Text(dark ? '☀️' : '🌙')),
+              Pill(label: t('settings'), onTap: () => _settings(context), child: const Text('⚙️')),
             ]),
           ),
           Expanded(
@@ -105,7 +193,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     // Salsa y su globito
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      GestureDetector(onTap: _pet, child: Salsa(size: 150, mood: mood)),
+                      GestureDetector(onTap: _pet, child: DressedSalsa(size: 150, mood: mood)),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Padding(
@@ -125,6 +213,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     const SizedBox(height: 14),
                     _MissionCard(prog: prog, courses: courses, t: t),
+                    const SizedBox(height: 12),
+                    _InterviewCard(prog: prog, t: t),
                     const SizedBox(height: 22),
                     Text(t('courses').toUpperCase(), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 1, color: p.faint)),
                     const SizedBox(height: 10),
@@ -339,6 +429,43 @@ class _MissionCard extends StatelessWidget {
           const SizedBox(height: 12),
           ChunkyButton(label: t('mission_go'), onPressed: () => context.go('/mission')),
         ],
+      ]),
+    );
+  }
+}
+
+/// El modo entrevista: un problema con cronómetro, sin pistas, y la pregunta de complejidad.
+class _InterviewCard extends StatelessWidget {
+  const _InterviewCard({required this.prog, required this.t});
+  final Progress prog;
+  final Tr t;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final hires = prog.interviews.where((v) => v != 'no').length;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        color: p.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: p.sel, width: 2),
+        boxShadow: [BoxShadow(color: p.selSoft, offset: const Offset(0, 4))],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Text('🎤', style: TextStyle(fontSize: 28)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(t('interview'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+              Text(prog.interviews.isEmpty ? t('interview_desc') : t('interview_record', [hires, prog.interviews.length]),
+                  style: TextStyle(fontSize: 13.5, color: p.muted, fontWeight: FontWeight.w600, height: 1.3)),
+            ]),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        ChunkyButton(label: t('interview_go'), color: p.sel, textColor: Colors.white, shadowColor: p.sel.withValues(alpha: 0.6), onPressed: () => context.go('/interview')),
       ]),
     );
   }

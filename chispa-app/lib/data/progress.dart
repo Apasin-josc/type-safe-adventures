@@ -35,7 +35,7 @@ class Hop {
 
 /// Todo lo que la app recuerda de ti.
 class Progress {
-  const Progress({this.done = const {}, this.days = const [], this.lang, this.theme, this.hop, this.sound = true, this.missed = const {}, this.missions = const []});
+  const Progress({this.done = const {}, this.days = const [], this.lang, this.theme, this.hop, this.sound = true, this.missed = const {}, this.missions = const [], this.voice = true, this.interviews = const [], this.equipped = const [], this.seenUnlocks = const []});
 
   final Map<String, LessonResult> done;
   final List<String> days; // días que estudiaste, 'yyyy-mm-dd'
@@ -45,8 +45,12 @@ class Progress {
   final bool sound; // sonidos prendidos
   final Map<String, ReviewItem> missed; // preguntas falladas → su caja de repaso
   final List<String> missions; // días con la misión del día cumplida
+  final bool voice; // la voz de Salsa
+  final List<String> interviews; // resultados del modo entrevista: 'strong' | 'hire' | 'no'
+  final List<String> equipped; // lo que trae puesto Salsa (suéter, pelota, lentes)
+  final List<String> seenUnlocks; // premios que ya te avisamos
 
-  Progress copyWith({Map<String, LessonResult>? done, List<String>? days, String? lang, String? theme, Hop? hop, bool? sound, Map<String, ReviewItem>? missed, List<String>? missions, bool clearHop = false}) =>
+  Progress copyWith({Map<String, LessonResult>? done, List<String>? days, String? lang, String? theme, Hop? hop, bool? sound, Map<String, ReviewItem>? missed, List<String>? missions, bool? voice, List<String>? interviews, List<String>? equipped, List<String>? seenUnlocks, bool clearHop = false}) =>
       Progress(
         done: done ?? this.done,
         days: days ?? this.days,
@@ -56,6 +60,10 @@ class Progress {
         sound: sound ?? this.sound,
         missed: missed ?? this.missed,
         missions: missions ?? this.missions,
+        voice: voice ?? this.voice,
+        interviews: interviews ?? this.interviews,
+        equipped: equipped ?? this.equipped,
+        seenUnlocks: seenUnlocks ?? this.seenUnlocks,
       );
 
   Map<String, dynamic> toJson() => {
@@ -68,6 +76,10 @@ class Progress {
         'sound': sound,
         if (missed.isNotEmpty) 'missed': missed.map((k, v) => MapEntry(k, v.toJson())),
         if (missions.isNotEmpty) 'missions': missions,
+        'voice': voice,
+        if (interviews.isNotEmpty) 'interviews': interviews,
+        if (equipped.isNotEmpty) 'equipped': equipped,
+        if (seenUnlocks.isNotEmpty) 'seenUnlocks': seenUnlocks,
       };
 
   factory Progress.fromJson(Map<String, dynamic> j) => Progress(
@@ -84,6 +96,10 @@ class Progress {
           for (final e in (j['missed'] as Map? ?? const {}).entries) e.key as String: ReviewItem.fromJson(e.value as Map),
         },
         missions: [for (final d in (j['missions'] as List? ?? const [])) d as String],
+        voice: j['voice'] != false,
+        interviews: [for (final d in (j['interviews'] as List? ?? const [])) d as String],
+        equipped: [for (final d in (j['equipped'] as List? ?? const [])) d as String],
+        seenUnlocks: [for (final d in (j['seenUnlocks'] as List? ?? const [])) d as String],
       );
 
   String get effectiveLang => lang ?? (PlatformDispatcher.instance.locale.languageCode == 'es' ? 'es' : 'en');
@@ -105,6 +121,19 @@ class Progress {
           return (d, set.contains(dayKey(d)));
         }(),
     ];
+  }
+
+  /// La racha más larga que has tenido.
+  int get bestStreak {
+    final sorted = days.map(DateTime.parse).toList()..sort();
+    var best = 0, run = 0;
+    DateTime? prev;
+    for (final d in sorted) {
+      run = (prev != null && d.difference(prev).inDays == 1) ? run + 1 : 1;
+      if (prev == null || d != prev) best = run > best ? run : best;
+      prev = d;
+    }
+    return best;
   }
 
   int streak([DateTime? now]) {
@@ -212,6 +241,18 @@ class ProgressNotifier extends Notifier<Progress> {
 
   /// Practicar también cuenta para la racha.
   void touchDay() => _set(state.copyWith(days: _withToday()));
+
+  void setVoice(bool on) => _set(state.copyWith(voice: on));
+
+  /// Resultado del modo entrevista ('strong' | 'hire' | 'no'). Cuenta para la racha.
+  void recordInterview(String verdict) => _set(state.copyWith(interviews: [...state.interviews, verdict], days: _withToday()));
+
+  void equip(String item, bool on) {
+    final next = [...state.equipped.where((e) => e != item && !(item.startsWith('glasses') && e.startsWith('glasses'))), if (on) item];
+    _set(state.copyWith(equipped: next));
+  }
+
+  void markSeen(List<String> items) => _set(state.copyWith(seenUnlocks: {...state.seenUnlocks, ...items}.toList()));
 
   /// Guarda una lección terminada. Si era nueva y hay otra después, deja pendiente el salto de Salsa.
   void completeLesson(Course c, Lesson l, int acc) {
