@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f1e7" />
+    <title>SauceCode</title>
+    <script>
+      // Aplica el tema antes de pintar, para que no parpadee.
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('chispa-theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <link rel="stylesheet" href="app/style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="app/hl.js"></script>
+    <script src="app/editor.js"></script>
+    <script src="app/runner.js"></script>
+    <script src="app/salsa.js"></script>
+    <script src="app/widgets.js"></script>
+    <script src="content/algorithms.js"></script>
+    <script src="content/javascript.js"></script>
+    <script src="content/algorithms.more.js"></script>
+    <script src="content/javascript.more.js"></script>
+    <script src="app/app.js"></script>
+  </body>
+</html>

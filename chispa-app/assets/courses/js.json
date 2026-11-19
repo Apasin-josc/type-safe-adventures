@@ -1,0 +1,3016 @@
+{
+ "id": "js",
+ "icon": "🟨",
+ "colors": [
+  "#C98500",
+  "#8C4A12",
+  "#5E300B"
+ ],
+ "title": {
+  "es": "JavaScript a fondo",
+  "en": "JavaScript in depth"
+ },
+ "blurb": {
+  "es": "El lenguaje de punta a punta, en el orden de javascript.info: de variables y tipos a objetos, closures, clases y async. Cada lección te deja el link para leer más.",
+  "en": "The whole language, in javascript.info’s order: from variables and types to objects, closures, classes and async. Every lesson links to the chapter to read more."
+ },
+ "soon": [
+  {
+   "icon": "🔄",
+   "title": {
+    "es": "Iteradores y generadores",
+    "en": "Iterators and generators"
+   }
+  },
+  {
+   "icon": "📦",
+   "title": {
+    "es": "Módulos",
+    "en": "Modules"
+   }
+  }
+ ],
+ "lessons": [
+  {
+   "id": "variables",
+   "icon": "📦",
+   "title": {
+    "es": "Cajas con etiqueta",
+    "en": "Labeled boxes"
+   },
+   "blurb": {
+    "es": "let, const y por qué ya casi nadie usa var",
+    "en": "let, const and why almost nobody uses var anymore"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Variables",
+      "en": "Variables"
+     },
+     "url": "https://javascript.info/variables"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Una caja con su etiqueta",
+      "en": "A box with a label"
+     },
+     "code": "let message = 'hola';\nmessage = 'adiós';",
+     "body": {
+      "es": "<p>Una <b>variable</b> es una caja con una etiqueta. <code>let</code> crea la caja, y <code>=</code> guarda algo adentro.</p><p>Con <code>let</code> puedes cambiar lo que hay en la caja cuantas veces quieras. Con <code>const</code>, la caja queda sellada.</p>",
+      "en": "<p>A <b>variable</b> is a box with a label. <code>let</code> creates the box, and <code>=</code> puts something in it.</p><p>With <code>let</code> you can change what’s inside as often as you like. With <code>const</code>, the box is sealed.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué vale <code>b</code> al final?",
+      "en": "What is <code>b</code> at the end?"
+     },
+     "code": "let a = 1;\na = 2;\nlet b = a;\na = 3;\nb",
+     "options": [
+      "<code>1</code>",
+      "<code>2</code>",
+      "<code>3</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "2": {
+       "es": "Cuando hiciste <code>let b = a</code>, <code>b</code> recibió una <b>copia</b> del 2. Cambiar <code>a</code> después no toca a <code>b</code>.",
+       "en": "When you did <code>let b = a</code>, <code>b</code> got a <b>copy</b> of 2. Changing <code>a</code> later doesn’t touch <code>b</code>."
+      }
+     },
+     "explain": {
+      "es": "Con números, textos y booleanos, <code>=</code> copia el valor. Cada caja tiene el suyo. (Con objetos es distinto: lo verás en la unidad de objetos.)",
+      "en": "With numbers, strings and booleans, <code>=</code> copies the value. Each box has its own. (Objects behave differently: you’ll see that in the objects unit.)"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué pasa al correr esto?",
+      "en": "What happens when this runs?"
+     },
+     "code": "const PI = 3.14;\nPI = 3;",
+     "options": [
+      {
+       "es": "<code>PI</code> ahora vale 3",
+       "en": "<code>PI</code> is now 3"
+      },
+      {
+       "es": "Error: no se puede reasignar una constante",
+       "en": "Error: you can’t reassign a constant"
+      },
+      {
+       "es": "No pasa nada, se queda en 3.14",
+       "en": "Nothing, it stays 3.14"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "2": {
+       "es": "JavaScript no lo ignora en silencio: lanza un <code>TypeError</code>.",
+       "en": "JavaScript doesn’t silently ignore it: it throws a <code>TypeError</code>."
+      }
+     },
+     "explain": {
+      "es": "<code>const</code> prohíbe volver a usar <code>=</code> con esa variable: lanza <code>TypeError: Assignment to constant variable</code>. Úsala por defecto, y <code>let</code> solo cuando de verdad vayas a cambiar el valor.",
+      "en": "<code>const</code> forbids using <code>=</code> on that variable again: it throws <code>TypeError: Assignment to constant variable</code>. Use it by default, and <code>let</code> only when you really will change the value."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Y con un objeto, ¿qué vale <code>user.name</code>?",
+      "en": "And with an object, what is <code>user.name</code>?"
+     },
+     "code": "const user = { name: 'Ana' };\nuser.name = 'Luz';\nuser.name",
+     "options": [
+      "<code>'Ana'</code>",
+      "<code>'Luz'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "2": {
+       "es": "<code>const</code> prohíbe <code>user = otraCosa</code>, pero no cambiar lo que hay <b>dentro</b> del objeto.",
+       "en": "<code>const</code> forbids <code>user = somethingElse</code>, but not changing what’s <b>inside</b> the object."
+      }
+     },
+     "explain": {
+      "es": "La caja <code>user</code> está sellada: siempre apunta al mismo objeto. Pero el objeto en sí se puede modificar. Es la confusión número uno con <code>const</code>.",
+      "en": "The <code>user</code> box is sealed: it always points to the same object. But the object itself can change. It’s the number one confusion about <code>const</code>."
+     }
+    },
+    {
+     "type": "classify",
+     "prompt": {
+      "es": "¿Cuáles nombres de variable son válidos?",
+      "en": "Which variable names are valid?"
+     },
+     "bins": [
+      {
+       "es": "Válido",
+       "en": "Valid"
+      },
+      {
+       "es": "No válido",
+       "en": "Invalid"
+      }
+     ],
+     "items": [
+      {
+       "label": "<code>userName</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>2nd</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>$price</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>_count</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>my-name</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>let</code>",
+       "bin": 1
+      }
+     ],
+     "explain": {
+      "es": "Un nombre puede tener letras, números, <code>$</code> y <code>_</code>, pero <b>no puede empezar con número</b>. El guion se leería como resta, y las palabras reservadas (<code>let</code>, <code>class</code>, <code>return</code>…) no se valen.",
+      "en": "A name can have letters, digits, <code>$</code> and <code>_</code>, but it <b>can’t start with a digit</b>. A dash would read as minus, and reserved words (<code>let</code>, <code>class</code>, <code>return</code>…) aren’t allowed."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué imprime?",
+      "en": "What does it print?"
+     },
+     "code": "console.log(x);\nlet x = 5;",
+     "options": [
+      "<code>undefined</code>",
+      "<code>5</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 2,
+     "why": {
+      "0": {
+       "es": "Eso pasaría con <code>var</code>, la forma vieja. Con <code>let</code>, la variable no se puede usar antes de su línea.",
+       "en": "That’s what <code>var</code>, the old way, would do. With <code>let</code>, the variable can’t be used before its line."
+      }
+     },
+     "explain": {
+      "es": "Antes de <code>let x</code>, la variable está en la \"zona muerta temporal\": usarla lanza <code>ReferenceError</code>. Es una ventaja: los errores salen pronto en lugar de un <code>undefined</code> misterioso.",
+      "en": "Before <code>let x</code>, the variable is in the \"temporal dead zone\": using it throws <code>ReferenceError</code>. That’s a feature: bugs show up early instead of as a mystery <code>undefined</code>."
+     }
+    },
+    {
+     "type": "fill",
+     "prompt": {
+      "es": "¿<code>let</code> o <code>const</code>? Escoge el que funciona.",
+      "en": "<code>let</code> or <code>const</code>? Pick the one that works."
+     },
+     "code": "[[0]] total = 0;\nfor (let i = 1; i <= 3; i++) {\n  total = total + i;\n}",
+     "chips": [
+      "const",
+      "let"
+     ],
+     "answers": [
+      "let"
+     ],
+     "hint": {
+      "es": "Fíjate si a <code>total</code> se le vuelve a asignar algo con <code>=</code>.",
+      "en": "Check whether <code>total</code> gets assigned again with <code>=</code>."
+     },
+     "explain": {
+      "es": "<code>total</code> cambia en cada vuelta, así que necesita <code>let</code>. Con <code>const</code>, la primera vuelta lanzaría un error.",
+      "en": "<code>total</code> changes on every lap, so it needs <code>let</code>. With <code>const</code>, the first lap would throw an error."
+     }
+    },
+    {
+     "type": "number",
+     "prompt": {
+      "es": "¿Cuánto vale <code>x</code> al final?",
+      "en": "What is <code>x</code> at the end?"
+     },
+     "code": "let x = 10;\nx = x * 2;\nx = x - 5;",
+     "answer": 15,
+     "hint": {
+      "es": "Ve línea por línea: cada una usa el valor que dejó la anterior.",
+      "en": "Go line by line: each one uses the value left by the previous one."
+     },
+     "explain": {
+      "es": "10 → 20 → 15. Cada <code>=</code> reemplaza lo que había en la caja.",
+      "en": "10 → 20 → 15. Each <code>=</code> replaces what was in the box."
+     }
+    }
+   ]
+  },
+  {
+   "id": "types",
+   "icon": "🧪",
+   "title": {
+    "es": "Ocho tipos de datos",
+    "en": "Eight data types"
+   },
+   "blurb": {
+    "es": "typeof, NaN, Infinity y los textos con backticks",
+    "en": "typeof, NaN, Infinity and backtick strings"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Tipos de datos",
+      "en": "Data types"
+     },
+     "url": "https://javascript.info/types"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Todo valor tiene un tipo",
+      "en": "Every value has a type"
+     },
+     "body": {
+      "es": "<p>JavaScript tiene <b>8 tipos</b>. Siete son <b>primitivos</b>, valores simples que no se pueden partir: <code>number</code>, <code>bigint</code>, <code>string</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code> y <code>symbol</code>.</p><p>El octavo es <code>object</code>, y ahí caben arrays, funciones, fechas… todo lo demás.</p>",
+      "en": "<p>JavaScript has <b>8 types</b>. Seven are <b>primitives</b>, simple values you can’t split: <code>number</code>, <code>bigint</code>, <code>string</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code> and <code>symbol</code>.</p><p>The eighth is <code>object</code>, and it holds arrays, functions, dates… everything else.</p>"
+     }
+    },
+    {
+     "type": "classify",
+     "prompt": {
+      "es": "¿Primitivo u objeto?",
+      "en": "Primitive or object?"
+     },
+     "bins": [
+      {
+       "es": "Primitivo",
+       "en": "Primitive"
+      },
+      {
+       "es": "Objeto",
+       "en": "Object"
+      }
+     ],
+     "items": [
+      {
+       "label": "<code>'hola'</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>[1, 2]</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>null</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>{}</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>function () {}</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>42n</code>",
+       "bin": 0
+      }
+     ],
+     "explain": {
+      "es": "Arrays y funciones son objetos con superpoderes. <code>42n</code> es un <code>bigint</code> (enteros gigantes) y <code>null</code> es su propio tipo primitivo, aunque <code>typeof</code> diga otra cosa…",
+      "en": "Arrays and functions are objects with superpowers. <code>42n</code> is a <code>bigint</code> (huge integers) and <code>null</code> is its own primitive type, even if <code>typeof</code> says otherwise…"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué devuelve?",
+      "en": "What does it return?"
+     },
+     "code": "typeof null",
+     "options": [
+      "<code>'null'</code>",
+      "<code>'object'</code>",
+      "<code>'undefined'</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Sería lo lógico… pero no.",
+       "en": "That would make sense… but no."
+      }
+     },
+     "explain": {
+      "es": "Es un error famoso de 1995 que nunca se arregló para no romper la web. <code>null</code> <b>no</b> es un objeto. Para revisarlo, compara directo: <code>x === null</code>.",
+      "en": "It’s a famous bug from 1995 that was never fixed so the web wouldn’t break. <code>null</code> is <b>not</b> an object. To check for it, compare directly: <code>x === null</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y con una función?",
+      "en": "And with a function?"
+     },
+     "code": "typeof function () {}",
+     "options": [
+      "<code>'object'</code>",
+      "<code>'function'</code>",
+      "<code>'undefined'</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Las funciones son objetos, pero <code>typeof</code> las distingue con <code>'function'</code> porque es muy útil saber si algo se puede llamar.",
+      "en": "Functions are objects, but <code>typeof</code> reports <code>'function'</code> because it’s handy to know whether something is callable."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué da dividir entre cero?",
+      "en": "What does dividing by zero give?"
+     },
+     "code": "1 / 0",
+     "options": [
+      {
+       "es": "Error",
+       "en": "An error"
+      },
+      "<code>Infinity</code>",
+      "<code>NaN</code>",
+      "<code>0</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "En otros lenguajes, sí. JavaScript no se rompe con matemáticas: te da un número especial.",
+       "en": "In other languages, yes. JavaScript doesn’t crash on math: it gives you a special number."
+      },
+      "2": {
+       "es": "<code>NaN</code> sale de operaciones sin sentido, como <code>0 / 0</code>. Esto sí tiene sentido: crece sin límite.",
+       "en": "<code>NaN</code> comes from meaningless operations like <code>0 / 0</code>. This one makes sense: it grows without limit."
+      }
+     },
+     "explain": {
+      "es": "<code>Infinity</code> es un <code>number</code> de verdad: <code>Infinity > 1000</code> es <code>true</code>. Las matemáticas en JavaScript nunca lanzan errores.",
+      "en": "<code>Infinity</code> is a real <code>number</code>: <code>Infinity > 1000</code> is <code>true</code>. Math in JavaScript never throws."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué da multiplicar un texto?",
+      "en": "What does multiplying a string give?"
+     },
+     "code": "'hola' * 2",
+     "options": [
+      "<code>NaN</code>",
+      "<code>'holahola'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "Eso es Python. En JavaScript, <code>*</code> convierte todo a número, y <code>'hola'</code> no es un número.",
+       "en": "That’s Python. In JavaScript, <code>*</code> turns everything into a number, and <code>'hola'</code> isn’t one."
+      }
+     },
+     "explain": {
+      "es": "<code>NaN</code> (\"Not a Number\") es el resultado de una cuenta imposible, y es contagioso: <code>NaN + 1</code> también es <code>NaN</code>. Ojo: <code>NaN === NaN</code> es <code>false</code>; usa <code>Number.isNaN(x)</code>.",
+      "en": "<code>NaN</code> (\"Not a Number\") is the result of an impossible calculation, and it’s contagious: <code>NaN + 1</code> is <code>NaN</code> too. Careful: <code>NaN === NaN</code> is <code>false</code>; use <code>Number.isNaN(x)</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué texto sale de la segunda línea?",
+      "en": "What string does the second line give?"
+     },
+     "code": "const name = 'Salsa';\n'Hola, ${name}!'",
+     "options": [
+      "<code>'Hola, Salsa!'</code>",
+      "<code>'Hola, ${name}!'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Eso pasaría con backticks: <code>`Hola, ${name}!`</code>. Con comillas simples, <code>${name}</code> es texto normal.",
+       "en": "That’s what backticks would do: <code>`Hola, ${name}!`</code>. With single quotes, <code>${name}</code> is just text."
+      }
+     },
+     "explain": {
+      "es": "Solo los textos entre <b>backticks</b> (<code>`…`</code>) meten valores con <code>${…}</code>. Las comillas simples y dobles son iguales entre sí y no hacen esa magia.",
+      "en": "Only <b>backtick</b> strings (<code>`…`</code>) embed values with <code>${…}</code>. Single and double quotes are equivalent and don’t do that magic."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "La pregunta de entrevista clásica:",
+      "en": "The classic interview question:"
+     },
+     "code": "0.1 + 0.2 === 0.3",
+     "options": [
+      "<code>true</code>",
+      "<code>false</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Los números se guardan en binario, y 0.1 no tiene representación exacta: la suma da <code>0.30000000000000004</code>. Para comparar decimales usa una tolerancia: <code>Math.abs(a - b) &lt; Number.EPSILON</code>.",
+      "en": "Numbers are stored in binary, and 0.1 has no exact representation: the sum is <code>0.30000000000000004</code>. To compare decimals use a tolerance: <code>Math.abs(a - b) &lt; Number.EPSILON</code>."
+     }
+    }
+   ]
+  },
+  {
+   "id": "conversions",
+   "icon": "⚖️",
+   "title": {
+    "es": "Conversiones y comparaciones",
+    "en": "Conversions and comparisons"
+   },
+   "blurb": {
+    "es": "Cuándo JavaScript cambia tus tipos sin avisar",
+    "en": "When JavaScript changes your types without asking"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Conversiones de tipo",
+      "en": "Type conversions"
+     },
+     "url": "https://javascript.info/type-conversions"
+    },
+    {
+     "title": {
+      "es": "Comparaciones",
+      "en": "Comparisons"
+     },
+     "url": "https://javascript.info/comparison"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "JavaScript convierte por ti",
+      "en": "JavaScript converts for you"
+     },
+     "body": {
+      "es": "<p>Cuando mezclas tipos, JavaScript convierte solo:</p><p>• con <code>+</code> y un texto, todo se vuelve <b>texto</b>;<br>• con <code>-</code>, <code>*</code>, <code>/</code>, todo se vuelve <b>número</b>;<br>• en un <code>if</code>, todo se vuelve <b>booleano</b>.</p><p>Conocer estas tres reglas te ahorra horas de bugs.</p>",
+      "en": "<p>When you mix types, JavaScript converts on its own:</p><p>• with <code>+</code> and a string, everything becomes a <b>string</b>;<br>• with <code>-</code>, <code>*</code>, <code>/</code>, everything becomes a <b>number</b>;<br>• in an <code>if</code>, everything becomes a <b>boolean</b>.</p><p>Knowing these three rules saves you hours of bugs.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué da?",
+      "en": "What does it give?"
+     },
+     "code": "'5' + 1",
+     "options": [
+      "<code>6</code>",
+      "<code>'51'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Con <code>+</code>, si uno de los dos es texto, gana el texto: se pegan.",
+       "en": "With <code>+</code>, if either side is a string, the string wins: they get glued."
+      }
+     },
+     "explain": {
+      "es": "<code>+</code> con un texto concatena: <code>'5' + 1</code> es <code>'51'</code>.",
+      "en": "<code>+</code> with a string concatenates: <code>'5' + 1</code> is <code>'51'</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y con resta?",
+      "en": "And with minus?"
+     },
+     "code": "'5' - 1",
+     "options": [
+      "<code>4</code>",
+      "<code>'51'</code>",
+      "<code>NaN</code>"
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "Restar textos no tiene sentido, así que <code>-</code> convierte a número.",
+       "en": "Subtracting strings makes no sense, so <code>-</code> converts to numbers."
+      }
+     },
+     "explain": {
+      "es": "<code>-</code> solo sabe de números: convierte <code>'5'</code> a 5 y da 4. Por eso <code>+</code> es el raro: es el único que también pega textos.",
+      "en": "<code>-</code> only knows numbers: it turns <code>'5'</code> into 5 and gives 4. That’s why <code>+</code> is the odd one: it’s the only one that also glues strings."
+     }
+    },
+    {
+     "type": "classify",
+     "prompt": {
+      "es": "En un <code>if</code>, ¿cuáles cuentan como verdadero?",
+      "en": "In an <code>if</code>, which count as true?"
+     },
+     "bins": [
+      {
+       "es": "Verdadero (truthy)",
+       "en": "True (truthy)"
+      },
+      {
+       "es": "Falso (falsy)",
+       "en": "False (falsy)"
+      }
+     ],
+     "items": [
+      {
+       "label": "<code>0</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>'0'</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>''</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>' '</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>[]</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>null</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>NaN</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>'false'</code>",
+       "bin": 0
+      }
+     ],
+     "explain": {
+      "es": "La lista de falsos es corta y vale la pena memorizarla: <code>false</code>, <code>0</code>, <code>''</code>, <code>null</code>, <code>undefined</code> y <code>NaN</code>. <b>Todo lo demás</b> es verdadero, incluso <code>'0'</code>, <code>'false'</code> y un array vacío.",
+      "en": "The falsy list is short and worth memorizing: <code>false</code>, <code>0</code>, <code>''</code>, <code>null</code>, <code>undefined</code> and <code>NaN</code>. <b>Everything else</b> is truthy, even <code>'0'</code>, <code>'false'</code> and an empty array."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué número sale de un texto vacío?",
+      "en": "What number comes out of an empty string?"
+     },
+     "code": "Number('')",
+     "options": [
+      "<code>NaN</code>",
+      "<code>0</code>",
+      "<code>undefined</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Sería lo lógico, pero JavaScript trata el texto vacío (o puros espacios) como 0.",
+       "en": "That would make sense, but JavaScript treats an empty (or all-spaces) string as 0."
+      }
+     },
+     "explain": {
+      "es": "<code>Number('')</code> y <code>Number('   ')</code> dan <code>0</code>, mientras que <code>Number('12px')</code> da <code>NaN</code>. Si validas formularios, revisa el texto vacío aparte.",
+      "en": "<code>Number('')</code> and <code>Number('   ')</code> give <code>0</code>, while <code>Number('12px')</code> gives <code>NaN</code>. When validating forms, check the empty string separately."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Verdadero o falso?",
+      "en": "True or false?"
+     },
+     "code": "'2' > '12'",
+     "options": [
+      "<code>true</code>",
+      "<code>false</code>"
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "Con números sí sería falso. Pero son dos <b>textos</b>, y los textos se comparan letra por letra, como en un diccionario.",
+       "en": "With numbers it would be false. But these are two <b>strings</b>, and strings compare character by character, like a dictionary."
+      }
+     },
+     "explain": {
+      "es": "Compara el primer carácter: <code>'2'</code> contra <code>'1'</code>, y el 2 va después, así que <code>'2'</code> es \"mayor\". Si comparas números que vienen de un input, conviértelos primero con <code>Number()</code>.",
+      "en": "It compares the first character: <code>'2'</code> against <code>'1'</code>, and 2 comes later, so <code>'2'</code> is \"greater\". If you compare numbers from an input, convert them first with <code>Number()</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y este?",
+      "en": "And this one?"
+     },
+     "code": "null == undefined",
+     "options": [
+      "<code>true</code>",
+      "<code>false</code>"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Con <code>==</code>, <code>null</code> y <code>undefined</code> son iguales entre sí (y con nada más). Con <code>===</code> no, porque son tipos distintos. Regla práctica: usa siempre <code>===</code>.",
+      "en": "With <code>==</code>, <code>null</code> and <code>undefined</code> equal each other (and nothing else). With <code>===</code> they don’t, since they’re different types. Rule of thumb: always use <code>===</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>toNumberOrZero(value)</code>: convierte <code>value</code> a número y, si el resultado es <code>NaN</code>, regresa <code>0</code>.",
+      "en": "Write <code>toNumberOrZero(value)</code>: convert <code>value</code> to a number and, if the result is <code>NaN</code>, return <code>0</code>."
+     },
+     "fnName": "toNumberOrZero",
+     "starter": "function toNumberOrZero(value) {\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        "42"
+       ],
+       "expect": 42
+      },
+      {
+       "args": [
+        "  7 "
+       ],
+       "expect": 7
+      },
+      {
+       "args": [
+        "7px"
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        ""
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        true
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        null
+       ],
+       "expect": 0
+      }
+     ],
+     "hint": {
+      "es": "Primero <code>const n = Number(value);</code>. Luego, recuerda que <code>NaN === NaN</code> es falso: usa <code>Number.isNaN(n)</code>.",
+      "en": "First <code>const n = Number(value);</code>. Then remember <code>NaN === NaN</code> is false: use <code>Number.isNaN(n)</code>."
+     },
+     "solution": "function toNumberOrZero(value) {\n  const n = Number(value);\n  return Number.isNaN(n) ? 0 : n;\n}",
+     "explain": {
+      "es": "Fíjate en lo que hizo <code>Number</code>: quitó los espacios de <code>'  7 '</code>, convirtió <code>true</code> en 1 y <code>null</code> en 0. Esas reglas son las que acabas de ver.",
+      "en": "Look at what <code>Number</code> did: it trimmed the spaces in <code>'  7 '</code>, turned <code>true</code> into 1 and <code>null</code> into 0. Those are the rules you just saw."
+     }
+    }
+   ]
+  },
+  {
+   "id": "logical",
+   "icon": "🚪",
+   "title": {
+    "es": "El portero de la fiesta",
+    "en": "The bouncer at the door"
+   },
+   "blurb": {
+    "es": "||, && y ?? no regresan true o false",
+    "en": "||, && and ?? don’t return true or false"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Operadores lógicos",
+      "en": "Logical operators"
+     },
+     "url": "https://javascript.info/logical-operators"
+    },
+    {
+     "title": {
+      "es": "El operador ??",
+      "en": "The ?? operator"
+     },
+     "url": "https://javascript.info/nullish-coalescing-operator"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Regresan un valor, no un sí o un no",
+      "en": "They return a value, not a yes or no"
+     },
+     "body": {
+      "es": "<p><code>a || b</code> es un portero que busca al primer invitado <b>verdadero</b> y lo deja pasar. Si nadie lo es, deja pasar al último.</p><p><code>a &amp;&amp; b</code> es al revés: se detiene en el primer <b>falso</b>.</p><p>En los dos casos, en cuanto sabe la respuesta deja de revisar. A eso se le llama <b>cortocircuito</b>.</p>",
+      "en": "<p><code>a || b</code> is a bouncer looking for the first <b>truthy</b> guest and letting them in. If nobody is, the last one gets in.</p><p><code>a &amp;&amp; b</code> is the opposite: it stops at the first <b>falsy</b> one.</p><p>Either way, as soon as it knows the answer it stops looking. That’s called <b>short-circuiting</b>.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué valor sale?",
+      "en": "What value comes out?"
+     },
+     "code": "null || 'invitado'",
+     "options": [
+      "<code>true</code>",
+      "<code>'invitado'</code>",
+      "<code>null</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "<code>||</code> no convierte a booleano: regresa el valor tal cual.",
+       "en": "<code>||</code> doesn’t convert to a boolean: it returns the value itself."
+      }
+     },
+     "explain": {
+      "es": "<code>null</code> es falso, así que pasa el siguiente: <code>'invitado'</code>. Por eso <code>nombre || 'invitado'</code> es la forma clásica de poner un valor por defecto.",
+      "en": "<code>null</code> is falsy, so the next one gets in: <code>'invitado'</code>. That’s why <code>name || 'guest'</code> is the classic way to set a default."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y con <code>&amp;&amp;</code>?",
+      "en": "And with <code>&amp;&amp;</code>?"
+     },
+     "code": "'Ana' && 0 && 'Luz'",
+     "options": [
+      "<code>'Luz'</code>",
+      "<code>0</code>",
+      "<code>false</code>",
+      "<code>'Ana'</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "<code>&amp;&amp;</code> solo llega al final si todos son verdaderos. Aquí se detuvo antes.",
+       "en": "<code>&amp;&amp;</code> only reaches the end if everything is truthy. It stopped earlier here."
+      },
+      "2": {
+       "es": "Casi: se detiene en el primer falso, pero regresa <b>ese valor</b> tal cual, no <code>false</code>.",
+       "en": "Close: it stops at the first falsy value, but returns <b>that value</b> itself, not <code>false</code>."
+      }
+     },
+     "explain": {
+      "es": "<code>'Ana'</code> es verdadero, sigue. <code>0</code> es falso: se detiene y lo regresa. <code>'Luz'</code> ni siquiera se revisa.",
+      "en": "<code>'Ana'</code> is truthy, keep going. <code>0</code> is falsy: it stops and returns it. <code>'Luz'</code> isn’t even checked."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "El volumen está en 0 a propósito. ¿Qué sale?",
+      "en": "The volume is set to 0 on purpose. What comes out?"
+     },
+     "code": "const volume = 0;\nvolume || 50",
+     "options": [
+      "<code>0</code>",
+      "<code>50</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "<code>0</code> es falso, así que <code>||</code> lo cambia por 50. ¡Bug! El usuario quería silencio. Para eso existe <code>??</code>.",
+      "en": "<code>0</code> is falsy, so <code>||</code> replaces it with 50. Bug! The user wanted silence. That’s what <code>??</code> is for."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Ahora con <code>??</code>:",
+      "en": "Now with <code>??</code>:"
+     },
+     "code": "const volume = 0;\nvolume ?? 50",
+     "options": [
+      "<code>0</code>",
+      "<code>50</code>"
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "<code>??</code> es más exigente que <code>||</code>: solo reemplaza <code>null</code> y <code>undefined</code>.",
+       "en": "<code>??</code> is pickier than <code>||</code>: it only replaces <code>null</code> and <code>undefined</code>."
+      }
+     },
+     "explain": {
+      "es": "<code>??</code> pregunta \"¿existe?\", no \"¿es verdadero?\". <code>0</code>, <code>''</code> y <code>false</code> sí existen, así que se quedan.",
+      "en": "<code>??</code> asks \"does it exist?\", not \"is it truthy?\". <code>0</code>, <code>''</code> and <code>false</code> do exist, so they stay."
+     }
+    },
+    {
+     "type": "classify",
+     "prompt": {
+      "es": "Con <code>value ?? 'default'</code>, ¿cuáles terminan como <code>'default'</code>?",
+      "en": "With <code>value ?? 'default'</code>, which ones end up as <code>'default'</code>?"
+     },
+     "bins": [
+      {
+       "es": "Sale 'default'",
+       "en": "Becomes 'default'"
+      },
+      {
+       "es": "Se queda igual",
+       "en": "Stays the same"
+      }
+     ],
+     "items": [
+      {
+       "label": "<code>null</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>0</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>undefined</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>''</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>false</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>NaN</code>",
+       "bin": 1
+      }
+     ],
+     "explain": {
+      "es": "Solo <code>null</code> y <code>undefined</code>. Con <code>||</code>, en cambio, <b>todos</b> los de esta lista saldrían como <code>'default'</code>.",
+      "en": "Only <code>null</code> and <code>undefined</code>. With <code>||</code>, on the other hand, <b>all</b> of these would become <code>'default'</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>getPort(config)</code>: regresa <code>config.port</code> si viene (aunque sea 0) y <code>8080</code> si no.",
+      "en": "Write <code>getPort(config)</code>: return <code>config.port</code> if it’s set (even if it’s 0) and <code>8080</code> otherwise."
+     },
+     "fnName": "getPort",
+     "starter": "function getPort(config) {\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        {
+         "port": 3000
+        }
+       ],
+       "expect": 3000
+      },
+      {
+       "args": [
+        {
+         "port": 0
+        }
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        {}
+       ],
+       "expect": 8080
+      },
+      {
+       "args": [
+        {
+         "port": null
+        }
+       ],
+       "expect": 8080
+      }
+     ],
+     "hint": {
+      "es": "Una línea: <code>return config.port ?? 8080;</code> ¿Ves por qué con <code>||</code> fallaría una prueba?",
+      "en": "One line: <code>return config.port ?? 8080;</code> Can you see why <code>||</code> would fail one test?"
+     },
+     "solution": "function getPort(config) {\n  return config.port ?? 8080;\n}",
+     "explain": {
+      "es": "Con <code>||</code>, <code>getPort({ port: 0 })</code> daría 8080. Es un bug real que pasa mucho en configuraciones; <code>??</code> llegó al lenguaje justo para esto.",
+      "en": "With <code>||</code>, <code>getPort({ port: 0 })</code> would give 8080. It’s a real bug that happens a lot in configs; <code>??</code> was added to the language for exactly this."
+     }
+    }
+   ]
+  },
+  {
+   "id": "loops",
+   "icon": "🔁",
+   "title": {
+    "es": "Dar vueltas",
+    "en": "Going around"
+   },
+   "blurb": {
+    "es": "while, for, break y continue",
+    "en": "while, for, break and continue"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Loops: while y for",
+      "en": "Loops: while and for"
+     },
+     "url": "https://javascript.info/while-for"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Repetir sin copiar y pegar",
+      "en": "Repeat without copy-paste"
+     },
+     "code": "for (let i = 0; i < 3; i++) {\n  console.log(i);\n}",
+     "body": {
+      "es": "<p>Un <code>for</code> tiene tres partes separadas por <code>;</code>: el <b>inicio</b> (<code>let i = 0</code>), la <b>condición</b> para seguir (<code>i &lt; 3</code>) y el <b>paso</b> después de cada vuelta (<code>i++</code>).</p><p>Este imprime 0, 1 y 2.</p>",
+      "en": "<p>A <code>for</code> has three parts separated by <code>;</code>: the <b>start</b> (<code>let i = 0</code>), the <b>condition</b> to keep going (<code>i &lt; 3</code>) and the <b>step</b> after each lap (<code>i++</code>).</p><p>This one prints 0, 1 and 2.</p>"
+     }
+    },
+    {
+     "type": "trace",
+     "prompt": {
+      "es": "Avanza paso a paso. Fíjate cuándo se revisa la condición.",
+      "en": "Step through it. Notice when the condition is checked."
+     },
+     "code": "let i = 0;\nwhile (i < 3) {\n  i++;\n}",
+     "frames": [
+      {
+       "line": 0,
+       "vars": {}
+      },
+      {
+       "line": 1,
+       "vars": {
+        "i": 0
+       },
+       "note": {
+        "es": "<code>0 &lt; 3</code>: entra.",
+        "en": "<code>0 &lt; 3</code>: in we go."
+       }
+      },
+      {
+       "line": 2,
+       "vars": {
+        "i": 1
+       }
+      },
+      {
+       "line": 1,
+       "vars": {
+        "i": 1
+       },
+       "note": {
+        "es": "Regresa a revisar: <code>1 &lt; 3</code>.",
+        "en": "Back to check: <code>1 &lt; 3</code>."
+       }
+      },
+      {
+       "line": 2,
+       "vars": {
+        "i": 2
+       }
+      },
+      {
+       "line": 1,
+       "vars": {
+        "i": 2
+       }
+      },
+      {
+       "line": 2,
+       "vars": {
+        "i": 3
+       }
+      },
+      {
+       "line": 1,
+       "vars": {
+        "i": 3
+       },
+       "note": {
+        "es": "<code>3 &lt; 3</code> es falso: sale del loop.",
+        "en": "<code>3 &lt; 3</code> is false: out of the loop."
+       }
+      }
+     ]
+    },
+    {
+     "type": "number",
+     "prompt": {
+      "es": "¿Cuánto vale <code>count</code> al final?",
+      "en": "What is <code>count</code> at the end?"
+     },
+     "code": "let count = 0;\nfor (let i = 0; i < 10; i += 3) {\n  count++;\n}",
+     "answer": 4,
+     "hint": {
+      "es": "Escribe los valores de <code>i</code>: 0, 3, … ¿cuándo deja de cumplirse <code>i &lt; 10</code>?",
+      "en": "Write down the values of <code>i</code>: 0, 3, … when does <code>i &lt; 10</code> stop being true?"
+     },
+     "explain": {
+      "es": "<code>i</code> vale 0, 3, 6 y 9. Con 12 ya no entra: son 4 vueltas.",
+      "en": "<code>i</code> is 0, 3, 6 and 9. At 12 it stops: 4 laps."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué imprime?",
+      "en": "What does it print?"
+     },
+     "code": "for (let i = 0; i < 5; i++) {\n  if (i === 2) continue;\n  if (i === 4) break;\n  console.log(i);\n}",
+     "options": [
+      "<code>0 1 2 3 4</code>",
+      "<code>0 1 3</code>",
+      "<code>0 1 3 4</code>",
+      "<code>0 1</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "2": {
+       "es": "<code>break</code> sale del loop <b>antes</b> del <code>console.log</code>, así que el 4 nunca se imprime.",
+       "en": "<code>break</code> leaves the loop <b>before</b> the <code>console.log</code>, so 4 never prints."
+      },
+      "3": {
+       "es": "<code>continue</code> no termina el loop: solo se salta el resto de <b>esa</b> vuelta.",
+       "en": "<code>continue</code> doesn’t end the loop: it only skips the rest of <b>that</b> lap."
+      }
+     },
+     "explain": {
+      "es": "<code>continue</code> brinca a la siguiente vuelta (se salta el 2) y <code>break</code> sale del loop por completo (en el 4).",
+      "en": "<code>continue</code> jumps to the next lap (skipping 2) and <code>break</code> leaves the loop entirely (at 4)."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué pasa en la última línea?",
+      "en": "What happens on the last line?"
+     },
+     "code": "for (let i = 0; i < 3; i++) {}\nconsole.log(i);",
+     "options": [
+      {
+       "es": "Imprime <code>3</code>",
+       "en": "It prints <code>3</code>"
+      },
+      {
+       "es": "Imprime <code>undefined</code>",
+       "en": "It prints <code>undefined</code>"
+      },
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 2,
+     "why": {
+      "0": {
+       "es": "Con <code>var i</code> sí imprimiría 3. Con <code>let</code>, la <code>i</code> solo existe dentro del loop.",
+       "en": "With <code>var i</code> it would print 3. With <code>let</code>, <code>i</code> only exists inside the loop."
+      }
+     },
+     "explain": {
+      "es": "La <code>i</code> declarada con <code>let</code> dentro del <code>for</code> vive solo en el loop. Afuera no existe: <code>ReferenceError</code>.",
+      "en": "An <code>i</code> declared with <code>let</code> inside the <code>for</code> lives only in the loop. Outside it doesn’t exist: <code>ReferenceError</code>."
+     }
+    },
+    {
+     "type": "order",
+     "prompt": {
+      "es": "Arma <code>sumTo(n)</code>, que suma 1 + 2 + … + n. Se prueba de verdad.",
+      "en": "Build <code>sumTo(n)</code>, which adds 1 + 2 + … + n. It runs real tests."
+     },
+     "pre": "function sumTo(n) {",
+     "post": "}",
+     "lines": [
+      "  let total = 0;",
+      "  for (let i = 1; i <= n; i++) {",
+      "    total += i;",
+      "  }",
+      "  return total;"
+     ],
+     "seed": 5,
+     "fnName": "sumTo",
+     "tests": [
+      {
+       "args": [
+        3
+       ],
+       "expect": 6
+      },
+      {
+       "args": [
+        1
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        0
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        100
+       ],
+       "expect": 5050
+      }
+     ],
+     "explain": {
+      "es": "El acumulador (<code>total</code>) nace antes del loop y se regresa después. Dato: Gauss lo resolvía sin loop, con <code>n * (n + 1) / 2</code>.",
+      "en": "The accumulator (<code>total</code>) is born before the loop and returned after it. Fun fact: Gauss solved it without a loop, with <code>n * (n + 1) / 2</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>countVowels(text)</code>: cuántas vocales (a, e, i, o, u, sin importar mayúsculas) tiene <code>text</code>.",
+      "en": "Write <code>countVowels(text)</code>: how many vowels (a, e, i, o, u, any case) <code>text</code> has."
+     },
+     "fnName": "countVowels",
+     "starter": "function countVowels(text) {\n  let count = 0;\n  for (const ch of text) {\n    \n  }\n  return count;\n}\n",
+     "tests": [
+      {
+       "args": [
+        "hola"
+       ],
+       "expect": 2
+      },
+      {
+       "args": [
+        "JavaScript"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        "xyz"
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        ""
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        "AEIOU"
+       ],
+       "expect": 5
+      }
+     ],
+     "hint": {
+      "es": "<code>for (const ch of text)</code> te da cada letra. Revisa si <code>'aeiou'.includes(ch.toLowerCase())</code>.",
+      "en": "<code>for (const ch of text)</code> gives you each letter. Check whether <code>'aeiou'.includes(ch.toLowerCase())</code>."
+     },
+     "solution": "function countVowels(text) {\n  let count = 0;\n  for (const ch of text) {\n    if ('aeiou'.includes(ch.toLowerCase())) count++;\n  }\n  return count;\n}",
+     "explain": {
+      "es": "<code>for…of</code> recorre los elementos directamente, sin índices. Úsalo cuando no necesites saber en qué posición vas.",
+      "en": "<code>for…of</code> walks the elements directly, no indexes. Use it when you don’t need to know the position."
+     }
+    }
+   ]
+  },
+  {
+   "id": "functions",
+   "icon": "🧩",
+   "title": {
+    "es": "Funciones",
+    "en": "Functions"
+   },
+   "blurb": {
+    "es": "Parámetros, return, hoisting y funciones flecha",
+    "en": "Parameters, return, hoisting and arrow functions"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Funciones",
+      "en": "Functions"
+     },
+     "url": "https://javascript.info/function-basics"
+    },
+    {
+     "title": {
+      "es": "Expresiones de función",
+      "en": "Function expressions"
+     },
+     "url": "https://javascript.info/function-expressions"
+    },
+    {
+     "title": {
+      "es": "Funciones flecha",
+      "en": "Arrow functions"
+     },
+     "url": "https://javascript.info/arrow-functions-basics"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Una receta con nombre",
+      "en": "A named recipe"
+     },
+     "code": "function greet(name) {\n  return 'Hola, ' + name;\n}\ngreet('Salsa'); // 'Hola, Salsa'",
+     "body": {
+      "es": "<p>Una función es una receta: recibe ingredientes (<b>parámetros</b>), hace algo y entrega un resultado con <code>return</code>.</p><p>Si no hay <code>return</code>, la función entrega <code>undefined</code>.</p>",
+      "en": "<p>A function is a recipe: it takes ingredients (<b>parameters</b>), does something and hands back a result with <code>return</code>.</p><p>Without a <code>return</code>, the function hands back <code>undefined</code>.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué regresa <code>f(5)</code>?",
+      "en": "What does <code>f(5)</code> return?"
+     },
+     "code": "function f(x) {\n  x * 2;\n}\nf(5)",
+     "options": [
+      "<code>10</code>",
+      "<code>undefined</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Sí calcula 10… y lo tira a la basura. Sin <code>return</code>, el resultado no sale de la función.",
+       "en": "It does compute 10… and throws it away. Without <code>return</code>, the result never leaves the function."
+      }
+     },
+     "explain": {
+      "es": "Olvidar el <code>return</code> es de los bugs más comunes. Toda función sin <code>return</code> regresa <code>undefined</code>.",
+      "en": "Forgetting <code>return</code> is one of the most common bugs. Any function without <code>return</code> returns <code>undefined</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué regresa <code>hi()</code>?",
+      "en": "What does <code>hi()</code> return?"
+     },
+     "code": "function hi(name = 'amigo') {\n  return 'Hola, ' + name;\n}\nhi()",
+     "options": [
+      "<code>'Hola, undefined'</code>",
+      "<code>'Hola, amigo'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Eso pasaría sin el <code>= 'amigo'</code>. Ese es su valor por defecto.",
+       "en": "That would happen without the <code>= 'amigo'</code>. That’s its default value."
+      }
+     },
+     "explain": {
+      "es": "Si no pasas un parámetro, vale <code>undefined</code>… a menos que le pongas un valor por defecto con <code>=</code>. Ojo: el defecto también se usa si pasas <code>undefined</code> a propósito, pero no si pasas <code>null</code>.",
+      "en": "If you don’t pass a parameter, it’s <code>undefined</code>… unless you give it a default with <code>=</code>. Note: the default also kicks in if you pass <code>undefined</code> on purpose, but not if you pass <code>null</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Llamas a la función antes de definirla. ¿Qué pasa?",
+      "en": "You call the function before defining it. What happens?"
+     },
+     "code": "sayBye();\nconst sayBye = function () {\n  return 'bye';\n};",
+     "options": [
+      "<code>'bye'</code>",
+      "<code>undefined</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 2,
+     "why": {
+      "0": {
+       "es": "Eso pasaría con <code>function sayBye() {…}</code>: las declaraciones se \"suben\" al inicio. Pero esto es una <b>expresión</b> guardada en un <code>const</code>.",
+       "en": "That would happen with <code>function sayBye() {…}</code>: declarations are \"hoisted\" to the top. But this is an <b>expression</b> stored in a <code>const</code>."
+      }
+     },
+     "explain": {
+      "es": "Las <b>declaraciones</b> (<code>function nombre() {}</code>) existen desde antes de su línea; las <b>expresiones</b> (<code>const f = function () {}</code>) solo después. Aquí, <code>sayBye</code> está en la zona muerta: <code>ReferenceError</code>.",
+      "en": "<b>Declarations</b> (<code>function name() {}</code>) exist before their line; <b>expressions</b> (<code>const f = function () {}</code>) only after. Here, <code>sayBye</code> is in the dead zone: <code>ReferenceError</code>."
+     }
+    },
+    {
+     "type": "fill",
+     "prompt": {
+      "es": "Completa la función flecha.",
+      "en": "Complete the arrow function."
+     },
+     "code": "const double = (n) [[0]] n * 2;",
+     "chips": [
+      "=>",
+      "->",
+      "=="
+     ],
+     "answers": [
+      "=>"
+     ],
+     "hint": {
+      "es": "Es la \"flecha gorda\": un igual y un mayor que.",
+      "en": "It’s the \"fat arrow\": an equals sign and a greater-than."
+     },
+     "explain": {
+      "es": "<code>(n) => n * 2</code> es una función corta. Sin llaves, lo que va después de la flecha se regresa solo, sin escribir <code>return</code>.",
+      "en": "<code>(n) => n * 2</code> is a short function. Without braces, whatever follows the arrow is returned automatically, no <code>return</code> needed."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Ahora con llaves. ¿Qué regresa?",
+      "en": "Now with braces. What does it return?"
+     },
+     "code": "const add = (a, b) => { a + b };\nadd(2, 3)",
+     "options": [
+      "<code>5</code>",
+      "<code>undefined</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Con llaves, la flecha se vuelve una función normal: necesita <code>return</code>.",
+       "en": "With braces, the arrow becomes a regular function body: it needs <code>return</code>."
+      }
+     },
+     "explain": {
+      "es": "Sin llaves, el resultado se regresa solo; con llaves hay que escribir <code>return</code>: <code>(a, b) => { return a + b; }</code>.",
+      "en": "Without braces the result is returned automatically; with braces you write <code>return</code>: <code>(a, b) => { return a + b; }</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>clamp(n, min = 0, max = 100)</code>: regresa <code>n</code>, pero nunca menos que <code>min</code> ni más que <code>max</code>.",
+      "en": "Write <code>clamp(n, min = 0, max = 100)</code>: return <code>n</code>, but never below <code>min</code> or above <code>max</code>."
+     },
+     "fnName": "clamp",
+     "starter": "function clamp(n, min = 0, max = 100) {\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        50
+       ],
+       "expect": 50
+      },
+      {
+       "args": [
+        -5
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        150
+       ],
+       "expect": 100
+      },
+      {
+       "args": [
+        5,
+        10,
+        20
+       ],
+       "expect": 10
+      },
+      {
+       "args": [
+        25,
+        10,
+        20
+       ],
+       "expect": 20
+      }
+     ],
+     "hint": {
+      "es": "Dos <code>if</code>: si <code>n &lt; min</code>, regresa <code>min</code>; si <code>n &gt; max</code>, regresa <code>max</code>. O en una línea: <code>Math.min(Math.max(n, min), max)</code>.",
+      "en": "Two <code>if</code>s: if <code>n &lt; min</code>, return <code>min</code>; if <code>n &gt; max</code>, return <code>max</code>. Or in one line: <code>Math.min(Math.max(n, min), max)</code>."
+     },
+     "solution": "function clamp(n, min = 0, max = 100) {\n  if (n < min) return min;\n  if (n > max) return max;\n  return n;\n}",
+     "explain": {
+      "es": "Los valores por defecto hacen que <code>clamp(150)</code> funcione sin pasar los límites. Terminaste los fundamentos: lo que sigue son objetos y arrays.",
+      "en": "Default values let <code>clamp(150)</code> work without passing the limits. You’ve finished the fundamentals: objects and arrays are next."
+     }
+    }
+   ]
+  },
+  {
+   "id": "objects",
+   "unit": 1,
+   "icon": "🗃️",
+   "title": {
+    "es": "Objetos y referencias",
+    "en": "Objects and references"
+   },
+   "blurb": {
+    "es": "Por qué copiar un objeto no siempre lo copia",
+    "en": "Why copying an object doesn’t always copy it"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Objetos",
+      "en": "Objects"
+     },
+     "url": "https://javascript.info/object"
+    },
+    {
+     "title": {
+      "es": "Referencias y copias",
+      "en": "Object references and copying"
+     },
+     "url": "https://javascript.info/object-copy"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Un mueble con cajones",
+      "en": "A chest of drawers"
+     },
+     "code": "const dog = { name: 'Salsa', age: 3 };\ndog.name;      // 'Salsa'\ndog['age'];    // 3",
+     "body": {
+      "es": "<p>Un objeto es un mueble con cajones con nombre: cada <b>propiedad</b> es un cajón con su valor.</p><p>Lo importante: la variable no guarda el mueble, guarda <b>la dirección</b> de dónde está. Eso cambia cómo funcionan las copias.</p>",
+      "en": "<p>An object is a chest of drawers with names: each <b>property</b> is a drawer with its value.</p><p>The key point: the variable doesn’t hold the chest, it holds <b>its address</b>. That changes how copies work.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué vale <code>a.n</code> al final?",
+      "en": "What is <code>a.n</code> at the end?"
+     },
+     "code": "const a = { n: 1 };\nconst b = a;\nb.n = 2;\na.n",
+     "options": [
+      "<code>1</code>",
+      "<code>2</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Con números <code>=</code> copiaba el valor. Con objetos copia la <b>dirección</b>: <code>a</code> y <code>b</code> apuntan al mismo objeto.",
+       "en": "With numbers <code>=</code> copied the value. With objects it copies the <b>address</b>: <code>a</code> and <code>b</code> point to the same object."
+      }
+     },
+     "explain": {
+      "es": "Solo hay <b>un</b> objeto con dos etiquetas. Cambiarlo por <code>b</code> se ve por <code>a</code>. Es la causa de muchísimos bugs en React y en entrevistas.",
+      "en": "There’s only <b>one</b> object with two labels. Changing it through <code>b</code> shows up through <code>a</code>. It causes tons of bugs in React and in interviews."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Verdadero o falso?",
+      "en": "True or false?"
+     },
+     "code": "({ n: 1 }) === ({ n: 1 })",
+     "options": [
+      "<code>true</code>",
+      "<code>false</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "<code>===</code> con objetos compara direcciones, no contenido. Son dos objetos distintos que se ven igual, así que es <code>false</code>.",
+      "en": "<code>===</code> on objects compares addresses, not contents. These are two different objects that look alike, so it’s <code>false</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Copias con <code>...</code>. ¿Qué sale?",
+      "en": "You copy with <code>...</code>. What comes out?"
+     },
+     "code": "const a = { n: 1, tags: ['x'] };\nconst b = { ...a };\nb.n = 2;\nb.tags.push('y');\n[a.n, a.tags.length]",
+     "options": [
+      "<code>[1, 1]</code>",
+      "<code>[1, 2]</code>",
+      "<code>[2, 2]</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "El <code>n</code> sí quedó separado, pero <code>tags</code> es un array: la copia se llevó su <b>dirección</b>, no un array nuevo.",
+       "en": "<code>n</code> was separated, but <code>tags</code> is an array: the copy took its <b>address</b>, not a new array."
+      },
+      "2": {
+       "es": "<code>{ ...a }</code> sí crea un objeto nuevo, así que <code>b.n = 2</code> no toca a <code>a</code>.",
+       "en": "<code>{ ...a }</code> does create a new object, so <code>b.n = 2</code> doesn’t touch <code>a</code>."
+      }
+     },
+     "explain": {
+      "es": "<code>...</code> hace una copia <b>superficial</b>: el primer nivel es nuevo, pero lo de adentro se comparte. Para copiar todo hasta el fondo: <code>structuredClone(a)</code>.",
+      "en": "<code>...</code> makes a <b>shallow</b> copy: the first level is new, but what’s inside is shared. To copy all the way down: <code>structuredClone(a)</code>."
+     }
+    },
+    {
+     "type": "classify",
+     "prompt": {
+      "es": "Después de cada línea, ¿<code>b</code> es un objeto nuevo o el mismo que <code>a</code>?",
+      "en": "After each line, is <code>b</code> a new object or the same one as <code>a</code>?"
+     },
+     "bins": [
+      {
+       "es": "Objeto nuevo",
+       "en": "New object"
+      },
+      {
+       "es": "El mismo",
+       "en": "The same"
+      }
+     ],
+     "items": [
+      {
+       "label": "<code>const b = a;</code>",
+       "bin": 1
+      },
+      {
+       "label": "<code>const b = { ...a };</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>const b = structuredClone(a);</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>const b = Object.assign({}, a);</code>",
+       "bin": 0
+      },
+      {
+       "label": "<code>const b = [a][0];</code>",
+       "bin": 1
+      }
+     ],
+     "explain": {
+      "es": "Solo hay objeto nuevo cuando algo lo <b>crea</b> (<code>{}</code>, <code>...</code>, <code>structuredClone</code>). Pasarlo, guardarlo en un array o sacarlo de ahí siempre mueve la misma dirección.",
+      "en": "You only get a new object when something <b>creates</b> it (<code>{}</code>, <code>...</code>, <code>structuredClone</code>). Passing it around, storing it in an array or taking it out always moves the same address."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "La llave está en una variable. ¿Qué sale?",
+      "en": "The key is in a variable. What comes out?"
+     },
+     "code": "const key = 'age';\nconst user = { age: 30 };\nuser.key",
+     "options": [
+      "<code>30</code>",
+      "<code>undefined</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Con punto, <code>user.key</code> busca un cajón llamado literalmente \"key\".",
+       "en": "With a dot, <code>user.key</code> looks for a drawer literally named \"key\"."
+      }
+     },
+     "explain": {
+      "es": "Para usar el valor de la variable como nombre de cajón van corchetes: <code>user[key]</code> da 30.",
+      "en": "To use the variable’s value as the drawer name you need brackets: <code>user[key]</code> gives 30."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>invert(obj)</code>: regresa un objeto nuevo con llaves y valores intercambiados.",
+      "en": "Write <code>invert(obj)</code>: return a new object with keys and values swapped."
+     },
+     "fnName": "invert",
+     "starter": "function invert(obj) {\n  const out = {};\n  \n  return out;\n}\n",
+     "tests": [
+      {
+       "args": [
+        {
+         "a": "x",
+         "b": "y"
+        }
+       ],
+       "expect": {
+        "x": "a",
+        "y": "b"
+       }
+      },
+      {
+       "args": [
+        {}
+       ],
+       "expect": {}
+      },
+      {
+       "args": [
+        {
+         "dog": "Salsa"
+        }
+       ],
+       "expect": {
+        "Salsa": "dog"
+       }
+      }
+     ],
+     "hint": {
+      "es": "<code>for (const key in obj)</code> recorre las llaves. Dentro: <code>out[obj[key]] = key;</code>",
+      "en": "<code>for (const key in obj)</code> walks the keys. Inside: <code>out[obj[key]] = key;</code>"
+     },
+     "solution": "function invert(obj) {\n  const out = {};\n  for (const key in obj) {\n    out[obj[key]] = key;\n  }\n  return out;\n}",
+     "explain": {
+      "es": "Creaste un objeto nuevo y no tocaste el original: así se evitan los bugs de referencias. Otra forma: <code>Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]))</code>.",
+      "en": "You made a new object and left the original alone: that’s how you avoid reference bugs. Another way: <code>Object.fromEntries(Object.entries(obj).map(([k, v]) => [v, k]))</code>."
+     }
+    }
+   ]
+  },
+  {
+   "id": "this",
+   "unit": 1,
+   "icon": "🫵",
+   "title": {
+    "es": "this: ¿quién llama?",
+    "en": "this: who’s calling?"
+   },
+   "blurb": {
+    "es": "Métodos, this perdido, bind y ?.",
+    "en": "Methods, lost this, bind and ?."
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Métodos y this",
+      "en": "Object methods, \"this\""
+     },
+     "url": "https://javascript.info/object-methods"
+    },
+    {
+     "title": {
+      "es": "Optional chaining ?.",
+      "en": "Optional chaining ?."
+     },
+     "url": "https://javascript.info/optional-chaining"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "this es quien está antes del punto",
+      "en": "this is whoever’s before the dot"
+     },
+     "code": "const dog = {\n  name: 'Salsa',\n  hi() {\n    return 'Soy ' + this.name;\n  },\n};\ndog.hi(); // 'Soy Salsa'",
+     "body": {
+      "es": "<p>Dentro de un método, <code>this</code> es el objeto que lo está llamando: el que va <b>antes del punto</b> en el momento de la llamada.</p><p>No importa dónde se escribió la función, sino <b>cómo se llama</b>.</p>",
+      "en": "<p>Inside a method, <code>this</code> is the object calling it: whatever comes <b>before the dot</b> at call time.</p><p>It doesn’t matter where the function was written, but <b>how it’s called</b>.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Sacas el método a una variable. ¿Qué pasa? (modo estricto, como en clases y módulos)",
+      "en": "You pull the method into a variable. What happens? (strict mode, like in classes and modules)"
+     },
+     "code": "'use strict';\nconst dog = {\n  name: 'Salsa',\n  hi() { return 'Soy ' + this.name; },\n};\nconst hi = dog.hi;\nhi()",
+     "options": [
+      "<code>'Soy Salsa'</code>",
+      {
+       "es": "Error: <code>this</code> es <code>undefined</code>",
+       "en": "Error: <code>this</code> is <code>undefined</code>"
+      },
+      "<code>'Soy '</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "La función es la misma, pero ahora no hay nada antes del punto: <code>hi()</code> se llama sola, y <code>this</code> se perdió.",
+       "en": "It’s the same function, but now there’s nothing before the dot: <code>hi()</code> is called alone, and <code>this</code> is lost."
+      }
+     },
+     "explain": {
+      "es": "Es el famoso \"<code>this</code> perdido\": pasa al guardar un método en una variable o al pasarlo como callback (<code>setTimeout(dog.hi)</code>).",
+      "en": "This is the famous \"lost <code>this</code>\": it happens when you store a method in a variable or pass it as a callback (<code>setTimeout(dog.hi)</code>)."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y con <code>bind</code>?",
+      "en": "And with <code>bind</code>?"
+     },
+     "code": "const hi = dog.hi.bind(dog);\nhi()",
+     "options": [
+      "<code>'Soy Salsa'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "<code>bind(dog)</code> crea una función nueva con el <code>this</code> amarrado para siempre a <code>dog</code>. Así puedes pasarla como callback sin perderlo.",
+      "en": "<code>bind(dog)</code> creates a new function with <code>this</code> tied to <code>dog</code> forever. Now you can pass it as a callback safely."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Una flecha dentro de un método. ¿Qué regresa <code>dog.later()</code>?",
+      "en": "An arrow inside a method. What does <code>dog.later()</code> return?"
+     },
+     "code": "const dog = {\n  name: 'Salsa',\n  later() {\n    return [1].map(() => this.name)[0];\n  },\n};\ndog.later()",
+     "options": [
+      "<code>'Salsa'</code>",
+      "<code>undefined</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "Eso pasaría con <code>function () { return this.name; }</code>. Las flechas no tienen <code>this</code> propio: usan el de afuera.",
+       "en": "That’s what <code>function () { return this.name; }</code> would do. Arrows have no <code>this</code> of their own: they use the outer one."
+      }
+     },
+     "explain": {
+      "es": "La flecha toma el <code>this</code> del método donde nació (<code>dog</code>). Por eso las flechas son perfectas para callbacks dentro de métodos.",
+      "en": "The arrow takes the <code>this</code> of the method it was born in (<code>dog</code>). That’s why arrows are perfect for callbacks inside methods."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "El usuario no tiene dirección. ¿Cuál NO lanza error?",
+      "en": "The user has no address. Which one does NOT throw?"
+     },
+     "code": "const user = {};",
+     "options": [
+      "<code>user.address.street</code>",
+      "<code>user.address?.street</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "<code>user.address</code> es <code>undefined</code>, y leer <code>.street</code> de <code>undefined</code> lanza <code>TypeError</code>.",
+       "en": "<code>user.address</code> is <code>undefined</code>, and reading <code>.street</code> from <code>undefined</code> throws <code>TypeError</code>."
+      }
+     },
+     "explain": {
+      "es": "<code>?.</code> se detiene si lo de la izquierda es <code>null</code> o <code>undefined</code> y regresa <code>undefined</code>. Combinado con <code>??</code>: <code>user.address?.street ?? 'sin calle'</code>.",
+      "en": "<code>?.</code> stops if the left side is <code>null</code> or <code>undefined</code> and returns <code>undefined</code>. Combine it with <code>??</code>: <code>user.address?.street ?? 'no street'</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>makeDog(name)</code>: regresa un objeto con <code>name</code> y un método <code>speak()</code> que regrese <code>name + ': guau!'</code>. Usa <code>this</code>: si le cambias el nombre al perro, <code>speak</code> debe usar el nuevo.",
+      "en": "Write <code>makeDog(name)</code>: return an object with <code>name</code> and a <code>speak()</code> method returning <code>name + ': guau!'</code>. Use <code>this</code>: if the dog’s name changes, <code>speak</code> must use the new one."
+     },
+     "fnName": "makeDog",
+     "wrap": "(name, rename) => { const d = makeDog(name); if (rename) d.name = rename; return d.speak(); }",
+     "starter": "function makeDog(name) {\n  return {\n    name,\n    speak() {\n      \n    },\n  };\n}\n",
+     "tests": [
+      {
+       "args": [
+        "Salsa",
+        null
+       ],
+       "expect": "Salsa: guau!",
+       "label": "makeDog('Salsa').speak()"
+      },
+      {
+       "args": [
+        "Salsa",
+        "Luna"
+       ],
+       "expect": "Luna: guau!",
+       "label": "d = makeDog('Salsa'); d.name = 'Luna'; d.speak()"
+      }
+     ],
+     "hint": {
+      "es": "Dentro de <code>speak</code>: <code>return this.name + ': guau!';</code>",
+      "en": "Inside <code>speak</code>: <code>return this.name + ': guau!';</code>"
+     },
+     "solution": "function makeDog(name) {\n  return {\n    name,\n    speak() {\n      return this.name + ': guau!';\n    },\n  };\n}",
+     "explain": {
+      "es": "Si hubieras usado la variable <code>name</code> en vez de <code>this.name</code>, la segunda prueba fallaría: el método recordaría el nombre viejo. <code>this</code> lee el objeto en el momento de la llamada.",
+      "en": "If you had used the <code>name</code> variable instead of <code>this.name</code>, the second test would fail: the method would remember the old name. <code>this</code> reads the object at call time."
+     }
+    }
+   ]
+  },
+  {
+   "id": "array-methods",
+   "unit": 2,
+   "icon": "🧰",
+   "title": {
+    "es": "map, filter y reduce",
+    "en": "map, filter and reduce"
+   },
+   "blurb": {
+    "es": "Transformar, quedarte con algunos y juntar en uno",
+    "en": "Transform, keep some, combine into one"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Métodos de arrays",
+      "en": "Array methods"
+     },
+     "url": "https://javascript.info/array-methods"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Tres herramientas que vas a usar diario",
+      "en": "Three tools you’ll use every day"
+     },
+     "code": "const nums = [1, 2, 3, 4];\nnums.map(n => n * 10);        // [10, 20, 30, 40]\nnums.filter(n => n > 2);      // [3, 4]\nnums.reduce((a, n) => a + n, 0); // 10",
+     "body": {
+      "es": "<p><b>map</b> transforma cada elemento. <b>filter</b> se queda con los que cumplen. <b>reduce</b> junta todo en un solo valor.</p><p><code>map</code> y <code>filter</code> regresan un array <b>nuevo</b>: el original no cambia.</p>",
+      "en": "<p><b>map</b> transforms each element. <b>filter</b> keeps the ones that pass. <b>reduce</b> combines everything into one value.</p><p><code>map</code> and <code>filter</code> return a <b>new</b> array: the original stays the same.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué regresa?",
+      "en": "What does it return?"
+     },
+     "code": "[1, 2, 3].map(n => n * 2)",
+     "options": [
+      "<code>[2, 4, 6]</code>",
+      "<code>12</code>",
+      "<code>[1, 2, 3]</code>"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Un array del mismo tamaño, con cada elemento transformado.",
+      "en": "An array of the same size, with each element transformed."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Y este?",
+      "en": "And this one?"
+     },
+     "code": "[1, 2, 3, 4].filter(n => n % 2 === 0)",
+     "options": [
+      "<code>[true, false, true, false]</code>",
+      "<code>[2, 4]</code>",
+      "<code>[1, 3]</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Eso haría <code>map</code>. <code>filter</code> usa el <code>true</code> o <code>false</code> para decidir quién se queda.",
+       "en": "That’s what <code>map</code> would do. <code>filter</code> uses the <code>true</code> or <code>false</code> to decide who stays."
+      }
+     },
+     "explain": {
+      "es": "<code>%</code> es el residuo: <code>n % 2 === 0</code> significa \"es par\". Se quedan el 2 y el 4.",
+      "en": "<code>%</code> is the remainder: <code>n % 2 === 0</code> means \"is even\". 2 and 4 stay."
+     }
+    },
+    {
+     "type": "number",
+     "prompt": {
+      "es": "¿Qué número sale?",
+      "en": "What number comes out?"
+     },
+     "code": "[1, 2, 3, 4].reduce((acc, n) => acc + n * n, 0)",
+     "answer": 30,
+     "hint": {
+      "es": "Empieza en 0 y en cada vuelta suma el cuadrado: 1, 4, 9, 16.",
+      "en": "Start at 0 and add each square: 1, 4, 9, 16."
+     },
+     "explain": {
+      "es": "0 + 1 + 4 + 9 + 16 = 30. El <code>0</code> del final es el valor inicial del acumulador.",
+      "en": "0 + 1 + 4 + 9 + 16 = 30. The final <code>0</code> is the accumulator’s starting value."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "La trampa clásica. ¿Qué regresa?",
+      "en": "The classic trap. What does it return?"
+     },
+     "code": "[10, 9, 1].sort()",
+     "options": [
+      "<code>[1, 9, 10]</code>",
+      "<code>[1, 10, 9]</code>",
+      "<code>[10, 9, 1]</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Eso esperarías… pero sin función, <code>sort</code> ordena como <b>textos</b>: \"10\" va antes que \"9\" porque \"1\" &lt; \"9\".",
+       "en": "That’s what you’d expect… but without a function, <code>sort</code> orders as <b>strings</b>: \"10\" comes before \"9\" because \"1\" &lt; \"9\"."
+      }
+     },
+     "explain": {
+      "es": "Para números siempre pásale cómo comparar: <code>nums.sort((a, b) => a - b)</code>. Ojo: <code>sort</code> sí cambia el array original.",
+      "en": "For numbers always tell it how to compare: <code>nums.sort((a, b) => a - b)</code>. Careful: <code>sort</code> does change the original array."
+     }
+    },
+    {
+     "type": "fill",
+     "prompt": {
+      "es": "Quieres un array con solo los nombres. ¿Qué método va?",
+      "en": "You want an array with only the names. Which method goes here?"
+     },
+     "code": "const names = users.[[0]](u => u.name);",
+     "chips": [
+      "map",
+      "filter",
+      "forEach"
+     ],
+     "answers": [
+      "map"
+     ],
+     "hint": {
+      "es": "Cada usuario se convierte en otra cosa (su nombre), y quieres el array resultante.",
+      "en": "Each user turns into something else (its name), and you want the resulting array."
+     },
+     "explain": {
+      "es": "<code>map</code> transforma uno a uno. <code>forEach</code> también recorre, pero regresa <code>undefined</code>: sirve para hacer algo, no para construir un array.",
+      "en": "<code>map</code> transforms one by one. <code>forEach</code> also loops, but returns <code>undefined</code>: it’s for doing something, not for building an array."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>totalPrice(cart)</code>: suma <code>price * qty</code> de cada producto. Con <code>reduce</code> sale en una línea.",
+      "en": "Write <code>totalPrice(cart)</code>: add up <code>price * qty</code> for each item. With <code>reduce</code> it’s one line."
+     },
+     "fnName": "totalPrice",
+     "starter": "function totalPrice(cart) {\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         {
+          "price": 10,
+          "qty": 2
+         },
+         {
+          "price": 5,
+          "qty": 1
+         }
+        ]
+       ],
+       "expect": 25
+      },
+      {
+       "args": [
+        []
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        [
+         {
+          "price": 3,
+          "qty": 3
+         }
+        ]
+       ],
+       "expect": 9
+      }
+     ],
+     "hint": {
+      "es": "<code>return cart.reduce((sum, item) => sum + item.price * item.qty, 0);</code> ¿Qué pasa con el carrito vacío si olvidas el <code>0</code>?",
+      "en": "<code>return cart.reduce((sum, item) => sum + item.price * item.qty, 0);</code> What happens with an empty cart if you forget the <code>0</code>?"
+     },
+     "solution": "function totalPrice(cart) {\n  return cart.reduce((sum, item) => sum + item.price * item.qty, 0);\n}",
+     "explain": {
+      "es": "Sin el valor inicial <code>0</code>, <code>reduce</code> sobre un array vacío lanza error. Ponlo siempre.",
+      "en": "Without the initial <code>0</code>, <code>reduce</code> on an empty array throws. Always include it."
+     }
+    }
+   ]
+  },
+  {
+   "id": "collections",
+   "unit": 2,
+   "icon": "🗺️",
+   "title": {
+    "es": "Map, Set y desestructuración",
+    "en": "Map, Set and destructuring"
+   },
+   "blurb": {
+    "es": "Valores únicos, llaves de cualquier tipo y sacar cosas rápido",
+    "en": "Unique values, keys of any type and unpacking fast"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Map y Set",
+      "en": "Map and Set"
+     },
+     "url": "https://javascript.info/map-set"
+    },
+    {
+     "title": {
+      "es": "Desestructuración",
+      "en": "Destructuring assignment"
+     },
+     "url": "https://javascript.info/destructuring-assignment"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Dos colecciones con superpoderes",
+      "en": "Two collections with superpowers"
+     },
+     "code": "const seen = new Set();\nseen.add('a');\nseen.has('a'); // true\n\nconst ages = new Map();\nages.set('Salsa', 3);\nages.get('Salsa'); // 3",
+     "body": {
+      "es": "<p>Un <b>Set</b> guarda valores sin repetir. Un <b>Map</b> guarda pares llave → valor, y la llave puede ser de cualquier tipo, hasta un objeto.</p><p>Los dos buscan en <b>un paso</b> (<code>has</code>, <code>get</code>): eso los hace oro en entrevistas.</p>",
+      "en": "<p>A <b>Set</b> stores values without repeats. A <b>Map</b> stores key → value pairs, and the key can be any type, even an object.</p><p>Both look things up in <b>one step</b> (<code>has</code>, <code>get</code>): that makes them gold in interviews.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Cuántos valores guarda?",
+      "en": "How many values does it hold?"
+     },
+     "code": "new Set([1, 1, 2, 3, 3]).size",
+     "options": [
+      "<code>5</code>",
+      "<code>3</code>",
+      "<code>2</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Los repetidos se ignoran: quedan 1, 2 y 3.",
+      "en": "Repeats are ignored: 1, 2 and 3 remain."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Un truco para quitar repetidos:",
+      "en": "A trick to remove duplicates:"
+     },
+     "code": "[...new Set('hello')].join('')",
+     "options": [
+      "<code>'hello'</code>",
+      "<code>'helo'</code>",
+      "<code>'hel'</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Un texto se recorre letra por letra: el Set guarda h, e, l, o (la segunda l se ignora) y en el orden en que aparecieron.",
+      "en": "A string is walked letter by letter: the Set keeps h, e, l, o (the second l is ignored), in the order they first appeared."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Desestructuración de arrays. ¿Qué vale <code>b</code>?",
+      "en": "Array destructuring. What is <code>b</code>?"
+     },
+     "code": "const [a, , b] = [1, 2, 3];\nb",
+     "options": [
+      "<code>2</code>",
+      "<code>3</code>",
+      "<code>undefined</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "La coma vacía <b>se salta</b> un lugar: el 2 no se guarda en nadie.",
+       "en": "The empty comma <b>skips</b> a spot: 2 isn’t stored anywhere."
+      }
+     },
+     "explain": {
+      "es": "Cada posición de la izquierda toma la misma posición de la derecha. La coma sola se salta el 2.",
+      "en": "Each position on the left takes the same position on the right. The lone comma skips 2."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Con objetos y un valor por defecto. ¿Qué vale <code>age</code>?",
+      "en": "With objects and a default. What is <code>age</code>?"
+     },
+     "code": "const { name, age = 5 } = { name: 'Salsa' };\nage",
+     "options": [
+      "<code>undefined</code>",
+      "<code>5</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Sacas propiedades por nombre. Como el objeto no trae <code>age</code>, se usa el defecto. Lo verás muchísimo en props de React: <code>function Card({ title, size = 'md' })</code>.",
+      "en": "You pull properties out by name. Since the object has no <code>age</code>, the default is used. You’ll see this all the time in React props: <code>function Card({ title, size = 'md' })</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Intercambiar sin variable extra. ¿Qué vale <code>x</code>?",
+      "en": "Swapping without an extra variable. What is <code>x</code>?"
+     },
+     "code": "let x = 1, y = 2;\n[x, y] = [y, x];\nx",
+     "options": [
+      "<code>1</code>",
+      "<code>2</code>"
+     ],
+     "answer": 1,
+     "explain": {
+      "es": "Primero se arma el array <code>[2, 1]</code> y luego se reparte: <code>x = 2</code>, <code>y = 1</code>. Te va a servir en algoritmos que intercambian posiciones.",
+      "en": "First the array <code>[2, 1]</code> is built, then unpacked: <code>x = 2</code>, <code>y = 1</code>. Handy in algorithms that swap positions."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>firstDuplicate(nums)</code>: regresa el primer número que aparece por segunda vez, o <code>null</code> si no se repite ninguno. Usa un Set.",
+      "en": "Write <code>firstDuplicate(nums)</code>: return the first number that shows up a second time, or <code>null</code> if none repeat. Use a Set."
+     },
+     "fnName": "firstDuplicate",
+     "starter": "function firstDuplicate(nums) {\n  const seen = new Set();\n  \n  return null;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         2,
+         1,
+         3,
+         1,
+         2
+        ]
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        [
+         1,
+         2,
+         3
+        ]
+       ],
+       "expect": null
+      },
+      {
+       "args": [
+        [
+         5,
+         5
+        ]
+       ],
+       "expect": 5
+      },
+      {
+       "args": [
+        []
+       ],
+       "expect": null
+      }
+     ],
+     "hint": {
+      "es": "Recorre con <code>for (const n of nums)</code>: si <code>seen.has(n)</code>, ya lo viste, así que regrésalo. Si no, <code>seen.add(n)</code>.",
+      "en": "Loop with <code>for (const n of nums)</code>: if <code>seen.has(n)</code>, you’ve seen it, so return it. Otherwise <code>seen.add(n)</code>."
+     },
+     "solution": "function firstDuplicate(nums) {\n  const seen = new Set();\n  for (const n of nums) {\n    if (seen.has(n)) return n;\n    seen.add(n);\n  }\n  return null;\n}",
+     "explain": {
+      "es": "Una vuelta y búsquedas de un paso: O(n). Con dos loops anidados sería O(n²). Este patrón, \"¿ya lo vi?\", es la base de muchos problemas de entrevista.",
+      "en": "One pass with one-step lookups: O(n). With two nested loops it would be O(n²). This \"have I seen it?\" pattern is the base of many interview problems."
+     }
+    }
+   ]
+  },
+  {
+   "id": "closures",
+   "unit": 3,
+   "icon": "🎒",
+   "title": {
+    "es": "Closures: la mochila",
+    "en": "Closures: the backpack"
+   },
+   "blurb": {
+    "es": "Funciones que recuerdan dónde nacieron",
+    "en": "Functions that remember where they were born"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Closures",
+      "en": "Variable scope, closure"
+     },
+     "url": "https://javascript.info/closure"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Una mochila con lo de su casa",
+      "en": "A backpack with stuff from home"
+     },
+     "code": "function makeCounter() {\n  let count = 0;\n  return () => ++count;\n}",
+     "body": {
+      "es": "<p>Cuando una función nace dentro de otra, se lleva una <b>mochila</b> con las variables de donde nació. Aunque la función de afuera ya terminó, la de adentro sigue pudiendo usarlas.</p><p>A eso se le llama <b>closure</b>.</p>",
+      "en": "<p>When a function is born inside another, it takes a <b>backpack</b> with the variables from where it was born. Even after the outer function finishes, the inner one can still use them.</p><p>That’s called a <b>closure</b>.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué regresa la tercera llamada?",
+      "en": "What does the third call return?"
+     },
+     "code": "const c = makeCounter();\nc();\nc();\nc()",
+     "options": [
+      "<code>1</code>",
+      "<code>3</code>",
+      "<code>0</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "<code>count</code> no se reinicia: vive en la mochila de <code>c</code> y cada llamada lo sube.",
+       "en": "<code>count</code> doesn’t reset: it lives in <code>c</code>’s backpack and each call bumps it."
+      }
+     },
+     "explain": {
+      "es": "<code>makeCounter</code> ya terminó, pero <code>count</code> sigue vivo en la mochila: 1, 2, 3.",
+      "en": "<code>makeCounter</code> is done, but <code>count</code> lives on in the backpack: 1, 2, 3."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Dos contadores. ¿Qué regresa <code>b()</code>?",
+      "en": "Two counters. What does <code>b()</code> return?"
+     },
+     "code": "const a = makeCounter();\nconst b = makeCounter();\na();\na();\nb()",
+     "options": [
+      "<code>1</code>",
+      "<code>3</code>"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Cada llamada a <code>makeCounter</code> crea su <b>propia</b> mochila con su propio <code>count</code>. Así se hacen variables privadas en JavaScript.",
+      "en": "Each call to <code>makeCounter</code> creates its <b>own</b> backpack with its own <code>count</code>. That’s how you make private variables in JavaScript."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "La pregunta de entrevista del <code>var</code> en un loop:",
+      "en": "The interview question about <code>var</code> in a loop:"
+     },
+     "code": "const fns = [];\nfor (var i = 0; i < 3; i++) {\n  fns.push(() => i);\n}\nfns[0]()",
+     "options": [
+      "<code>0</code>",
+      "<code>3</code>",
+      "<code>undefined</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Eso pasaría con <code>let</code>. Con <code>var</code> hay <b>una sola</b> <code>i</code> para todo el loop, y al final vale 3.",
+       "en": "That’s what <code>let</code> would give. With <code>var</code> there’s <b>a single</b> <code>i</code> for the whole loop, and it ends at 3."
+      }
+     },
+     "explain": {
+      "es": "Las tres flechas comparten la misma mochila con la misma <code>i</code>. Con <code>let</code>, cada vuelta crea una <code>i</code> nueva y <code>fns[0]()</code> daría 0. Otra razón para no usar <code>var</code>.",
+      "en": "All three arrows share the same backpack with the same <code>i</code>. With <code>let</code>, each lap creates a fresh <code>i</code> and <code>fns[0]()</code> would give 0. Another reason to skip <code>var</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>once(fn)</code>: regresa una función que llama a <code>fn</code> solo la <b>primera</b> vez; las siguientes regresa el mismo resultado sin volver a llamarla.",
+      "en": "Write <code>once(fn)</code>: return a function that calls <code>fn</code> only the <b>first</b> time; after that it returns the same result without calling it again."
+     },
+     "fnName": "once",
+     "wrap": "(a, b) => { let calls = 0; const add = (x, y) => { calls++; return x + y; }; const f = once(add); return [f(a, b), f(10, 10), calls]; }",
+     "starter": "function once(fn) {\n  let called = false;\n  let result;\n  return (...args) => {\n    \n  };\n}\n",
+     "tests": [
+      {
+       "args": [
+        1,
+        2
+       ],
+       "expect": [
+        3,
+        3,
+        1
+       ],
+       "label": "f = once(add); [f(1, 2), f(10, 10), veces que corrió add]"
+      },
+      {
+       "args": [
+        5,
+        5
+       ],
+       "expect": [
+        10,
+        10,
+        1
+       ],
+       "label": "f = once(add); [f(5, 5), f(10, 10), veces que corrió add]"
+      }
+     ],
+     "hint": {
+      "es": "Dentro de la flecha: si <code>!called</code>, marca <code>called = true</code> y guarda <code>result = fn(...args)</code>. Al final, siempre <code>return result</code>.",
+      "en": "Inside the arrow: if <code>!called</code>, set <code>called = true</code> and store <code>result = fn(...args)</code>. At the end, always <code>return result</code>."
+     },
+     "solution": "function once(fn) {\n  let called = false;\n  let result;\n  return (...args) => {\n    if (!called) {\n      called = true;\n      result = fn(...args);\n    }\n    return result;\n  };\n}",
+     "explain": {
+      "es": "<code>called</code> y <code>result</code> viven en la mochila de la función que regresas. Así funcionan <code>once</code>, <code>memoize</code> y <code>debounce</code>, que también salen en entrevistas.",
+      "en": "<code>called</code> and <code>result</code> live in the returned function’s backpack. That’s how <code>once</code>, <code>memoize</code> and <code>debounce</code> work, and those show up in interviews too."
+     }
+    }
+   ]
+  },
+  {
+   "id": "classes",
+   "unit": 4,
+   "icon": "🧬",
+   "title": {
+    "es": "Prototipos y clases",
+    "en": "Prototypes and classes"
+   },
+   "blurb": {
+    "es": "class, new, extends y el prototipo compartido",
+    "en": "class, new, extends and the shared prototype"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Clases",
+      "en": "Classes"
+     },
+     "url": "https://javascript.info/class"
+    },
+    {
+     "title": {
+      "es": "Herencia por prototipos",
+      "en": "Prototypal inheritance"
+     },
+     "url": "https://javascript.info/prototype-inheritance"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Un molde para hacer objetos",
+      "en": "A mold for making objects"
+     },
+     "code": "class Dog {\n  constructor(name) {\n    this.name = name;\n  }\n  hi() {\n    return 'guau, soy ' + this.name;\n  }\n}\nconst salsa = new Dog('Salsa');",
+     "body": {
+      "es": "<p>Una <b>clase</b> es un molde. <code>new Dog('Salsa')</code> crea un objeto y corre el <code>constructor</code> con <code>this</code> apuntando al objeto nuevo.</p><p>Los métodos como <code>hi</code> no se copian a cada perro: viven en un solo lugar compartido, el <b>prototipo</b>.</p>",
+      "en": "<p>A <b>class</b> is a mold. <code>new Dog('Salsa')</code> creates an object and runs the <code>constructor</code> with <code>this</code> pointing at the new object.</p><p>Methods like <code>hi</code> aren’t copied to each dog: they live in one shared place, the <b>prototype</b>.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué regresa?",
+      "en": "What does it return?"
+     },
+     "code": "new Dog('Salsa').hi()",
+     "options": [
+      "<code>'guau, soy Salsa'</code>",
+      "<code>'guau, soy undefined'</code>",
+      {
+       "es": "Error",
+       "en": "An error"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "El constructor guardó <code>name</code> en el objeto nuevo, y <code>hi</code> lo lee con <code>this</code>.",
+      "en": "The constructor stored <code>name</code> on the new object, and <code>hi</code> reads it with <code>this</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Dos perros. ¿Comparten el mismo método?",
+      "en": "Two dogs. Do they share the same method?"
+     },
+     "code": "const a = new Dog('A');\nconst b = new Dog('B');\na.hi === b.hi",
+     "options": [
+      "<code>true</code>",
+      "<code>false</code>"
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "Si cada perro tuviera su copia sería <code>false</code>, pero <code>hi</code> vive una sola vez en <code>Dog.prototype</code>.",
+       "en": "If each dog had its own copy it would be <code>false</code>, but <code>hi</code> lives once on <code>Dog.prototype</code>."
+      }
+     },
+     "explain": {
+      "es": "Cuando pides <code>a.hi</code>, JavaScript no lo encuentra en <code>a</code> y sube a su prototipo. Mil perros comparten un solo <code>hi</code>.",
+      "en": "When you ask for <code>a.hi</code>, JavaScript doesn’t find it on <code>a</code> and climbs to its prototype. A thousand dogs share one <code>hi</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Una curiosidad. ¿Qué devuelve?",
+      "en": "A curiosity. What does it return?"
+     },
+     "code": "typeof Dog",
+     "options": [
+      "<code>'class'</code>",
+      "<code>'object'</code>",
+      "<code>'function'</code>"
+     ],
+     "answer": 2,
+     "explain": {
+      "es": "Por dentro, una clase es una función especial con su prototipo. <code>class</code> es una forma más bonita de escribir lo que JavaScript ya hacía con prototipos.",
+      "en": "Under the hood, a class is a special function with its prototype. <code>class</code> is a nicer way to write what JavaScript already did with prototypes."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Herencia con <code>extends</code>. ¿Qué regresa?",
+      "en": "Inheritance with <code>extends</code>. What does it return?"
+     },
+     "code": "class Galgo extends Dog {\n  hi() {\n    return super.hi() + ' y corro rápido';\n  }\n}\nnew Galgo('Salsa').hi()",
+     "options": [
+      "<code>'guau, soy Salsa y corro rápido'</code>",
+      "<code>' y corro rápido'</code>",
+      {
+       "es": "Error: no tiene constructor",
+       "en": "Error: it has no constructor"
+      }
+     ],
+     "answer": 0,
+     "why": {
+      "2": {
+       "es": "Si no escribes constructor, la clase hija usa el del padre automáticamente.",
+       "en": "If you don’t write a constructor, the child class uses the parent’s automatically."
+      }
+     },
+     "explain": {
+      "es": "<code>super.hi()</code> llama a la versión del padre y la extiende. <code>Galgo</code> hereda el constructor de <code>Dog</code>, así que el nombre se guarda igual.",
+      "en": "<code>super.hi()</code> calls the parent’s version and extends it. <code>Galgo</code> inherits <code>Dog</code>’s constructor, so the name is stored the same way."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe la clase <code>Stack</code> (pila): <code>push(x)</code> agrega arriba, <code>pop()</code> saca y regresa el de arriba, <code>peek()</code> lo regresa sin sacarlo y <code>size()</code> dice cuántos hay.",
+      "en": "Write the <code>Stack</code> class: <code>push(x)</code> adds on top, <code>pop()</code> removes and returns the top, <code>peek()</code> returns it without removing and <code>size()</code> says how many there are."
+     },
+     "fnName": "Stack",
+     "wrap": "(ops) => { const s = new Stack(); const out = []; for (const [op, v] of ops) { if (op === 'push') s.push(v); else out.push(s[op]() ?? null); } return out; }",
+     "starter": "class Stack {\n  constructor() {\n    this.items = [];\n  }\n  push(x) {\n    \n  }\n  pop() {\n    \n  }\n  peek() {\n    \n  }\n  size() {\n    \n  }\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         [
+          "push",
+          1
+         ],
+         [
+          "push",
+          2
+         ],
+         [
+          "peek"
+         ],
+         [
+          "pop"
+         ],
+         [
+          "size"
+         ]
+        ]
+       ],
+       "expect": [
+        2,
+        2,
+        1
+       ],
+       "label": "push 1, push 2 → [peek(), pop(), size()]"
+      },
+      {
+       "args": [
+        [
+         [
+          "size"
+         ],
+         [
+          "pop"
+         ]
+        ]
+       ],
+       "expect": [
+        0,
+        null
+       ],
+       "label": "vacía → [size(), pop()]"
+      },
+      {
+       "args": [
+        [
+         [
+          "push",
+          "a"
+         ],
+         [
+          "pop"
+         ],
+         [
+          "peek"
+         ]
+        ]
+       ],
+       "expect": [
+        "a",
+        null
+       ],
+       "label": "push 'a' → [pop(), peek()]"
+      }
+     ],
+     "hint": {
+      "es": "Usa el array de adentro: <code>this.items.push(x)</code>, <code>this.items.pop()</code>, <code>this.items[this.items.length - 1]</code> y <code>this.items.length</code>.",
+      "en": "Use the inner array: <code>this.items.push(x)</code>, <code>this.items.pop()</code>, <code>this.items[this.items.length - 1]</code> and <code>this.items.length</code>."
+     },
+     "solution": "class Stack {\n  constructor() {\n    this.items = [];\n  }\n  push(x) {\n    this.items.push(x);\n  }\n  pop() {\n    return this.items.pop();\n  }\n  peek() {\n    return this.items[this.items.length - 1];\n  }\n  size() {\n    return this.items.length;\n  }\n}",
+     "explain": {
+      "es": "Acabas de construir una estructura de datos de entrevista. Las pilas resuelven paréntesis balanceados, deshacer/rehacer y DFS.",
+      "en": "You just built an interview data structure. Stacks solve balanced parentheses, undo/redo and DFS."
+     }
+    }
+   ]
+  },
+  {
+   "id": "errors",
+   "unit": 5,
+   "icon": "🚨",
+   "title": {
+    "es": "try, catch y finally",
+    "en": "try, catch and finally"
+   },
+   "blurb": {
+    "es": "Atrapar errores sin que se caiga todo",
+    "en": "Catching errors without everything crashing"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Manejo de errores",
+      "en": "Error handling, \"try...catch\""
+     },
+     "url": "https://javascript.info/try-catch"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Una red debajo del trapecio",
+      "en": "A net under the trapeze"
+     },
+     "code": "try {\n  riskyThing();\n} catch (error) {\n  console.log('falló:', error.message);\n} finally {\n  console.log('esto corre siempre');\n}",
+     "body": {
+      "es": "<p>Si algo dentro de <code>try</code> lanza un error, JavaScript salta directo al <code>catch</code> en lugar de tronar todo.</p><p><code>finally</code> corre <b>siempre</b>, haya error o no: ahí va lo de \"limpiar\", como cerrar un archivo o quitar un spinner.</p>",
+      "en": "<p>If something inside <code>try</code> throws, JavaScript jumps straight to <code>catch</code> instead of crashing everything.</p><p><code>finally</code> <b>always</b> runs, error or not: that’s where cleanup goes, like closing a file or hiding a spinner.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué se imprime?",
+      "en": "What gets printed?"
+     },
+     "code": "try {\n  JSON.parse('{bad json}');\n  console.log('A');\n} catch (e) {\n  console.log('B');\n} finally {\n  console.log('C');\n}",
+     "options": [
+      "<code>A C</code>",
+      "<code>B C</code>",
+      "<code>A B C</code>",
+      "<code>B</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "<code>JSON.parse</code> lanza antes de llegar a la A: el resto del <code>try</code> se salta.",
+       "en": "<code>JSON.parse</code> throws before reaching A: the rest of the <code>try</code> is skipped."
+      },
+      "3": {
+       "es": "Falta algo: <code>finally</code> corre siempre.",
+       "en": "Something’s missing: <code>finally</code> always runs."
+      }
+     },
+     "explain": {
+      "es": "Error en el <code>try</code> → salta al <code>catch</code> (B) → <code>finally</code> (C).",
+      "en": "Error in <code>try</code> → jump to <code>catch</code> (B) → <code>finally</code> (C)."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué tipo de error es?",
+      "en": "What kind of error is it?"
+     },
+     "code": "let kind;\ntry {\n  null.x;\n} catch (e) {\n  kind = e.name;\n}\nkind",
+     "options": [
+      "<code>'TypeError'</code>",
+      "<code>'ReferenceError'</code>",
+      "<code>'SyntaxError'</code>"
+     ],
+     "answer": 0,
+     "why": {
+      "1": {
+       "es": "<code>ReferenceError</code> es cuando usas una variable que no existe. Aquí <code>null</code> sí existe; lo que no se puede es leerle propiedades.",
+       "en": "<code>ReferenceError</code> is for using a variable that doesn’t exist. Here <code>null</code> exists; you just can’t read properties from it."
+      }
+     },
+     "explain": {
+      "es": "Leer una propiedad de <code>null</code> o <code>undefined</code> es un <code>TypeError</code>: el error más común de JavaScript. Ya conoces la vacuna: <code>?.</code>.",
+      "en": "Reading a property of <code>null</code> or <code>undefined</code> is a <code>TypeError</code>: JavaScript’s most common error. You already know the vaccine: <code>?.</code>."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "<code>return</code> dentro de <code>try</code>, con <code>finally</code>. ¿Qué pasa al llamar <code>f()</code>?",
+      "en": "<code>return</code> inside <code>try</code>, with <code>finally</code>. What happens when you call <code>f()</code>?"
+     },
+     "code": "function f() {\n  try {\n    return 'try';\n  } finally {\n    console.log('finally');\n  }\n}\nf()",
+     "options": [
+      {
+       "es": "Regresa <code>'try'</code> y no imprime nada",
+       "en": "It returns <code>'try'</code> and prints nothing"
+      },
+      {
+       "es": "Imprime <code>finally</code> y regresa <code>'try'</code>",
+       "en": "It prints <code>finally</code> and returns <code>'try'</code>"
+      },
+      {
+       "es": "Imprime <code>finally</code> y regresa <code>undefined</code>",
+       "en": "It prints <code>finally</code> and returns <code>undefined</code>"
+      }
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Ni un <code>return</code> se salta el <code>finally</code>: corre justo antes de salir de la función.",
+       "en": "Not even a <code>return</code> skips <code>finally</code>: it runs right before leaving the function."
+      }
+     },
+     "explain": {
+      "es": "El <code>return</code> prepara el valor, corre el <code>finally</code> y después sale con <code>'try'</code>.",
+      "en": "The <code>return</code> prepares the value, <code>finally</code> runs, and then it leaves with <code>'try'</code>."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>safeParse(text, fallback)</code>: regresa <code>JSON.parse(text)</code>, o <code>fallback</code> si el texto no es JSON válido.",
+      "en": "Write <code>safeParse(text, fallback)</code>: return <code>JSON.parse(text)</code>, or <code>fallback</code> if the text isn’t valid JSON."
+     },
+     "fnName": "safeParse",
+     "starter": "function safeParse(text, fallback) {\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        "{\"a\":1}",
+        null
+       ],
+       "expect": {
+        "a": 1
+       }
+      },
+      {
+       "args": [
+        "{bad",
+        null
+       ],
+       "expect": null
+      },
+      {
+       "args": [
+        "[1,2]",
+        []
+       ],
+       "expect": [
+        1,
+        2
+       ]
+      },
+      {
+       "args": [
+        "",
+        "vacío"
+       ],
+       "expect": "vacío"
+      }
+     ],
+     "hint": {
+      "es": "<code>try { return JSON.parse(text); } catch { return fallback; }</code>",
+      "en": "<code>try { return JSON.parse(text); } catch { return fallback; }</code>"
+     },
+     "solution": "function safeParse(text, fallback) {\n  try {\n    return JSON.parse(text);\n  } catch {\n    return fallback;\n  }\n}",
+     "explain": {
+      "es": "Puedes escribir <code>catch</code> sin <code>(error)</code> cuando no necesitas el error. Esta función la vas a usar en serio cada vez que leas datos de <code>localStorage</code> o de una API.",
+      "en": "You can write <code>catch</code> without <code>(error)</code> when you don’t need the error. You’ll use this for real every time you read data from <code>localStorage</code> or an API."
+     }
+    }
+   ]
+  },
+  {
+   "id": "async",
+   "unit": 5,
+   "icon": "⏳",
+   "title": {
+    "es": "Promesas y el event loop",
+    "en": "Promises and the event loop"
+   },
+   "blurb": {
+    "es": "En qué orden corre el código asíncrono",
+    "en": "The order async code runs in"
+   },
+   "more": [
+    {
+     "title": {
+      "es": "Promesas",
+      "en": "Promise basics"
+     },
+     "url": "https://javascript.info/promise-basics"
+    },
+    {
+     "title": {
+      "es": "async/await",
+      "en": "Async/await"
+     },
+     "url": "https://javascript.info/async-await"
+    },
+    {
+     "title": {
+      "es": "El event loop",
+      "en": "Event loop"
+     },
+     "url": "https://javascript.info/event-loop"
+    }
+   ],
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "La fila del restaurante",
+      "en": "The restaurant line"
+     },
+     "body": {
+      "es": "<p>JavaScript atiende una cosa a la vez. El orden es:</p><p>1. Todo el código normal, de arriba abajo.<br>2. La fila VIP: las <b>promesas</b> (<code>.then</code>, lo que sigue de un <code>await</code>).<br>3. La fila normal: <code>setTimeout</code>, clics, etc.</p><p>Aunque un <code>setTimeout</code> diga 0 ms, siempre espera a que se vacíe la fila VIP.</p>",
+      "en": "<p>JavaScript serves one thing at a time. The order is:</p><p>1. All the regular code, top to bottom.<br>2. The VIP line: <b>promises</b> (<code>.then</code>, whatever follows an <code>await</code>).<br>3. The regular line: <code>setTimeout</code>, clicks, etc.</p><p>Even if a <code>setTimeout</code> says 0 ms, it always waits for the VIP line to empty.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "La pregunta de entrevista más clásica de async. ¿En qué orden se imprime?",
+      "en": "The most classic async interview question. In what order does it print?"
+     },
+     "code": "console.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
+     "options": [
+      "<code>A B C D</code>",
+      "<code>A D B C</code>",
+      "<code>A D C B</code>",
+      "<code>A C D B</code>"
+     ],
+     "answer": 2,
+     "why": {
+      "0": {
+       "es": "B y C no corren en su línea: se forman en sus filas. Primero termina todo el código normal (A y D).",
+       "en": "B and C don’t run on their line: they queue up. All the regular code (A and D) finishes first."
+      },
+      "1": {
+       "es": "Casi: la promesa (C) está en la fila VIP, así que pasa antes que el <code>setTimeout</code> (B).",
+       "en": "Close: the promise (C) is in the VIP line, so it goes before the <code>setTimeout</code> (B)."
+      },
+      "3": {
+       "es": "El <code>.then</code> nunca interrumpe al código normal: D se imprime antes que C.",
+       "en": "<code>.then</code> never interrupts regular code: D prints before C."
+      }
+     },
+     "explain": {
+      "es": "Código normal (A, D) → fila VIP de promesas (C) → fila normal de timers (B).",
+      "en": "Regular code (A, D) → VIP promise line (C) → regular timer line (B)."
+     }
+    },
+    {
+     "type": "order",
+     "prompt": {
+      "es": "Con <code>async/await</code>. Ordena lo que se imprime, de primero a último.",
+      "en": "With <code>async/await</code>. Put what gets printed in order, first to last."
+     },
+     "pre": "async function f() {\n  console.log('1');\n  await null;\n  console.log('2');\n}\nf();\nconsole.log('3');\n// Se imprime:",
+     "lines": [
+      "1",
+      "3",
+      "2"
+     ],
+     "seed": 4,
+     "explain": {
+      "es": "Lo de antes del <code>await</code> corre de inmediato (1). El <code>await</code> pausa la función y manda el resto a la fila VIP; mientras, sigue el código normal (3). Después regresa (2).",
+      "en": "Everything before <code>await</code> runs right away (1). <code>await</code> pauses the function and sends the rest to the VIP line; meanwhile regular code continues (3). Then it comes back (2)."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Qué tipo de valor regresa?",
+      "en": "What kind of value does it return?"
+     },
+     "code": "async function get() {\n  return 7;\n}\ntypeof get()",
+     "options": [
+      "<code>'number'</code>",
+      "<code>'object'</code>",
+      "<code>'function'</code>"
+     ],
+     "answer": 1,
+     "why": {
+      "0": {
+       "es": "Adentro regresas 7, pero una función <code>async</code> siempre envuelve su resultado en una <b>promesa</b>.",
+       "en": "Inside you return 7, but an <code>async</code> function always wraps its result in a <b>promise</b>."
+      }
+     },
+     "explain": {
+      "es": "<code>get()</code> regresa una promesa (un objeto). Para obtener el 7 necesitas <code>await get()</code> o <code>get().then(x => …)</code>. Olvidar el <code>await</code> es un bug clásico.",
+      "en": "<code>get()</code> returns a promise (an object). To get the 7 you need <code>await get()</code> or <code>get().then(x => …)</code>. Forgetting <code>await</code> is a classic bug."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Encadenando promesas. ¿Qué se imprime?",
+      "en": "Chaining promises. What gets printed?"
+     },
+     "code": "Promise.resolve(5)\n  .then(x => x * 2)\n  .then(x => x + 1)\n  .then(x => console.log(x));",
+     "options": [
+      "<code>5</code>",
+      "<code>10</code>",
+      "<code>11</code>",
+      "<code>12</code>"
+     ],
+     "answer": 2,
+     "explain": {
+      "es": "Cada <code>.then</code> recibe lo que regresó el anterior: 5 → 10 → 11. Es la misma idea que una cadena de <code>map</code>, pero con valores que llegan después.",
+      "en": "Each <code>.then</code> gets what the previous one returned: 5 → 10 → 11. Same idea as a chain of <code>map</code>s, but with values that arrive later."
+     }
+    }
+   ]
+  }
+ ],
+ "units": [
+  {
+   "es": "Fundamentos",
+   "en": "Fundamentals"
+  },
+  {
+   "es": "Objetos",
+   "en": "Objects"
+  },
+  {
+   "es": "Arrays y colecciones",
+   "en": "Arrays and collections"
+  },
+  {
+   "es": "Funciones avanzadas",
+   "en": "Advanced functions"
+  },
+  {
+   "es": "Clases",
+   "en": "Classes"
+  },
+  {
+   "es": "Errores y async",
+   "en": "Errors and async"
+  }
+ ]
+}
