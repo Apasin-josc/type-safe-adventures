@@ -9,7 +9,7 @@ global.window = global;
 const SRC = path.join(__dirname, '..', '..', 'brilliant-js', 'content');
 for (const f of fs.readdirSync(SRC).filter((f) => f.endsWith('.js')).sort()) require(path.join(SRC, f));
 
-const TYPES = new Set(['read', 'choice', 'tap', 'number', 'fill', 'order', 'trace', 'search', 'growth', 'halving', 'guess', 'bsearch', 'pointers', 'code', 'classify']);
+const TYPES = new Set(['read', 'choice', 'tap', 'number', 'fill', 'order', 'trace', 'search', 'growth', 'halving', 'guess', 'bsearch', 'pointers', 'code', 'classify', 'viz']);
 let problems = 0;
 const bad = (where, msg) => {
   problems++;
@@ -39,6 +39,30 @@ for (const c of global.COURSES) {
       if (s.type === 'choice' && !(s.answer >= 0 && s.answer < s.options.length)) bad(w, 'answer fuera de rango');
       if (s.type === 'classify') s.items.forEach((it, j) => it.bin >= 0 && it.bin < s.bins.length || bad(w, `item ${j} sin bin válido`));
       if (s.type === 'fill' && s.answers.some((a) => !s.chips.includes(a))) bad(w, 'una respuesta no está en las fichas');
+      if (s.type === 'viz') {
+        if (!Array.isArray(s.frames) || !s.frames.length) bad(w, 'sin cuadros');
+        const lines = s.code ? s.code.split('\n').length : 0;
+        const PANELS = ['array', 'bars', 'list', 'stack', 'queue', 'intervals', 'graph'];
+        (s.frames || []).forEach((f, k) => {
+          const fw = `${w} cuadro ${k}`;
+          bilingual(fw, f.note);
+          if (!f.note) bad(fw, 'sin nota');
+          if (f.line != null && !(f.line >= 0 && f.line < lines)) bad(fw, `line ${f.line} fuera del código (${lines} líneas)`);
+          if (!PANELS.some((p) => f[p])) bad(fw, 'no dibuja nada');
+          for (const p of ['array', 'bars', 'list']) {
+            const n = f[p]?.values?.length;
+            for (const i of Object.keys(f[p]?.hl || {})) if (!(+i >= 0 && +i < n)) bad(fw, `${p}.hl ${i} fuera de rango`);
+            for (const [lab, i] of Object.entries(f[p]?.ptrs || {})) if (!(i >= 0 && i < n)) bad(fw, `${p}.ptrs.${lab} = ${i} fuera de rango`);
+          }
+          for (const [a, b] of f.list?.links || []) if (!(a >= 0 && a < f.list.values.length) || !(b >= -1 && b < f.list.values.length)) bad(fw, `flecha ${a}→${b} inválida`);
+          if (f.graph) {
+            if (!s.graph?.nodes) bad(fw, 'falta step.graph.nodes');
+            const has = (id) => s.graph?.nodes && String(id) in s.graph.nodes;
+            for (const e of f.graph.edges || s.graph?.edges || []) if (!has(e[0]) || !has(e[1])) bad(fw, `arista ${e} con nodo desconocido`);
+            for (const k2 of [...Object.keys(f.graph.hl || {}), ...Object.keys(f.graph.labels || {}), ...(f.graph.show || [])]) if (!has(k2)) bad(fw, `nodo ${k2} desconocido`);
+          }
+        });
+      }
       if (s.type === 'code') {
         try {
           const ok = run(s.solution, s.fnName, s.tests, s.wrap);

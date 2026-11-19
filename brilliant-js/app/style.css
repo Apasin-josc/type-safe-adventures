@@ -438,3 +438,80 @@ button.cell:hover { border-color: var(--ink); }
 .read-more { text-align: left; max-width: 420px; margin: 0 auto 22px; padding: 14px 16px; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); display: grid; gap: 8px; }
 .read-more a { color: var(--sel); font-weight: 700; text-decoration: none; display: flex; justify-content: space-between; gap: 10px; }
 .read-more small { color: var(--faint); font-weight: 500; }
+
+/* ─────────── Visualizador (viz) ─────────── */
+.w-viz .code.lines { margin-bottom: 14px; }
+.vz-stage { display: flex; flex-direction: column; gap: 10px; }
+.vz-arr.has-ptr { margin-top: 26px; }
+.vz-arr .cell { position: relative; }
+.vz-arr .cell.ptr { border-color: var(--accent); }
+.vz-ptr { position: absolute; top: -22px; left: 0; right: 0; text-align: center; color: var(--accent); font-weight: 900; font-size: 0.8rem; white-space: nowrap; }
+.vz-bars { display: flex; align-items: flex-end; height: 170px; gap: 0; margin: 4px 0 6px; }
+.vz-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; transition: opacity 0.25s; }
+.vz-bar .vz-ptr { position: static; height: 18px; }
+.vz-bar i { display: block; align-self: stretch; margin: 0 3px; background: var(--code); border: 2px solid color-mix(in srgb, var(--faint) 50%, transparent); border-radius: 8px 8px 3px 3px; transition: height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.2s, border-color 0.2s; }
+.vz-bar b { margin-top: 4px; font: 800 0.95rem var(--mono); }
+.vz-bar.cur i { background: var(--sel-soft); border-color: var(--sel); }
+.vz-bar.cmp i { background: var(--accent-soft); border-color: var(--accent); }
+.vz-bar.good i { background: var(--good-soft); border-color: var(--good); }
+.vz-bar.bad i { background: var(--bad-soft); border-color: var(--bad); }
+.vz-bar.pivot i { background: var(--accent); border-color: var(--accent); }
+.vz-bar.dim { opacity: 0.3; }
+.vz-gap { width: 14px; flex: none; }
+.vz-sq { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-end; }
+.vz-stack small, .vz-queue small { display: block; color: var(--faint); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; margin-bottom: 6px; }
+.vz-stack small.vz-empty { margin-top: 4px; letter-spacing: 0; font-weight: 600; }
+.vz-tube { width: 96px; padding: 6px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; border: 2.5px solid var(--faint); border-top: 0; border-radius: 0 0 10px 10px; box-sizing: border-box; }
+.vz-lane { display: flex; flex-wrap: wrap; gap: 6px; min-width: 120px; min-height: 50px; padding: 6px; border-block: 2.5px solid var(--faint); box-sizing: border-box; }
+.vz-queue small:last-child { margin: 4px 0 0; letter-spacing: 0; font-weight: 700; }
+.vz-box { min-width: 38px; height: 32px; padding: 0 8px; display: grid; place-items: center; border-radius: 8px; border: 2px solid var(--line); background: var(--surface); font: 800 0.95rem var(--mono); box-sizing: border-box; }
+.vz-box.cur, .vz-iv.cur { border-color: var(--sel); background: var(--sel-soft); }
+.vz-box.good, .vz-iv.good { border-color: var(--good); background: var(--good-soft); }
+.vz-box.cmp, .vz-iv.cmp { border-color: var(--accent); background: var(--accent-soft); }
+.vz-box.bad, .vz-iv.bad { border-color: var(--bad); background: var(--bad-soft); }
+.vz-intervals { position: relative; }
+.vz-row { position: relative; height: 26px; margin-bottom: 5px; }
+.vz-iv { position: absolute; top: 0; height: 26px; display: grid; place-items: center; border-radius: 7px; border: 2px solid var(--line); background: var(--surface); font: 800 0.78rem var(--mono); box-sizing: border-box; white-space: nowrap; overflow: hidden; }
+.vz-iv.dim { opacity: 0.3; }
+.vz-axis { position: relative; height: 22px; border-top: 2px solid var(--line); margin-top: 4px; }
+.vz-axis span { position: absolute; top: 3px; transform: translateX(-50%); font: 0.68rem var(--mono); color: var(--faint); }
+.vz-result { display: block; color: var(--good); font-size: 0.72rem; font-weight: 900; letter-spacing: 0.06em; margin: 8px 0 4px; }
+.vz-svg { width: 100%; height: auto; overflow: visible; font-family: var(--mono); }
+.vz-svg text { text-anchor: middle; dominant-baseline: middle; }
+.vz-link { fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+.vz-headfill { fill: var(--muted); }
+.vz-null { font-size: 11px; font-weight: 700; fill: var(--faint); }
+.vz-node rect { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+.vz-node text { font-size: 16px; font-weight: 800; fill: var(--ink); }
+.vz-ptrtext { font: 900 12.5px system-ui, sans-serif; fill: var(--accent); }
+.vz-ptrline { stroke: var(--accent); stroke-width: 2; }
+.vz-ptrhead { fill: var(--accent); }
+.vz-edge { stroke: var(--faint); stroke-width: 2; stroke-linecap: round; }
+.vz-ghead { fill: var(--faint); }
+.vz-w rect { fill: var(--bg); }
+.vz-w text { font-size: 12px; font-weight: 800; fill: var(--muted); }
+.vz-gnode circle { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+.vz-gnode text { font-size: 14px; font-weight: 800; fill: var(--ink); }
+.vz-glabel rect { fill: var(--accent); }
+.vz-glabel text { font-size: 11.5px; font-weight: 800; fill: var(--accent-ink); }
+.vz-node.cur rect, .vz-gnode.cur circle { fill: var(--sel-soft); stroke: var(--sel); stroke-width: 3; }
+.vz-node.cmp rect, .vz-gnode.cmp circle { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.vz-node.good rect, .vz-gnode.good circle { fill: var(--good-soft); stroke: var(--good); stroke-width: 3; }
+.vz-node.bad rect, .vz-gnode.bad circle { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 3; }
+.vz-node.dim, .vz-gnode.dim { opacity: 0.3; }
+.vz-edge.cur { stroke: var(--sel); stroke-width: 3.5; } .vz-ghead.cur { fill: var(--sel); }
+.vz-edge.good { stroke: var(--good); stroke-width: 3.5; } .vz-ghead.good { fill: var(--good); }
+.vz-edge.cmp { stroke: var(--accent); stroke-width: 3.5; } .vz-ghead.cmp { fill: var(--accent); }
+.vz-edge.bad { stroke: var(--bad); stroke-width: 3.5; } .vz-ghead.bad { fill: var(--bad); }
+.vz-edge.dim { stroke: var(--line); }
+.vz-w.cur text { fill: var(--sel); } .vz-w.cmp text { fill: var(--accent); } .vz-w.good text { fill: var(--good); } .vz-w.bad text { fill: var(--bad); }
+.w-viz .vars { min-height: 0; margin-top: 10px; }
+.w-viz .vars[hidden] { display: none; }
+.vz-note { min-height: 3.2em; margin: 12px 0 10px; padding: 10px 14px; background: var(--surface); border-radius: 14px; border-left: 4px solid var(--accent); line-height: 1.4; }
+.vz-note:empty { display: none; }
+.vz-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-bottom: 10px; }
+.vz-dots i { width: 7px; height: 7px; border-radius: 9px; background: var(--line); transition: width 0.2s, background 0.2s; }
+.vz-dots i.on { background: var(--accent); }
+.vz-dots i.now { width: 18px; }
+.vz-nav { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+@media (prefers-reduced-motion: reduce) { .vz-bar i, .vz-dots i { transition: none; } }

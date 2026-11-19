@@ -5,6 +5,7 @@ import 'code_step.dart';
 import 'common.dart';
 import 'explore.dart';
 import 'order_trace.dart';
+import 'viz.dart';
 
 /// Escoge el widget de cada pantalla según su "type" en el JSON.
 Widget buildStep(StepController c, {Key? key}) {
@@ -24,6 +25,7 @@ Widget buildStep(StepController c, {Key? key}) {
     'pointers' => PointersStep(c, key: key),
     'code' => CodeStep(c, key: key),
     'classify' => ClassifyStep(c, key: key),
+    'viz' => VizStep(c, key: key),
     final t => Text('Tipo de pantalla desconocido: $t'),
   };
 }
