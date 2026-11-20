@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/closet.dart';
 import '../data/mission.dart';
 import '../data/models.dart';
 import '../data/progress.dart';
@@ -14,6 +15,7 @@ import '../steps/common.dart';
 import '../steps/registry.dart';
 import '../ui/chunky.dart';
 import '../ui/dressed.dart';
+import '../ui/salsa_fetch.dart';
 import '../ui/i18n.dart';
 import '../ui/rich.dart';
 import '../ui/salsa.dart';
@@ -79,6 +81,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   _Sheet? sheet;
   late StepController ctl = _makeController();
   String? hintMsg; // la pista que trajo Salsa en esta pantalla
+  bool fetching = false; // Salsa fue por la pista (animación)
   bool hinted = false; // con pista, la pantalla ya no cuenta "a la primera"
   int? review; // una pantalla anterior que estás repasando
   StepController? reviewCtl;
@@ -120,6 +123,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       attempts = 0;
       hintMsg = null;
       hinted = false;
+      fetching = false;
       _closeReview();
       ctl.dispose();
       ctl = _makeController();
@@ -204,20 +208,31 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     });
   }
 
-  /// Salsa trae una pista: tacha una opción, acomoda una pieza o te da una idea.
+  /// Salsa va por la pista: corre, escarba o va por la pelota (ver SalsaFetch)…
   void _useHint() {
-    final msg = ctl.sniff?.call();
     HapticFeedback.selectionClick();
-    sfx.play(Sfx.tap);
+    setState(() => fetching = true);
+    _scrollToEnd();
+  }
+
+  /// …y cuando regresa, la pista se aplica (tacha, acomoda) y te la dice.
+  void _hintArrived() {
+    if (!mounted || !fetching) return;
+    final msg = ctl.sniff?.call();
+    HapticFeedback.mediumImpact();
+    sfx.play(Sfx.unlock);
     setState(() {
+      fetching = false;
       hinted = msg != null;
       hintMsg = msg ?? t('hint_none');
     });
     voice.speak(hintMsg!.replaceAll(RegExp(r'<[^>]+>'), '').replaceAll('🐾', ''), lang);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scroll.hasClients) scroll.animateTo(scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-    });
+    _scrollToEnd();
   }
+
+  void _scrollToEnd() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scroll.hasClients) scroll.animateTo(scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+      });
 
   /// Repasar una pantalla que ya pasaste, con la respuesta a la vista. La actual se queda tal cual.
   void _openReview(int i) {
@@ -387,6 +402,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             if (step['prompt'] != null)
               Padding(padding: const EdgeInsets.only(bottom: 18), child: Rich(tx(step['prompt'], lang), style: const TextStyle(fontSize: 19, height: 1.4))),
             buildStep(c, key: ValueKey('${mode.name}-${from.key}-$i-${at == null ? 'live' : 'review'}')),
+            if (at == null && fetching)
+              Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: SalsaFetch(onDone: _hintArrived, sweater: wears(ref.read(progressProvider), 'sweater')),
+              ),
             if (at == null && hintMsg != null) _hintBubble(p, hintMsg!),
           ]),
         ),
@@ -441,7 +461,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ])
               : s == null
               ? Row(children: [
-                  if (isGraded && hintMsg == null && ctl.sniff != null && !ctl.interview) ...[
+                  if (isGraded && hintMsg == null && !fetching && ctl.sniff != null && !ctl.interview) ...[
                     ChunkyButton(label: t('hint_btn'), kind: ChunkyKind.ghost, expand: false, onPressed: checking ? null : _useHint),
                     const SizedBox(width: 10),
                   ],

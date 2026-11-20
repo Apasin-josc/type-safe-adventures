@@ -544,3 +544,5 @@ button.cell:hover { border-color: var(--ink); }
 .hb-salsa { flex: none; width: 62px; }
 .hb-salsa canvas { display: block; }
 .hb-text { flex: 1; padding: 10px 14px; background: var(--surface); border: 2px solid var(--accent); border-radius: 16px 16px 16px 4px; line-height: 1.4; }
+.fetch-strip { margin-top: 14px; height: 104px; }
+.fetch-strip canvas { display: block; }

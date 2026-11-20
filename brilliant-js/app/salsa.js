@@ -705,5 +705,174 @@
     return { el, destroy: () => cancelAnimationFrame(raf) };
   }
 
-  window.Salsa = { mount, celebrate, paintSide, paintFront, VW, VH };
+
+  /**
+   * Salsa va por tu pista (igual que lib/ui/salsa_fetch.dart): corre, escarba un hoyo y saca un
+   * hueso, o se va por la pelota y regresa con ella en el hocico. Al terminar llama a onDone.
+   * Regresa { el, destroy() }.
+   */
+  function fetch(width, onDone, kind = Math.random() < 0.5 ? 'dig' : 'ball') {
+    const H = 104;
+    const el = document.createElement('canvas');
+    el.className = 'salsa-fetch';
+    el.setAttribute('aria-hidden', 'true');
+    const { ctx, dpr } = setup(el, width, H);
+    const total = kind === 'dig' ? 3.1 : 2.6;
+    const SW = 84;
+    const SH = (SW * VH) / VW;
+    const ground = 98;
+    const r = rng(3);
+    const dirt = Array.from({ length: 26 }, () => [0.8 + r() * 1.05, 40 + r() * 90, 90 + r() * 90, 2 + r() * 2.6]);
+    const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+    const run = (t, carrying) => ({ breath: 0, blink: 1, tuck: 0.5 + 0.5 * Math.sin(t * Math.PI * 2 * 4.5), tail: -0.5 + 0.2 * Math.sin(t * 20), ear: 0.85, headTilt: carrying ? -0.04 : -0.08, mouthOpen: 0 });
+    const still = (extra) => ({ breath: 0, blink: 1, tuck: 0, tail: 0, ear: 0.2, headTilt: 0, mouthOpen: 0, ...extra });
+    const t0 = performance.now();
+    let raf = 0;
+    let done = false;
+
+    function bone(cx, cy, spin) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(spin);
+      ctx.fillStyle = '#FFF6E3';
+      ctx.strokeStyle = '#C9B48E';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(-9, -2.5, 18, 5, 2);
+      for (const dx of [-9, 9]) for (const dy of [-2.6, 2.6]) {
+        ctx.moveTo(dx + 3.2, dy);
+        ctx.arc(dx, dy, 3.2, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    function ball(cx, cy) {
+      ctx.fillStyle = '#D7E84A';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(cx - 4.5, cy, 5, -0.9, 0.9);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx + 4.5, cy, 5, Math.PI - 0.9, Math.PI + 0.9);
+      ctx.stroke();
+    }
+
+    function frame(now) {
+      const t = (now - t0) / 1000;
+      const w = width;
+      const digX = w * 0.55;
+      const holeX = digX + SW * 0.98;
+      let x;
+      let flip;
+      let pose;
+      let bob = 0;
+      let carrying = false;
+      let hole = 0;
+      const hop = () => -5 * Math.abs(Math.sin(t * Math.PI * 2 * 4.5));
+      if (kind === 'dig') {
+        if (t < 0.75) [x, flip, pose, bob] = [ease(seg(t, 0, 0.75)) * digX, false, run(t), hop()];
+        else if (t < 2.0) {
+          const k = Math.sin(t * Math.PI * 2 * 7);
+          [x, flip, pose, bob] = [digX, false, still({ tuck: 0.18 + 0.18 * k, headTilt: 0.9 + 0.08 * k, ear: 0.55, tail: Math.sin(t * 26) }), 1.5 * k];
+          hole = ease(seg(t, 0.8, 1.8));
+        } else if (t < 2.3) {
+          [x, flip, pose] = [digX, false, still({ ear: 1, headTilt: -0.12, tail: Math.sin(t * 30), mouthOpen: 1 })];
+          hole = 1;
+          carrying = t > 2.2;
+        } else {
+          [x, flip, pose, bob] = [digX * (1 - ease(seg(t, 2.3, 3.0))), true, run(t, true), hop()];
+          hole = 1 - seg(t, 2.6, 3.1);
+          carrying = true;
+        }
+      } else if (t < 0.7) [x, flip, pose, bob] = [ease(seg(t, 0, 0.7)) * (w + 10), false, run(t), hop()];
+      else if (t < 1.25) [x, flip, pose] = [w + 40, false, still({})];
+      else {
+        const k = ease(seg(t, 1.25, 2.3));
+        [x, flip, pose, bob] = [(w + 10) * (1 - k), true, k >= 1 ? still({ ear: 1, tail: Math.sin(t * 30) }) : run(t, true), k >= 1 ? 0 : hop()];
+        carrying = true;
+      }
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, el.width, el.height);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.strokeStyle = 'rgba(164, 113, 72, 0.2)';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, ground);
+      ctx.lineTo(w, ground);
+      ctx.stroke();
+      if (hole > 0) {
+        const hw = 34 * hole;
+        ctx.fillStyle = '#4A3424';
+        ctx.beginPath();
+        ctx.ellipse(holeX, ground, hw / 2, 4.5 * hole, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#9C6B45';
+        ctx.beginPath();
+        ctx.ellipse(holeX + hw * 0.62, ground - 2, 8 * hole, 3.5 * hole, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (kind === 'dig') {
+        for (const [born, vx, vy, rad] of dirt) {
+          const age = t - born;
+          if (age < 0 || age > 0.75) continue;
+          const px = holeX - 6 - vx * age * 1.6;
+          const py = ground - 4 - vy * age + 380 * age * age;
+          if (py > ground) continue;
+          ctx.fillStyle = `rgba(${rad > 3.3 ? '185,138,94' : '122,82,50'}, ${1 - age / 0.75})`;
+          ctx.beginPath();
+          ctx.arc(px, py, rad, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.save();
+      ctx.translate(x, ground - SH + 3 + bob);
+      paintSide(ctx, SW, SH, pose, flip, bob === 0);
+      ctx.restore();
+      const mx = x + (flip ? SW - (117 * SW) / VW : (117 * SW) / VW);
+      const my = ground - SH + 3 + bob + (25 * SW) / VW;
+      if (kind === 'dig' && t >= 1.95 && t < 2.2) {
+        const k = seg(t, 1.95, 2.2);
+        bone(holeX + (mx - holeX) * k, ground - 2 + (my - ground + 2) * k - 34 * Math.sin(Math.PI * k), k * 5);
+      } else if (carrying) {
+        if (kind === 'dig') bone(mx, my, 0);
+        else ball(mx, my);
+      }
+      if (kind === 'ball' && t > 0.6 && t < 1.4) {
+        const k = seg(t, 0.6, 1.4);
+        ctx.fillStyle = `rgba(185, 138, 94, ${0.35 * (1 - k)})`;
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(w - 14 - i * 10 - k * 12, ground - 6 - i * 4 - k * 10, 5 + k * 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      if (t >= total) {
+        if (!done) {
+          done = true;
+          onDone();
+        }
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    if (reduce()) {
+      done = true;
+      setTimeout(onDone, 0);
+    } else raf = requestAnimationFrame(frame);
+    return {
+      el,
+      destroy() {
+        cancelAnimationFrame(raf);
+      },
+    };
+  }
+
+  window.Salsa = { mount, celebrate, fetch, paintSide, paintFront, VW, VH };
 })();

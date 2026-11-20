@@ -9,6 +9,7 @@ import 'package:chispa/data/closet.dart';
 import 'package:chispa/data/models.dart';
 import 'package:chispa/data/progress.dart';
 import 'package:chispa/main.dart';
+import 'package:chispa/ui/salsa_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,8 +110,16 @@ void main() {
     // Pista en una pregunta de opción múltiple (STEP=4 en arreglos) y repasar la pantalla anterior.
     go('/lesson/algos/arrays');
     await wait(1000);
+    // Salsa escarba por la pista: capturas a media carrera, escarbando y de regreso con el hueso.
+    SalsaFetch.forceKind = FetchKind.dig;
     await tester.tap(find.text('🐾 Pista'));
+    await wait(500);
+    await binding.takeScreenshot('08a-run');
     await wait(900);
+    await binding.takeScreenshot('08b-dig');
+    await wait(1100);
+    await binding.takeScreenshot('08c-back');
+    await wait(1400);
     await shot('08-sniff');
     await tester.tap(find.byTooltip('Pantalla anterior'));
     await wait(900);

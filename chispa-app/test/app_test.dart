@@ -144,6 +144,11 @@ void main() {
     // 1 · tocar: Salsa tacha casillas que no son, y la pista se usa una sola vez.
     expect(find.text('🐾 Pista'), findsOneWidget);
     await tap(find.text('🐾 Pista'));
+    // Salsa va por la pista (corre, escarba, regresa) y luego aparece la burbuja.
+    expect(find.text('Taché las casillas que seguro no son. 🐾', findRichText: true), findsNothing);
+    for (var k = 0; k < 40; k++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     expect(find.text('Taché las casillas que seguro no son. 🐾', findRichText: true), findsOneWidget);
     expect(find.text('🐾 Pista'), findsNothing);
     await tap(find.text('🌮'));

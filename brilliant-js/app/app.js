@@ -600,11 +600,25 @@
       window.scrollTo(0, 0);
     }
 
-    /** Salsa trae una pista: tacha una opción, acomoda una pieza o te da una idea. */
+    /** Salsa va por la pista (corre, escarba o va por la pelota) y al regresar te la da. */
     function useHint() {
+      hintBtn.hidden = true;
+      const strip = document.createElement('div');
+      strip.className = 'fetch-strip';
+      liveEl.appendChild(strip);
+      const myW = w;
+      const run = window.Salsa.fetch(Math.max(200, strip.clientWidth || liveEl.clientWidth), () => {
+        strip.remove();
+        if (w === myW && strip.isConnected === false && liveEl.contains(myW.el)) giveHint();
+      });
+      live.push(run);
+      strip.appendChild(run.el);
+      strip.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function giveHint() {
       const msg = w.sniff ? w.sniff() : null;
       hinted = msg !== null;
-      hintBtn.hidden = true;
       const bubble = document.createElement('div');
       bubble.className = 'hint-bubble';
       bubble.innerHTML = `<div class="hb-salsa"></div><div class="hb-text">${msg || t('hint_none')}</div>`;
