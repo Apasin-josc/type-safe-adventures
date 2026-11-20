@@ -30,6 +30,21 @@
       next: 'Continuar',
       retry: 'Intentar de nuevo',
       see_solution: 'Ver la solución',
+      hint_btn: '🐾 Pista',
+      hint_choice: 'Olfateé y taché una opción que no es. 🐾',
+      hint_tap: 'Taché las casillas que seguro no son. 🐾',
+      hint_num: (d, first) => `Te digo un secreto: tiene ${d} cifras y empieza con ${first}. 🐾`,
+      hint_num_even: 'Te digo un secreto: es un número par de una sola cifra. 🐾',
+      hint_num_odd: 'Te digo un secreto: es un número impar de una sola cifra. 🐾',
+      hint_neg: 'Te digo un secreto: es negativo. 🐾',
+      hint_fill: 'Puse una ficha en su lugar. ¡Las demás te tocan a ti! 🐾',
+      hint_classify: (item, bin) => `${item} va en «${bin}». Las demás te tocan a ti. 🐾`,
+      hint_order: 'Acomodé el siguiente bloque. ¡Sigue tú! 🐾',
+      hint_none: 'Esta es de dos opciones: si te digo una, te digo la respuesta. ¡Confía en tu instinto! 🐾',
+      review_banner: (a, b) => `REPASANDO · PANTALLA ${a} DE ${b}`,
+      review_back: 'Volver a donde ibas',
+      review_next: 'Siguiente ▶',
+      review_prev: 'Pantalla anterior',
       praise: ['¡Exacto!', '¡Bien visto!', '¡Eso es!', '¡Correcto!'],
       wrong: 'No exactamente',
       wrong_generic: 'Revisa tu respuesta y vuelve a intentarlo.',
@@ -112,6 +127,21 @@
       next: 'Continue',
       retry: 'Try again',
       see_solution: 'See the solution',
+      hint_btn: '🐾 Hint',
+      hint_choice: 'I sniffed out one option that’s wrong and crossed it out. 🐾',
+      hint_tap: 'I crossed out the cells that definitely aren’t it. 🐾',
+      hint_num: (d, first) => `Here’s a secret: it has ${d} digits and starts with ${first}. 🐾`,
+      hint_num_even: 'Here’s a secret: it’s an even, single-digit number. 🐾',
+      hint_num_odd: 'Here’s a secret: it’s an odd, single-digit number. 🐾',
+      hint_neg: 'Here’s a secret: it’s negative. 🐾',
+      hint_fill: 'I put one chip in its place. The rest are up to you! 🐾',
+      hint_classify: (item, bin) => `${item} goes in “${bin}”. The rest are up to you. 🐾`,
+      hint_order: 'I placed the next block. Your turn! 🐾',
+      hint_none: 'This one has two options: if I tell you one, I tell you the answer. Trust your gut! 🐾',
+      review_banner: (a, b) => `REVIEWING · SCREEN ${a} OF ${b}`,
+      review_back: 'Back to where I was',
+      review_next: 'Next ▶',
+      review_prev: 'Previous screen',
       praise: ['Exactly!', 'Nice!', 'That’s it!', 'Correct!'],
       wrong: 'Not quite',
       wrong_generic: 'Look at your answer again and give it another go.',
@@ -493,15 +523,22 @@
     let firstTry = 0;
     let attempts = 0;
     let w = null;
+    let hinted = false; // con pista, la pantalla ya no cuenta "a la primera"
+    let reviewing = null; // índice de la pantalla anterior que estás repasando
+    let rw = null; // su widget
 
     app.innerHTML = `
       <div class="lesson">
         <header class="lesson-bar">
           <a class="close" href="#/" aria-label="${t('exit')}">✕</a>
+          <button type="button" class="back" hidden aria-label="${t('review_prev')}" title="${t('review_prev')}">‹</button>
           <div class="steps" role="progressbar" aria-valuemin="0" aria-valuemax="${total}">${lesson.steps.map(() => '<i></i>').join('')}</div>
         </header>
         <main class="stage"></main>
-        <footer class="lesson-foot"><button type="button" class="btn primary go"></button></footer>
+        <footer class="lesson-foot">
+          <div class="foot-row live-row"><button type="button" class="btn ghost hint" hidden>${t('hint_btn')}</button><button type="button" class="btn primary go"></button></div>
+          <div class="foot-row review-row" hidden><button type="button" class="btn ghost rv-next">${t('review_next')}</button><button type="button" class="btn primary rv-back">${t('review_back')}</button></div>
+        </footer>
         <div class="sheet" hidden role="status" aria-live="assertive">
           <div class="sheet-in">
             <p class="sheet-title"></p>
@@ -514,6 +551,80 @@
     const go = app.querySelector('.go');
     const sheet = app.querySelector('.sheet');
     const bars = [...app.querySelectorAll('.steps i')];
+    const hintBtn = app.querySelector('.hint');
+    const backBtn = app.querySelector('.back');
+    const liveRow = app.querySelector('.live-row');
+    const reviewRow = app.querySelector('.review-row');
+    let liveEl = null;
+
+    // Flecha de regresar, barras tocables y botones de abajo según dónde estés.
+    function nav() {
+      const busy = !sheet.hidden;
+      backBtn.hidden = busy || (reviewing ?? idx) === 0 || idx >= total;
+      bars.forEach((b, i) => {
+        b.classList.toggle('rv', i === reviewing);
+        b.classList.toggle('tappable', !busy && i < idx);
+      });
+      liveRow.hidden = reviewing !== null;
+      reviewRow.hidden = reviewing === null;
+      reviewRow.querySelector('.rv-next').hidden = reviewing === null || reviewing + 1 >= idx;
+    }
+
+    function closeReview() {
+      if (rw && rw.destroy) rw.destroy();
+      rw = null;
+      const old = stage.querySelector('.step.review');
+      if (old) old.remove();
+      if (liveEl) liveEl.hidden = false;
+      reviewing = null;
+      nav();
+    }
+
+    /** Repasar una pantalla que ya pasaste, con la respuesta a la vista. La actual se queda tal cual. */
+    function openReview(i) {
+      if (i < 0 || i >= idx || !sheet.hidden) return;
+      closeReview();
+      const step = lesson.steps[i];
+      const div = document.createElement('div');
+      div.className = 'step review';
+      div.innerHTML = `<p class="review-banner">${t('review_banner', i + 1, total)}</p>
+        ${step.title ? `<h2>${tx(step.title)}</h2>` : ''}
+        ${step.prompt ? `<div class="prompt">${tx(step.prompt)}</div>` : ''}`;
+      rw = Widgets[step.type](step, { t, tx, setReady() {}, submit() {} });
+      div.appendChild(rw.el);
+      if (rw.reveal) rw.reveal();
+      liveEl.hidden = true;
+      stage.appendChild(div);
+      reviewing = i;
+      nav();
+      window.scrollTo(0, 0);
+    }
+
+    /** Salsa trae una pista: tacha una opción, acomoda una pieza o te da una idea. */
+    function useHint() {
+      const msg = w.sniff ? w.sniff() : null;
+      hinted = msg !== null;
+      hintBtn.hidden = true;
+      const bubble = document.createElement('div');
+      bubble.className = 'hint-bubble';
+      bubble.innerHTML = `<div class="hb-salsa"></div><div class="hb-text">${msg || t('hint_none')}</div>`;
+      const pup = window.Salsa.mount(62);
+      bubble.querySelector('.hb-salsa').appendChild(pup.el);
+      live.push(pup);
+      liveEl.appendChild(bubble);
+      bubble.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    hintBtn.addEventListener('click', useHint);
+    backBtn.addEventListener('click', () => openReview((reviewing ?? idx) - 1));
+    reviewRow.querySelector('.rv-next').addEventListener('click', () => openReview(reviewing + 1));
+    reviewRow.querySelector('.rv-back').addEventListener('click', closeReview);
+    bars.forEach((b, i) =>
+      b.addEventListener('click', () => {
+        if (i < idx) openReview(i);
+        else if (i === idx && reviewing !== null) closeReview();
+      })
+    );
 
     const ctx = {
       t,
@@ -528,6 +639,9 @@
     function showStep() {
       const step = lesson.steps[idx];
       attempts = 0;
+      hinted = false;
+      reviewing = null;
+      rw = null;
       ctx.ready = false;
       bars.forEach((b, i) => b.classList.toggle('on', i < idx + 1));
       app.querySelector('.steps').setAttribute('aria-valuenow', String(idx + 1));
@@ -537,8 +651,11 @@
       </div>`;
       go.disabled = true;
       w = Widgets[step.type](step, ctx);
-      stage.firstElementChild.appendChild(w.el);
+      liveEl = stage.firstElementChild;
+      liveEl.appendChild(w.el);
       go.textContent = w.check ? t('check') : t('next');
+      hintBtn.hidden = !(w.check && w.sniff);
+      nav();
       go.disabled = !ctx.ready;
       stage.scrollTop = 0;
       window.scrollTo(0, 0);
@@ -560,18 +677,25 @@
         box.appendChild(b);
       });
       go.hidden = true;
+      liveRow.classList.add('sheet-open');
+      nav();
       box.lastElementChild.focus();
     }
     function closeSheet() {
       sheet.hidden = true;
       go.hidden = false;
+      liveRow.classList.remove('sheet-open');
       go.disabled = !ctx.ready;
+      nav();
     }
 
     function next() {
       closeSheet();
       idx++;
-      if (idx >= total) return finish();
+      if (idx >= total) {
+        backBtn.hidden = true;
+        return finish();
+      }
       showStep();
     }
 
@@ -584,7 +708,7 @@
       if (attempts === 1) graded++;
       const explain = tx(step.explain) || '';
       if (r.ok) {
-        if (attempts === 1) firstTry++;
+        if (attempts === 1 && !hinted) firstTry++;
         if (w.feedback) w.feedback(true);
         const praise = t('praise');
         return openSheet('good', praise[Math.floor(Math.random() * praise.length)], explain, [[t('next'), next]]);

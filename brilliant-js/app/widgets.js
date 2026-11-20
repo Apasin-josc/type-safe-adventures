@@ -75,7 +75,7 @@
     const btns = step.options.map((o, i) => {
       const b = h(`<button type="button" class="opt" role="radio" aria-checked="false">${ctx.tx(o)}</button>`);
       b.addEventListener('click', () => {
-        if (locked) return;
+        if (locked || b.classList.contains('struck')) return;
         sel = i;
         btns.forEach((x, j) => {
           x.classList.toggle('sel', j === i);
@@ -90,6 +90,20 @@
     return {
       el,
       check: () => ({ ok: sel === step.answer, msg: step.why && ctx.tx(step.why[sel]) }),
+      // Pista: tacha una opción incorrecta (con dos opciones sería darte la respuesta).
+      sniff() {
+        const wrong = btns.map((_, i) => i).filter((i) => i !== step.answer && !btns[i].classList.contains('struck'));
+        if (locked || btns.length <= 2 || !wrong.length) return null;
+        const i = wrong[Math.floor(Math.random() * wrong.length)];
+        btns[i].classList.add('struck');
+        btns[i].disabled = true;
+        if (sel === i) {
+          sel = null;
+          btns[i].classList.remove('sel');
+          ctx.setReady(false);
+        }
+        return ctx.t('hint_choice');
+      },
       feedback(ok) {
         btns[sel].classList.add(ok ? 'good' : 'bad');
         if (ok) locked = true;
@@ -106,10 +120,11 @@
     const el = h(`<div class="w-tap">${step.code ? codeBlock(step.code) : ''}</div>`);
     let sel = null;
     let locked = false;
+    const struck = new Set();
     const arr = arrayView(step.values, {
       indices: step.indices !== false,
       onTap: (i) => {
-        if (locked) return;
+        if (locked || struck.has(i)) return;
         sel = i;
         arr.clear('sel');
         arr.clear('bad');
@@ -121,6 +136,21 @@
     return {
       el,
       check: () => ({ ok: sel === step.answer, msg: step.why && ctx.tx(step.why[sel]) }),
+      // Pista: tacha la mitad de las casillas que no son.
+      sniff() {
+        const wrong = shuffle(step.values.map((_, i) => i).filter((i) => i !== step.answer && !struck.has(i)));
+        if (locked || !wrong.length) return null;
+        wrong.slice(0, Math.ceil(wrong.length / 2)).forEach((i) => {
+          struck.add(i);
+          arr.set(i, 'dim');
+        });
+        if (sel !== null && struck.has(sel)) {
+          arr.set(sel, 'sel', false);
+          sel = null;
+          ctx.setReady(false);
+        }
+        return ctx.t('hint_tap');
+      },
       feedback(ok) {
         arr.set(sel, ok ? 'good' : 'bad');
         if (ok) locked = true;
@@ -146,6 +176,15 @@
       check: () => {
         const n = Number(input.value.replace(/[,\s]/g, ''));
         return { ok: n === step.answer, msg: step.hint && ctx.tx(step.hint) };
+      },
+      // Pista: la de la lección, o cuántas cifras tiene y con qué empieza.
+      sniff() {
+        if (input.readOnly) return null;
+        if (step.hint) return ctx.tx(step.hint);
+        const a = Math.abs(step.answer);
+        if (step.answer < 0) return ctx.t('hint_neg');
+        if (a < 10) return ctx.t(a % 2 ? 'hint_num_odd' : 'hint_num_even');
+        return ctx.t('hint_num', String(a).length, String(a)[0]);
       },
       feedback(ok) {
         input.classList.toggle('good', ok);
@@ -206,6 +245,17 @@
     return {
       el,
       check: () => ({ ok: right(), msg: step.hint && ctx.tx(step.hint) }),
+      // Pista: pone bien el primer hueco vacío o equivocado.
+      sniff() {
+        const k = filled.findIndex((f, i) => f === null || step.chips[f] !== step.answers[i]);
+        if (locked || k === -1) return null;
+        const chip = step.chips.indexOf(step.answers[k]);
+        const other = filled.indexOf(chip);
+        if (other !== -1) filled[other] = null;
+        filled[k] = chip;
+        paint();
+        return ctx.t('hint_fill');
+      },
       feedback(ok) {
         slots.forEach((s, i) => s.classList.add(step.chips[filled[i]] === step.answers[i] ? 'good' : 'bad'));
         if (ok) locked = true;
@@ -273,6 +323,17 @@
         if (r.error) return { ok: false, msg: ctx.t('order_broken') };
         const passed = r.results.filter((x) => x.ok).length;
         return { ok: passed === r.results.length, msg: ctx.t('tests_passed', passed, r.results.length) };
+      },
+      // Pista: el primer bloque fuera de lugar regresa al banco (con los de después) y entra el correcto.
+      sniff() {
+        let k = 0;
+        while (k < built.length && built[k] === k) k++;
+        if (locked || k >= step.lines.length) return null;
+        bank.push(...built.splice(k));
+        bank.splice(bank.indexOf(k), 1);
+        built.push(k);
+        paint();
+        return ctx.t('hint_order');
       },
       feedback(ok) {
         el.querySelector('.built').classList.toggle('good', ok);
@@ -677,6 +738,7 @@
     return {
       el,
       check: runTests,
+      sniff: () => (step.hint ? ctx.tx(step.hint) : null),
       reveal() {
         el.querySelector('.solution').hidden = false;
       },
@@ -709,6 +771,17 @@
     const wrong = () => step.items.filter((it, i) => picked[i] !== it.bin).length;
     return {
       el,
+      // Pista: acomoda un valor en su caja.
+      sniff() {
+        const i = step.items.findIndex((it, k) => picked[k] !== it.bin);
+        if (locked || i === -1) return null;
+        picked[i] = step.items[i].bin;
+        rows[i].querySelectorAll('.cls-bin').forEach((x, k) => x.classList.toggle('on', k === picked[i]));
+        rows.forEach((r) => r.classList.remove('good', 'bad'));
+        ctx.setReady(picked.every((x) => x !== null));
+        const label = ctx.tx(step.items[i].label).replace(/<[^>]+>/g, '');
+        return ctx.t('hint_classify', label, ctx.tx(step.bins[picked[i]]));
+      },
       check: () => ({
         ok: wrong() === 0,
         msg: ctx.t('classify_wrong', wrong()),
