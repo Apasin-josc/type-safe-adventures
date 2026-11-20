@@ -39,6 +39,7 @@
       first_try: 'Al primer intento',
       back: 'Volver al camino',
       next_lesson: 'Siguiente lección',
+      continue_where: 'Seguir donde ibas',
       course_done: '¡Terminaste el curso! Viene más contenido pronto.',
       answer: 'Tu respuesta',
       your_code: 'Tu código',
@@ -120,6 +121,7 @@
       first_try: 'On the first try',
       back: 'Back to the path',
       next_lesson: 'Next lesson',
+      continue_where: 'Pick up where you left off',
       course_done: 'You finished the course! More is coming soon.',
       answer: 'Your answer',
       your_code: 'Your code',
@@ -622,6 +624,9 @@
       const nextL = course.lessons[i + 1];
       if (nextL && !prev) P.hop = { course: course.id, from: i, to: i + 1 };
       saveP();
+      // A dónde seguir: la primera lección sin terminar (si repasabas una vieja, te regresa a donde ibas).
+      const goL = course.lessons.find((l) => !P.done[`${course.id}/${l.id}`]);
+      const goLabel = goL && course.lessons.indexOf(goL) === i + 1 ? `${t('next_lesson')} →` : goL ? `${t('continue_where')}: ${goL.icon} ${tx(goL.title)} →` : '';
       bars.forEach((b) => b.classList.add('on'));
       app.querySelector('.lesson-foot').hidden = true;
       stage.innerHTML = `<div class="finish">
@@ -632,7 +637,7 @@
           <div><b>${acc}%</b><span>${t('first_try')}</span></div>
           <div><b>🔥 ${streak()}</b><span>${t('streak_label')}</span></div>
         </div>
-        ${nextL ? '' : `<p class="prose">${t('course_done')}</p>`}
+        ${goL ? '' : `<p class="prose">${t('course_done')}</p>`}
         ${
           lesson.more && lesson.more.length
             ? `<div class="read-more"><b>📖 ${t('read_more')}</b>${lesson.more
@@ -641,8 +646,8 @@
             : ''
         }
         <div class="finish-actions">
-          ${nextL ? `<a class="btn primary" href="#/c/${course.id}/${nextL.id}">${t('next_lesson')} →</a>` : ''}
-          <a class="btn ${nextL ? 'ghost' : 'primary'}" href="#/">${t('back')}</a>
+          ${goL ? `<a class="btn primary" href="#/c/${course.id}/${goL.id}">${goLabel}</a>` : ''}
+          <a class="btn ${goL ? 'ghost' : 'primary'}" href="#/">${t('back')}</a>
         </div>
       </div>`;
       const fest = window.Salsa.celebrate(190);

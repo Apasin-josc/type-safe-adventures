@@ -34,6 +34,9 @@ class StepController extends ChangeNotifier {
   bool Function()? canHint;
   VoidCallback? onHint;
   VoidCallback? onSubmit; // lo pone el reproductor: "Enter" en un campo de texto
+  /// Pista de Salsa para cualquier pantalla: hace una ayudita (tachar, acomodar una pieza…) y
+  /// regresa el mensaje para la burbuja, o null si ya no hay nada que dar.
+  String? Function()? sniff;
 
   void setReady(bool v) {
     if (ready == v) return;

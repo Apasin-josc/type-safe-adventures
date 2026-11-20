@@ -5,25 +5,10 @@
   "en": "Algorithms by intuition"
  },
  "blurb": {
-  "es": "De arrays a Dijkstra: dos punteros, hash maps, recursión, árboles, grafos, heaps, DP, listas, pilas, ordenamiento, tries y Union-Find. Con animaciones para ver cada idea.",
-  "en": "From arrays to Dijkstra: two pointers, hash maps, recursion, trees, graphs, heaps, DP, lists, stacks, sorting, tries and Union-Find. With animations to see every idea."
+  "es": "Todo lo que piden en entrevistas, de arrays a DP en 2D: punteros, ventanas, hash maps, árboles, grafos, heaps, listas, pilas, ordenamiento, tries, Union-Find, Dijkstra, greedy, bits y más. Con animaciones.",
+  "en": "Everything interviews ask, from arrays to 2D DP: pointers, windows, hash maps, trees, graphs, heaps, lists, stacks, sorting, tries, Union-Find, Dijkstra, greedy, bits and more. With animations."
  },
- "soon": [
-  {
-   "icon": "🧮",
-   "title": {
-    "es": "Manipulación de bits",
-    "en": "Bit manipulation"
-   }
-  },
-  {
-   "icon": "🧭",
-   "title": {
-    "es": "Orden topológico",
-    "en": "Topological sort"
-   }
-  }
- ],
+ "soon": [],
  "lessons": [
   {
    "id": "arrays",
@@ -7830,6 +7815,4625 @@
      }
     }
    ]
+  },
+  {
+   "id": "prefix-sums",
+   "unit": 6,
+   "icon": "📈",
+   "title": {
+    "es": "Sumas prefijo",
+    "en": "Prefix sums"
+   },
+   "blurb": {
+    "es": "Sumar cualquier pedazo con una resta",
+    "en": "Summing any chunk with one subtraction"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Sumar una vez, preguntar mil",
+      "en": "Add once, ask a thousand times"
+     },
+     "code": "const prefix = [0];\nfor (const x of nums) prefix.push(prefix.at(-1) + x);\n// suma de nums[l..r]:\nprefix[r + 1] - prefix[l];",
+     "body": {
+      "es": "<p>Si te van a preguntar muchas veces “¿cuánto suman los elementos del 2 al 7?”, sumar cada vez cuesta O(n).</p><p>Truco: guarda en <code>prefix[i]</code> la suma de los primeros <code>i</code>. Cualquier pedazo es una resta de dos prefijos: O(1).</p>",
+      "en": "<p>If you’ll be asked many times “what do elements 2 through 7 add up to?”, summing each time costs O(n).</p><p>Trick: store in <code>prefix[i]</code> the sum of the first <code>i</code>. Any chunk is a subtraction of two prefixes: O(1).</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "Mira cómo se arma <code>prefix</code> y cómo contesta una pregunta.",
+      "en": "Watch <code>prefix</code> get built and answer a question."
+     },
+     "code": "const prefix = [0];\nfor (let i = 0; i < nums.length; i++) {\n  prefix.push(prefix[i] + nums[i]);\n}\nconst sum = prefix[r + 1] - prefix[l];",
+     "frames": [
+      {
+       "line": 0,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ]
+       },
+       "vars": {
+        "prefix": [
+         0
+        ]
+       },
+       "note": {
+        "es": "<code>prefix[0] = 0</code>: la suma de “nada”.",
+        "en": "<code>prefix[0] = 0</code>: the sum of “nothing”."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "0": "cur"
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3
+        ]
+       },
+       "note": {
+        "es": "prefix[1] = prefix[0] + 3 = 3: todo lo de la izquierda, sumado.",
+        "en": "prefix[1] = prefix[0] + 3 = 3: everything on the left, added up."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "0": "good",
+         "1": "cur"
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3,
+         4
+        ]
+       },
+       "note": {
+        "es": "prefix[2] = prefix[1] + 1 = 4: todo lo de la izquierda, sumado.",
+        "en": "prefix[2] = prefix[1] + 1 = 4: everything on the left, added up."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "0": "good",
+         "1": "good",
+         "2": "cur"
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3,
+         4,
+         8
+        ]
+       },
+       "note": {
+        "es": "prefix[3] = prefix[2] + 4 = 8: todo lo de la izquierda, sumado.",
+        "en": "prefix[3] = prefix[2] + 4 = 8: everything on the left, added up."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "0": "good",
+         "1": "good",
+         "2": "good",
+         "3": "cur"
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3,
+         4,
+         8,
+         9
+        ]
+       },
+       "note": {
+        "es": "prefix[4] = prefix[3] + 1 = 9: todo lo de la izquierda, sumado.",
+        "en": "prefix[4] = prefix[3] + 1 = 9: everything on the left, added up."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "0": "good",
+         "1": "good",
+         "2": "good",
+         "3": "good",
+         "4": "cur"
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3,
+         4,
+         8,
+         9,
+         14
+        ]
+       },
+       "note": {
+        "es": "prefix[5] = prefix[4] + 5 = 14: todo lo de la izquierda, sumado.",
+        "en": "prefix[5] = prefix[4] + 5 = 14: everything on the left, added up."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         3,
+         1,
+         4,
+         1,
+         5
+        ],
+        "hl": {
+         "1": "good",
+         "2": "good",
+         "3": "good"
+        },
+        "ptrs": {
+         "l": 1,
+         "r": 3
+        }
+       },
+       "vars": {
+        "prefix": [
+         0,
+         3,
+         4,
+         8,
+         9,
+         14
+        ]
+       },
+       "note": {
+        "es": "¿Suma de 1 a 3? <code>prefix[4] − prefix[1]</code> = 9 − 3 = <b>6</b>. Una resta, sin volver a sumar: O(1).",
+        "en": "Sum from 1 to 3? <code>prefix[4] − prefix[1]</code> = 9 − 3 = <b>6</b>. One subtraction, no re-adding: O(1)."
+       }
+      }
+     ]
+    },
+    {
+     "type": "number",
+     "prompt": {
+      "es": "Con <code>prefix = [0, 3, 4, 8, 9, 14]</code>, ¿cuánto suman <code>nums[2..4]</code>?",
+      "en": "With <code>prefix = [0, 3, 4, 8, 9, 14]</code>, what do <code>nums[2..4]</code> add up to?"
+     },
+     "answer": 10,
+     "explain": {
+      "es": "<code>prefix[5] − prefix[2]</code> = 14 − 4 = 10. Comprueba: 4 + 1 + 5 = 10.",
+      "en": "<code>prefix[5] − prefix[2]</code> = 14 − 4 = 10. Check: 4 + 1 + 5 = 10."
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "El clásico: ¿cuántos pedazos seguidos suman <b>k</b>? Sumas prefijo + hash map.",
+      "en": "The classic: how many contiguous chunks add up to <b>k</b>? Prefix sums + a hash map."
+     },
+     "code": "let sum = 0, count = 0;\nconst seen = { 0: 1 };\nfor (const x of nums) {\n  sum += x;\n  count += seen[sum - k] || 0;\n  seen[sum] = (seen[sum] || 0) + 1;\n}\nreturn count;",
+     "frames": [
+      {
+       "line": 1,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ]
+       },
+       "vars": {
+        "sum": 0,
+        "count": 0,
+        "seen": {
+         "0": 1
+        }
+       },
+       "note": {
+        "es": "Buscamos pedazos que sumen <b>3</b>. <code>seen</code> cuenta cuántas veces hemos visto cada suma acumulada; empieza con <code>{0: 1}</code>.",
+        "en": "We want chunks that add up to <b>3</b>. <code>seen</code> counts how many times each running sum appeared; it starts as <code>{0: 1}</code>."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ],
+        "hl": {
+         "0": "cur"
+        }
+       },
+       "vars": {
+        "sum": 1,
+        "need": -2,
+        "count": 0,
+        "seen": {
+         "0": 1
+        }
+       },
+       "note": {
+        "es": "Suma = 1. ¿Vimos -2 antes? No: ningún pedazo que acabe aquí suma 3.",
+        "en": "Sum = 1. Did we see -2 before? No: no chunk ending here adds to 3."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ],
+        "hl": {
+         "0": "good",
+         "1": "good"
+        }
+       },
+       "vars": {
+        "sum": 3,
+        "need": 0,
+        "count": 1,
+        "seen": {
+         "0": 1,
+         "1": 1
+        }
+       },
+       "note": {
+        "es": "Suma = 3. Si antes vimos 0, lo de en medio suma 3 − 0 = 3. ¡Sí lo vimos! count = 1.",
+        "en": "Sum = 3. If we saw 0 before, what’s in between adds to 3 − 0 = 3. We did! count = 1."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ],
+        "hl": {
+         "1": "good",
+         "2": "good"
+        }
+       },
+       "vars": {
+        "sum": 4,
+        "need": 1,
+        "count": 2,
+        "seen": {
+         "0": 1,
+         "1": 1,
+         "3": 1
+        }
+       },
+       "note": {
+        "es": "Suma = 4. Si antes vimos 1, lo de en medio suma 4 − 1 = 3. ¡Sí lo vimos! count = 2.",
+        "en": "Sum = 4. If we saw 1 before, what’s in between adds to 4 − 1 = 3. We did! count = 2."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ],
+        "hl": {
+         "3": "good"
+        }
+       },
+       "vars": {
+        "sum": 7,
+        "need": 4,
+        "count": 3,
+        "seen": {
+         "0": 1,
+         "1": 1,
+         "3": 1,
+         "4": 1
+        }
+       },
+       "note": {
+        "es": "Suma = 7. Si antes vimos 4, lo de en medio suma 7 − 4 = 3. ¡Sí lo vimos! count = 3.",
+        "en": "Sum = 7. If we saw 4 before, what’s in between adds to 7 − 4 = 3. We did! count = 3."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         1,
+         2,
+         1,
+         3
+        ]
+       },
+       "vars": {
+        "count": 3
+       },
+       "note": {
+        "es": "<b>3</b> pedazos suman 3, en una sola pasada: <b>O(n)</b>. Sin el hash map serían todos los pares: O(n²).",
+        "en": "<b>3</b> chunks add to 3, in a single pass: <b>O(n)</b>. Without the hash map it’d be every pair: O(n²)."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Para qué empieza <code>seen</code> con <code>{0: 1}</code>?",
+      "en": "Why does <code>seen</code> start as <code>{0: 1}</code>?"
+     },
+     "options": [
+      {
+       "es": "Para contar los pedazos que empiezan desde el índice 0",
+       "en": "To count chunks that start at index 0"
+      },
+      {
+       "es": "Para que el objeto no esté vacío",
+       "en": "So the object isn’t empty"
+      },
+      {
+       "es": "Para evitar dividir entre cero",
+       "en": "To avoid dividing by zero"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Si la suma acumulada ya es k, el pedazo es “desde el principio”: necesitas haber visto la suma 0, la de no tomar nada.",
+      "en": "If the running sum is already k, the chunk goes “from the start”: you need to have seen sum 0, the sum of taking nothing."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>subarraySum(nums, k)</code>: cuántos pedazos seguidos suman exactamente <code>k</code>. Funciona con negativos.",
+      "en": "Write <code>subarraySum(nums, k)</code>: how many contiguous chunks add up to exactly <code>k</code>. It works with negatives."
+     },
+     "fnName": "subarraySum",
+     "starter": "function subarraySum(nums, k) {\n  let sum = 0;\n  let count = 0;\n  const seen = { 0: 1 };\n  for (const x of nums) {\n    \n  }\n  return count;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         1,
+         1,
+         1
+        ],
+        2
+       ],
+       "expect": 2
+      },
+      {
+       "args": [
+        [
+         1,
+         2,
+         3
+        ],
+        3
+       ],
+       "expect": 2
+      },
+      {
+       "args": [
+        [
+         1,
+         -1,
+         0
+        ],
+        0
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        [
+         3
+        ],
+        3
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        [
+         1,
+         2
+        ],
+        5
+       ],
+       "expect": 0
+      }
+     ],
+     "hint": {
+      "es": "Suma <code>x</code>, luego suma a <code>count</code> cuántas veces viste <code>sum - k</code>, y al final anota <code>sum</code> en <code>seen</code>. El orden importa.",
+      "en": "Add <code>x</code>, then add to <code>count</code> how many times you saw <code>sum - k</code>, and finally record <code>sum</code> in <code>seen</code>. The order matters."
+     },
+     "solution": "function subarraySum(nums, k) {\n  let sum = 0;\n  let count = 0;\n  const seen = { 0: 1 };\n  for (const x of nums) {\n    sum += x;\n    count += seen[sum - k] || 0;\n    seen[sum] = (seen[sum] || 0) + 1;\n  }\n  return count;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+     },
+     "explain": {
+      "es": "Con negativos la ventana deslizante no sirve (la suma no crece siempre), pero los prefijos sí. Es LeetCode 560.",
+      "en": "With negatives a sliding window doesn’t work (the sum doesn’t always grow), but prefixes do. It’s LeetCode 560."
+     }
+    }
+   ]
+  },
+  {
+   "id": "sliding-window-2",
+   "unit": 6,
+   "icon": "🐛",
+   "title": {
+    "es": "Ventana que se estira",
+    "en": "A window that stretches"
+   },
+   "blurb": {
+    "es": "Crece por la derecha, encoge por la izquierda",
+    "en": "Grow on the right, shrink on the left"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Como un gusanito",
+      "en": "Like an inchworm"
+     },
+     "code": "let L = 0;\nfor (let R = 0; R < s.length; R++) {\n  // mete s[R]\n  while (/* la ventana ya no sirve */) {\n    // saca s[L]\n    L++;\n  }\n  // aquí la ventana sí sirve: ¿es la mejor?\n}",
+     "body": {
+      "es": "<p>En la ventana fija el tamaño no cambiaba. Muchas preguntas son “el pedazo <b>más largo</b> que cumpla X”.</p><p>Entonces: <code>R</code> siempre avanza para crecer, y cuando la ventana se rompe, <code>L</code> avanza hasta arreglarla. Como un gusanito.</p>",
+      "en": "<p>In the fixed window the size never changed. Many questions are “the <b>longest</b> chunk that satisfies X”.</p><p>So: <code>R</code> always advances to grow, and when the window breaks, <code>L</code> advances until it’s fixed. Like an inchworm.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "El texto más largo <b>sin letras repetidas</b> dentro de <code>\"pwwkew\"</code>.",
+      "en": "The longest stretch <b>with no repeated letters</b> inside <code>\"pwwkew\"</code>."
+     },
+     "code": "const set = new Set();\nlet L = 0, best = 0;\nfor (let R = 0; R < s.length; R++) {\n  while (set.has(s[R])) {\n    set.delete(s[L++]);\n  }\n  set.add(s[R]);\n  best = Math.max(best, R - L + 1);\n}",
+     "frames": [
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "0": "cur"
+        },
+        "ptrs": {
+         "L": 0,
+         "R": 0
+        }
+       },
+       "vars": {
+        "ventana": "p",
+        "best": 1
+       },
+       "note": {
+        "es": "Entra la <b>p</b>. Ventana \"p\", tamaño 1. Mejor: 1.",
+        "en": "<b>p</b> comes in. Window \"p\", size 1. Best: 1."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "0": "cur",
+         "1": "cur"
+        },
+        "ptrs": {
+         "L": 0,
+         "R": 1
+        }
+       },
+       "vars": {
+        "ventana": "pw",
+        "best": 2
+       },
+       "note": {
+        "es": "Entra la <b>w</b>. Ventana \"pw\", tamaño 2. Mejor: 2.",
+        "en": "<b>w</b> comes in. Window \"pw\", size 2. Best: 2."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "0": "cur",
+         "1": "cur",
+         "2": "bad"
+        },
+        "ptrs": {
+         "L": 0,
+         "R": 2
+        }
+       },
+       "vars": {
+        "ventana": "pw",
+        "best": 2
+       },
+       "note": {
+        "es": "La <b>w</b> ya está en la ventana: encoge por la izquierda (sale la p).",
+        "en": "<b>w</b> is already in the window: shrink from the left (p leaves)."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "1": "cur",
+         "2": "bad"
+        },
+        "ptrs": {
+         "L": 1,
+         "R": 2
+        }
+       },
+       "vars": {
+        "ventana": "w",
+        "best": 2
+       },
+       "note": {
+        "es": "La <b>w</b> ya está en la ventana: encoge por la izquierda (sale la w).",
+        "en": "<b>w</b> is already in the window: shrink from the left (w leaves)."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "2": "cur"
+        },
+        "ptrs": {
+         "L": 2,
+         "R": 2
+        }
+       },
+       "vars": {
+        "ventana": "w",
+        "best": 2
+       },
+       "note": {
+        "es": "Entra la <b>w</b>. Ventana \"w\", tamaño 1. Mejor: 2.",
+        "en": "<b>w</b> comes in. Window \"w\", size 1. Best: 2."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "2": "cur",
+         "3": "cur"
+        },
+        "ptrs": {
+         "L": 2,
+         "R": 3
+        }
+       },
+       "vars": {
+        "ventana": "wk",
+        "best": 2
+       },
+       "note": {
+        "es": "Entra la <b>k</b>. Ventana \"wk\", tamaño 2. Mejor: 2.",
+        "en": "<b>k</b> comes in. Window \"wk\", size 2. Best: 2."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "2": "cur",
+         "3": "cur",
+         "4": "cur"
+        },
+        "ptrs": {
+         "L": 2,
+         "R": 4
+        }
+       },
+       "vars": {
+        "ventana": "wke",
+        "best": 3
+       },
+       "note": {
+        "es": "Entra la <b>e</b>. Ventana \"wke\", tamaño 3. Mejor: 3.",
+        "en": "<b>e</b> comes in. Window \"wke\", size 3. Best: 3."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "2": "cur",
+         "3": "cur",
+         "4": "cur",
+         "5": "bad"
+        },
+        "ptrs": {
+         "L": 2,
+         "R": 5
+        }
+       },
+       "vars": {
+        "ventana": "wke",
+        "best": 3
+       },
+       "note": {
+        "es": "La <b>w</b> ya está en la ventana: encoge por la izquierda (sale la w).",
+        "en": "<b>w</b> is already in the window: shrink from the left (w leaves)."
+       }
+      },
+      {
+       "line": 7,
+       "array": {
+        "values": [
+         "p",
+         "w",
+         "w",
+         "k",
+         "e",
+         "w"
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "5": "cur"
+        },
+        "ptrs": {
+         "L": 3,
+         "R": 5
+        }
+       },
+       "vars": {
+        "ventana": "kew",
+        "best": 3
+       },
+       "note": {
+        "es": "Entra la <b>w</b>. Ventana \"kew\", tamaño 3. Mejor: 3. <code>R</code> avanzó n veces y <code>L</code> máximo n: <b>O(n)</b>.",
+        "en": "<b>w</b> comes in. Window \"kew\", size 3. Best: 3. <code>R</code> moved n times and <code>L</code> at most n: <b>O(n)</b>."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Hay un <code>while</code> dentro del <code>for</code>. ¿Cuánto cuesta en total?",
+      "en": "There’s a <code>while</code> inside the <code>for</code>. What does it cost in total?"
+     },
+     "options": [
+      "O(n)",
+      "O(n²)",
+      "O(n log n)"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "<code>L</code> y <code>R</code> solo avanzan, nunca regresan: cada uno da máximo n pasos. 2n en total.",
+      "en": "<code>L</code> and <code>R</code> only move forward, never back: each takes at most n steps. 2n in total."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>longestUnique(s)</code>: el largo del pedazo más largo sin letras repetidas.",
+      "en": "Write <code>longestUnique(s)</code>: the length of the longest stretch with no repeated letters."
+     },
+     "fnName": "longestUnique",
+     "starter": "function longestUnique(s) {\n  const set = new Set();\n  let L = 0;\n  let best = 0;\n  for (let R = 0; R < s.length; R++) {\n    \n  }\n  return best;\n}\n",
+     "tests": [
+      {
+       "args": [
+        "abcabcbb"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        "bbbbb"
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        "pwwkew"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        "dvdf"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        ""
+       ],
+       "expect": 0
+      }
+     ],
+     "hint": {
+      "es": "Mientras <code>s[R]</code> ya esté en el Set, saca <code>s[L]</code> y avanza <code>L</code>. Luego mete <code>s[R]</code> y actualiza <code>best</code> con <code>R - L + 1</code>.",
+      "en": "While <code>s[R]</code> is already in the Set, remove <code>s[L]</code> and advance <code>L</code>. Then add <code>s[R]</code> and update <code>best</code> with <code>R - L + 1</code>."
+     },
+     "solution": "function longestUnique(s) {\n  const set = new Set();\n  let L = 0;\n  let best = 0;\n  for (let R = 0; R < s.length; R++) {\n    while (set.has(s[R])) {\n      set.delete(s[L]);\n      L++;\n    }\n    set.add(s[R]);\n    best = Math.max(best, R - L + 1);\n  }\n  return best;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+     },
+     "explain": {
+      "es": "Es LeetCode 3, de los más preguntados. Con <code>\"dvdf\"</code> se ve por qué hay que sacar letras hasta que la repetida se vaya, no solo una.",
+      "en": "It’s LeetCode 3, one of the most asked. <code>\"dvdf\"</code> shows why you remove letters until the repeat is gone, not just one."
+     }
+    }
+   ]
+  },
+  {
+   "id": "binary-search-2",
+   "unit": 6,
+   "icon": "🎚️",
+   "title": {
+    "es": "Búsqueda binaria pro",
+    "en": "Binary search, pro level"
+   },
+   "blurb": {
+    "es": "Arrays girados y buscar la respuesta",
+    "en": "Rotated arrays and searching the answer"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Tirar la mitad",
+      "en": "Throw away half"
+     },
+     "code": "[4, 5, 6, 7, 0, 1, 2] // ordenado, pero “girado”",
+     "body": {
+      "es": "<p>La búsqueda binaria no es solo para arrays ordenados: sirve siempre que puedas decir “la respuesta <b>no</b> está en esta mitad”.</p><p>En un array girado, una de las dos mitades siempre está ordenada. Revisa si el número cae en esa; si no, está en la otra.</p>",
+      "en": "<p>Binary search isn’t only for sorted arrays: it works whenever you can say “the answer is <b>not</b> in this half”.</p><p>In a rotated array, one of the two halves is always sorted. Check whether the number falls in that one; if not, it’s in the other.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "Buscamos el 0 en un array girado.",
+      "en": "We search for 0 in a rotated array."
+     },
+     "code": "let lo = 0, hi = nums.length - 1;\nwhile (lo <= hi) {\n  const mid = Math.floor((lo + hi) / 2);\n  if (nums[mid] === target) return mid;\n  if (nums[lo] <= nums[mid]) {\n    // la izquierda está ordenada\n    if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;\n    else lo = mid + 1;\n  } else {\n    // la derecha está ordenada\n    if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;\n    else hi = mid - 1;\n  }\n}\nreturn -1;",
+     "frames": [
+      {
+       "line": 0,
+       "array": {
+        "values": [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        "ptrs": {
+         "lo": 0,
+         "hi": 6
+        },
+        "hl": {}
+       },
+       "vars": {
+        "target": 0
+       },
+       "note": {
+        "es": "Un array ordenado que “giró”. Buscamos el <b>0</b>.",
+        "en": "A sorted array that got “rotated”. We’re looking for <b>0</b>."
+       }
+      },
+      {
+       "line": 6,
+       "array": {
+        "values": [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        "ptrs": {
+         "lo": 0,
+         "mid": 3,
+         "hi": 6
+        },
+        "hl": {
+         "3": "cmp"
+        }
+       },
+       "vars": {
+        "target": 0
+       },
+       "note": {
+        "es": "4 ≤ 7: la mitad <b>izquierda</b> está ordenada. ¿El 0 cae entre 4 y 7? No → busca a la derecha.",
+        "en": "4 ≤ 7: the <b>left</b> half is sorted. Is 0 between 4 and 7? No → search right."
+       }
+      },
+      {
+       "line": 6,
+       "array": {
+        "values": [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        "ptrs": {
+         "lo": 4,
+         "mid": 5,
+         "hi": 6
+        },
+        "hl": {
+         "0": "dim",
+         "1": "dim",
+         "2": "dim",
+         "3": "dim",
+         "5": "cmp"
+        }
+       },
+       "vars": {
+        "target": 0
+       },
+       "note": {
+        "es": "0 ≤ 1: la mitad <b>izquierda</b> está ordenada. ¿El 0 cae entre 0 y 1? Sí → busca a la izquierda.",
+        "en": "0 ≤ 1: the <b>left</b> half is sorted. Is 0 between 0 and 1? Yes → search left."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        "ptrs": {
+         "lo": 4,
+         "mid": 4,
+         "hi": 4
+        },
+        "hl": {
+         "0": "dim",
+         "1": "dim",
+         "2": "dim",
+         "3": "dim",
+         "4": "good",
+         "5": "dim",
+         "6": "dim"
+        }
+       },
+       "vars": {
+        "target": 0
+       },
+       "note": {
+        "es": "nums[mid] = 0: ¡encontrado en el índice 4! Tiramos la mitad en cada paso: <b>O(log n)</b>.",
+        "en": "nums[mid] = 0: found at index 4! We dropped half each step: <b>O(log n)</b>."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Quieres la raíz cuadrada entera de <code>x</code> sin <code>Math.sqrt</code>. ¿Sobre qué haces búsqueda binaria?",
+      "en": "You want the integer square root of <code>x</code> without <code>Math.sqrt</code>. What do you binary search over?"
+     },
+     "options": [
+      {
+       "es": "Sobre las respuestas posibles, de 0 a x: ¿<code>mid * mid</code> se pasa o no?",
+       "en": "Over the possible answers, from 0 to x: does <code>mid * mid</code> overshoot or not?"
+      },
+      {
+       "es": "Sobre los dígitos de x",
+       "en": "Over the digits of x"
+      },
+      {
+       "es": "No se puede con búsqueda binaria",
+       "en": "You can’t use binary search"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "“Buscar la respuesta”: si <code>mid²</code> ya se pasa, todos los mayores también; tiras esa mitad. Es el mismo truco de “velocidad mínima para comer plátanos” y otros clásicos.",
+      "en": "“Searching the answer”: if <code>mid²</code> already overshoots, every bigger one does too; drop that half. It’s the same trick as “minimum banana-eating speed” and other classics."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>searchRotated(nums, target)</code>: el índice de <code>target</code> en un array ordenado y girado (sin repetidos), o <code>-1</code>. En O(log n).",
+      "en": "Write <code>searchRotated(nums, target)</code>: the index of <code>target</code> in a sorted, rotated array (no duplicates), or <code>-1</code>. In O(log n)."
+     },
+     "fnName": "searchRotated",
+     "starter": "function searchRotated(nums, target) {\n  let lo = 0;\n  let hi = nums.length - 1;\n  while (lo <= hi) {\n    const mid = Math.floor((lo + hi) / 2);\n    if (nums[mid] === target) return mid;\n    // ¿Qué mitad está ordenada? ¿El target cae en ella?\n    break; // ← borra esto cuando muevas lo o hi\n  }\n  return -1;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        0
+       ],
+       "expect": 4
+      },
+      {
+       "args": [
+        [
+         4,
+         5,
+         6,
+         7,
+         0,
+         1,
+         2
+        ],
+        3
+       ],
+       "expect": -1
+      },
+      {
+       "args": [
+        [
+         5,
+         1,
+         3
+        ],
+        5
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        [
+         3,
+         1
+        ],
+        1
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        [
+         1
+        ],
+        0
+       ],
+       "expect": -1
+      },
+      {
+       "args": [
+        [
+         1,
+         2,
+         3,
+         4,
+         5
+        ],
+        4
+       ],
+       "expect": 3
+      }
+     ],
+     "hint": {
+      "es": "Si <code>nums[lo] <= nums[mid]</code>, la izquierda está ordenada: si <code>target</code> cae entre <code>nums[lo]</code> y <code>nums[mid]</code>, <code>hi = mid - 1</code>; si no, <code>lo = mid + 1</code>. Si no, haz lo mismo con la derecha.",
+      "en": "If <code>nums[lo] <= nums[mid]</code>, the left is sorted: if <code>target</code> falls between <code>nums[lo]</code> and <code>nums[mid]</code>, <code>hi = mid - 1</code>; otherwise <code>lo = mid + 1</code>. Else do the same with the right."
+     },
+     "solution": "function searchRotated(nums, target) {\n  let lo = 0;\n  let hi = nums.length - 1;\n  while (lo <= hi) {\n    const mid = Math.floor((lo + hi) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[lo] <= nums[mid]) {\n      if (nums[lo] <= target && target < nums[mid]) hi = mid - 1;\n      else lo = mid + 1;\n    } else {\n      if (nums[mid] < target && target <= nums[hi]) lo = mid + 1;\n      else hi = mid - 1;\n    }\n  }\n  return -1;\n}",
+     "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+     },
+     "explain": {
+      "es": "Es LeetCode 33. El <code>&lt;=</code> en <code>nums[lo] <= nums[mid]</code> importa cuando <code>lo === mid</code> (quedan dos).",
+      "en": "It’s LeetCode 33. The <code>&lt;=</code> in <code>nums[lo] <= nums[mid]</code> matters when <code>lo === mid</code> (two left)."
+     }
+    }
+   ]
+  },
+  {
+   "id": "greedy",
+   "unit": 6,
+   "icon": "🪙",
+   "title": {
+    "es": "Greedy: lo mejor ahorita",
+    "en": "Greedy: the best right now"
+   },
+   "blurb": {
+    "es": "Cuándo tomar lo que se ve mejor sí funciona",
+    "en": "When taking what looks best actually works"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Agarrar lo mejor de cada paso",
+      "en": "Grab the best at each step"
+     },
+     "code": "// Monedas [1, 3, 4], juntar 6:\n// greedy: 4 + 1 + 1  → 3 monedas\n// mejor:  3 + 3      → 2 monedas",
+     "body": {
+      "es": "<p>Un algoritmo <b>greedy</b> (codicioso) toma la mejor decisión de este momento y nunca se arrepiente.</p><p>Cuando funciona es rapidísimo y simple. Pero no siempre funciona: con las monedas de arriba, ir por la más grande falla. Ahí necesitas programación dinámica.</p>",
+      "en": "<p>A <b>greedy</b> algorithm takes the best decision right now and never looks back.</p><p>When it works it’s super fast and simple. But it doesn’t always work: with the coins above, going for the biggest fails. That’s when you need dynamic programming.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "El pedazo seguido que <b>más suma</b> (algoritmo de Kadane): en cada paso, ¿sigo o empiezo de nuevo?",
+      "en": "The contiguous chunk with the <b>largest sum</b> (Kadane’s algorithm): at each step, continue or start over?"
+     },
+     "code": "let cur = nums[0], best = nums[0];\nfor (let i = 1; i < nums.length; i++) {\n  cur = Math.max(nums[i], cur + nums[i]);\n  best = Math.max(best, cur);\n}\nreturn best;",
+     "frames": [
+      {
+       "line": 0,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "0": "cur"
+        }
+       },
+       "vars": {
+        "cur": -2,
+        "best": -2
+       },
+       "note": {
+        "es": "Empezamos con el primero: <code>cur = best = -2</code>.",
+        "en": "Start with the first: <code>cur = best = -2</code>."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "1": "cur"
+        }
+       },
+       "vars": {
+        "cur": 1,
+        "best": 1
+       },
+       "note": {
+        "es": "Lo que traías sumaba menos que 1 solo: <b>tíralo</b> y empieza de nuevo en 1.",
+        "en": "What you had added up to less than 1 alone: <b>drop it</b> and start over at 1."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "1": "cur",
+         "2": "cur"
+        }
+       },
+       "vars": {
+        "cur": -2,
+        "best": 1
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = -2.",
+        "en": "Worth continuing: cur = -2."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur"
+        }
+       },
+       "vars": {
+        "cur": 4,
+        "best": 4
+       },
+       "note": {
+        "es": "Lo que traías sumaba menos que 4 solo: <b>tíralo</b> y empieza de nuevo en 4.",
+        "en": "What you had added up to less than 4 alone: <b>drop it</b> and start over at 4."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur"
+        }
+       },
+       "vars": {
+        "cur": 3,
+        "best": 4
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = 3.",
+        "en": "Worth continuing: cur = 3."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "5": "cur"
+        }
+       },
+       "vars": {
+        "cur": 5,
+        "best": 5
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = 5. ¡Nuevo récord: 5!",
+        "en": "Worth continuing: cur = 5. New record: 5!"
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "5": "cur",
+         "6": "cur"
+        }
+       },
+       "vars": {
+        "cur": 6,
+        "best": 6
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = 6. ¡Nuevo récord: 6!",
+        "en": "Worth continuing: cur = 6. New record: 6!"
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "5": "cur",
+         "6": "cur",
+         "7": "cur"
+        }
+       },
+       "vars": {
+        "cur": 1,
+        "best": 6
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = 1.",
+        "en": "Worth continuing: cur = 1."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "5": "cur",
+         "6": "cur",
+         "7": "cur",
+         "8": "cur"
+        }
+       },
+       "vars": {
+        "cur": 5,
+        "best": 6
+       },
+       "note": {
+        "es": "Te conviene seguir: cur = 5.",
+        "en": "Worth continuing: cur = 5."
+       }
+      },
+      {
+       "line": 5,
+       "array": {
+        "values": [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ],
+        "hl": {
+         "3": "good",
+         "4": "good",
+         "5": "good",
+         "6": "good"
+        }
+       },
+       "vars": {
+        "best": 6
+       },
+       "note": {
+        "es": "La mejor racha suma <b>6</b>. Ese es el algoritmo de Kadane: una pasada, O(n), y O(1) de memoria.",
+        "en": "The best streak adds up to <b>6</b>. That’s Kadane’s algorithm: one pass, O(n), and O(1) memory."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "“Jump game”: en <code>[2, 3, 1, 1, 4]</code> cada número dice cuánto puedes saltar como máximo. La idea greedy es…",
+      "en": "“Jump game”: in <code>[2, 3, 1, 1, 4]</code> each number says how far you can jump at most. The greedy idea is…"
+     },
+     "options": [
+      {
+       "es": "Llevar la cuenta de lo más lejos que puedes llegar, y ver si alguna casilla queda fuera",
+       "en": "Track the farthest you can reach, and see whether some cell is left out"
+      },
+      {
+       "es": "Probar todos los caminos de saltos",
+       "en": "Try every path of jumps"
+      },
+      {
+       "es": "Saltar siempre lo máximo",
+       "en": "Always jump the maximum"
+      }
+     ],
+     "answer": 0,
+     "why": {
+      "2": {
+       "es": "Saltar lo máximo puede caer en un 0. En <code>[3, 2, 1, 0, 4]</code> todo camino acaba en el 0.",
+       "en": "Jumping the max can land on a 0. In <code>[3, 2, 1, 0, 4]</code> every path ends on the 0."
+      }
+     },
+     "explain": {
+      "es": "<code>reach = max(reach, i + nums[i])</code>. Si llegas a una casilla <code>i > reach</code>, no hay forma de pisarla. Una pasada.",
+      "en": "<code>reach = max(reach, i + nums[i])</code>. If you get to a cell <code>i > reach</code>, there’s no way to step on it. One pass."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>maxSubarray(nums)</code>: la suma más grande de un pedazo seguido (al menos un número).",
+      "en": "Write <code>maxSubarray(nums)</code>: the largest sum of a contiguous chunk (at least one number)."
+     },
+     "fnName": "maxSubarray",
+     "starter": "function maxSubarray(nums) {\n  let cur = nums[0];\n  let best = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    \n  }\n  return best;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         -2,
+         1,
+         -3,
+         4,
+         -1,
+         2,
+         1,
+         -5,
+         4
+        ]
+       ],
+       "expect": 6
+      },
+      {
+       "args": [
+        [
+         5,
+         4,
+         -1,
+         7,
+         8
+        ]
+       ],
+       "expect": 23
+      },
+      {
+       "args": [
+        [
+         -3,
+         -1,
+         -2
+        ]
+       ],
+       "expect": -1
+      },
+      {
+       "args": [
+        [
+         1
+        ]
+       ],
+       "expect": 1
+      }
+     ],
+     "hint": {
+      "es": "<code>cur</code> es la mejor suma que <b>acaba</b> en <code>i</code>: o sigues (<code>cur + nums[i]</code>) o empiezas de nuevo (<code>nums[i]</code>). Luego actualiza <code>best</code>.",
+      "en": "<code>cur</code> is the best sum <b>ending</b> at <code>i</code>: either continue (<code>cur + nums[i]</code>) or start over (<code>nums[i]</code>). Then update <code>best</code>."
+     },
+     "solution": "function maxSubarray(nums) {\n  let cur = nums[0];\n  let best = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    cur = Math.max(nums[i], cur + nums[i]);\n    best = Math.max(best, cur);\n  }\n  return best;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+     },
+     "explain": {
+      "es": "Con todos negativos, la respuesta es el menos negativo: por eso se empieza con <code>nums[0]</code> y no con 0.",
+      "en": "With all negatives, the answer is the least negative: that’s why you start with <code>nums[0]</code> and not 0."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>canJump(nums)</code>: ¿puedes llegar a la última casilla empezando en la primera?",
+      "en": "Write <code>canJump(nums)</code>: can you reach the last cell starting at the first?"
+     },
+     "fnName": "canJump",
+     "starter": "function canJump(nums) {\n  let reach = 0;\n  for (let i = 0; i < nums.length; i++) {\n    \n  }\n  return true;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         2,
+         3,
+         1,
+         1,
+         4
+        ]
+       ],
+       "expect": true
+      },
+      {
+       "args": [
+        [
+         3,
+         2,
+         1,
+         0,
+         4
+        ]
+       ],
+       "expect": false
+      },
+      {
+       "args": [
+        [
+         0
+        ]
+       ],
+       "expect": true
+      },
+      {
+       "args": [
+        [
+         2,
+         0,
+         0
+        ]
+       ],
+       "expect": true
+      },
+      {
+       "args": [
+        [
+         1,
+         0,
+         1
+        ]
+       ],
+       "expect": false
+      }
+     ],
+     "hint": {
+      "es": "Si <code>i > reach</code>, no puedes llegar a <code>i</code>: regresa <code>false</code>. Si no, <code>reach = Math.max(reach, i + nums[i])</code>.",
+      "en": "If <code>i > reach</code>, you can’t get to <code>i</code>: return <code>false</code>. Otherwise <code>reach = Math.max(reach, i + nums[i])</code>."
+     },
+     "solution": "function canJump(nums) {\n  let reach = 0;\n  for (let i = 0; i < nums.length; i++) {\n    if (i > reach) return false;\n    reach = Math.max(reach, i + nums[i]);\n  }\n  return true;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+     },
+     "explain": {
+      "es": "Es LeetCode 55. La versión con DP también funciona, pero es O(n²); greedy lo baja a O(n).",
+      "en": "It’s LeetCode 55. The DP version works too, but it’s O(n²); greedy brings it down to O(n)."
+     }
+    }
+   ]
+  },
+  {
+   "id": "bits",
+   "unit": 6,
+   "icon": "💡",
+   "title": {
+    "es": "Manipulación de bits",
+    "en": "Bit manipulation"
+   },
+   "blurb": {
+    "es": "Ceros, unos y trucos con XOR",
+    "en": "Zeros, ones and XOR tricks"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Foquitos prendidos y apagados",
+      "en": "Light bulbs on and off"
+     },
+     "code": "6      // 110\n6 & 3  // 110 & 011 = 010 → 2  (los dos prendidos)\n6 | 3  // 110 | 011 = 111 → 7  (alguno prendido)\n6 ^ 3  // 110 ^ 011 = 101 → 5  (distintos)\n1 << 3 // 1000 → 8           (recorre a la izquierda)",
+     "body": {
+      "es": "<p>Por dentro, cada número es una fila de foquitos: <b>bits</b> prendidos (1) o apagados (0).</p><p>Los operadores <code>&amp;</code>, <code>|</code>, <code>^</code> y <code>&lt;&lt;</code> trabajan foquito por foquito, y son rapidísimos. En entrevistas salen como trucos elegantes.</p>",
+      "en": "<p>Under the hood, every number is a row of light bulbs: <b>bits</b> on (1) or off (0).</p><p>The operators <code>&amp;</code>, <code>|</code>, <code>^</code> and <code>&lt;&lt;</code> work bulb by bulb, and they’re super fast. In interviews they show up as elegant tricks.</p>"
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Cómo sabes si un número es <b>impar</b> con bits?",
+      "en": "How do you tell if a number is <b>odd</b> with bits?"
+     },
+     "options": [
+      "<code>(n & 1) === 1</code>",
+      "<code>(n | 1) === 1</code>",
+      "<code>(n ^ 1) === 0</code>"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "El bit de más a la derecha vale 1: los impares lo tienen prendido. <code>n & 1</code> apaga todos los demás y te deja solo ese.",
+      "en": "The rightmost bit is worth 1: odd numbers have it on. <code>n & 1</code> turns off all the others and leaves just that one."
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "Todos los números vienen en pareja menos uno. Encuéntralo con <b>XOR</b>.",
+      "en": "Every number comes in a pair except one. Find it with <b>XOR</b>."
+     },
+     "code": "let acc = 0;\nfor (const x of nums) {\n  acc ^= x;\n}\nreturn acc;",
+     "frames": [
+      {
+       "line": 0,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ]
+       },
+       "vars": {
+        "acc": "0000"
+       },
+       "note": {
+        "es": "Todos vienen en pareja menos uno. Truco: <code>x ^ x = 0</code> y <code>x ^ 0 = x</code>.",
+        "en": "Every number comes in a pair except one. Trick: <code>x ^ x = 0</code> and <code>x ^ 0 = x</code>."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "cur"
+        }
+       },
+       "vars": {
+        "acc": "0000 ^ 0100 = 0100",
+        "decimal": 4
+       },
+       "note": {
+        "es": "acc ^ 4: cada bit se prende si es distinto. Las parejas se van cancelando solas.",
+        "en": "acc ^ 4: each bit turns on if they differ. Pairs cancel out by themselves."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "dim",
+         "1": "cur"
+        }
+       },
+       "vars": {
+        "acc": "0100 ^ 0001 = 0101",
+        "decimal": 5
+       },
+       "note": {
+        "es": "acc ^ 1: cada bit se prende si es distinto. Las parejas se van cancelando solas.",
+        "en": "acc ^ 1: each bit turns on if they differ. Pairs cancel out by themselves."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "dim",
+         "1": "dim",
+         "2": "cur"
+        }
+       },
+       "vars": {
+        "acc": "0101 ^ 0010 = 0111",
+        "decimal": 7
+       },
+       "note": {
+        "es": "acc ^ 2: cada bit se prende si es distinto. Las parejas se van cancelando solas.",
+        "en": "acc ^ 2: each bit turns on if they differ. Pairs cancel out by themselves."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "dim",
+         "1": "dim",
+         "2": "dim",
+         "3": "cur"
+        }
+       },
+       "vars": {
+        "acc": "0111 ^ 0001 = 0110",
+        "decimal": 6
+       },
+       "note": {
+        "es": "acc ^ 1: cada bit se prende si es distinto. Las parejas se van cancelando solas.",
+        "en": "acc ^ 1: each bit turns on if they differ. Pairs cancel out by themselves."
+       }
+      },
+      {
+       "line": 2,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "dim",
+         "1": "dim",
+         "2": "dim",
+         "3": "dim",
+         "4": "cur"
+        }
+       },
+       "vars": {
+        "acc": "0110 ^ 0010 = 0100",
+        "decimal": 4
+       },
+       "note": {
+        "es": "acc ^ 2: cada bit se prende si es distinto. Las parejas se van cancelando solas.",
+        "en": "acc ^ 2: each bit turns on if they differ. Pairs cancel out by themselves."
+       }
+      },
+      {
+       "line": 4,
+       "array": {
+        "values": [
+         4,
+         1,
+         2,
+         1,
+         2
+        ],
+        "hl": {
+         "0": "good",
+         "1": "dim",
+         "2": "dim",
+         "3": "dim",
+         "4": "dim"
+        }
+       },
+       "vars": {
+        "acc": 4
+       },
+       "note": {
+        "es": "Las parejas se cancelaron y quedó el solitario: <b>4</b>. O(n) y sin Set: O(1) de memoria.",
+        "en": "The pairs cancelled and the lonely one is left: <b>4</b>. O(n) and no Set: O(1) memory."
+       }
+      }
+     ]
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "¿Cuántos bits prendidos tiene el 13? Truco: <code>n & (n − 1)</code>.",
+      "en": "How many bits are on in 13? Trick: <code>n & (n − 1)</code>."
+     },
+     "code": "let count = 0;\n// n = 13\nwhile (n !== 0) {\n  n = n & (n - 1);\n  count++;\n}\nreturn count;",
+     "frames": [
+      {
+       "line": 1,
+       "array": {
+        "values": [
+         "1",
+         "1",
+         "0",
+         "1"
+        ],
+        "indices": false,
+        "hl": {
+         "0": "cmp",
+         "1": "cmp",
+         "3": "cmp"
+        }
+       },
+       "vars": {
+        "n": 13,
+        "count": 0
+       },
+       "note": {
+        "es": "13 en binario es 1101. Contemos los 1 con un truco.",
+        "en": "13 in binary is 1101. Let’s count the 1s with a trick."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "1",
+         "1",
+         "0",
+         "0"
+        ],
+        "indices": false,
+        "hl": {
+         "0": "cmp",
+         "1": "cmp",
+         "3": "bad"
+        }
+       },
+       "vars": {
+        "n & (n-1)": "1101 & 1100 = 1100",
+        "count": 1
+       },
+       "note": {
+        "es": "<code>n & (n − 1)</code> apaga el 1 de más a la derecha. Cada vuelta quita un 1.",
+        "en": "<code>n & (n − 1)</code> turns off the rightmost 1. Each round removes one 1."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "1",
+         "0",
+         "0",
+         "0"
+        ],
+        "indices": false,
+        "hl": {
+         "0": "cmp",
+         "1": "bad"
+        }
+       },
+       "vars": {
+        "n & (n-1)": "1100 & 1011 = 1000",
+        "count": 2
+       },
+       "note": {
+        "es": "<code>n & (n − 1)</code> apaga el 1 de más a la derecha. Cada vuelta quita un 1.",
+        "en": "<code>n & (n − 1)</code> turns off the rightmost 1. Each round removes one 1."
+       }
+      },
+      {
+       "line": 3,
+       "array": {
+        "values": [
+         "0",
+         "0",
+         "0",
+         "0"
+        ],
+        "indices": false,
+        "hl": {
+         "0": "bad"
+        }
+       },
+       "vars": {
+        "n & (n-1)": "1000 & 0111 = 0000",
+        "count": 3
+       },
+       "note": {
+        "es": "<code>n & (n − 1)</code> apaga el 1 de más a la derecha. Cada vuelta quita un 1.",
+        "en": "<code>n & (n − 1)</code> turns off the rightmost 1. Each round removes one 1."
+       }
+      },
+      {
+       "line": 6,
+       "array": {
+        "values": [
+         "0",
+         "0",
+         "0",
+         "0"
+        ],
+        "indices": false
+       },
+       "vars": {
+        "count": 3
+       },
+       "note": {
+        "es": "Llegamos a 0: había <b>3</b> unos. Da tantas vueltas como unos haya, no como bits.",
+        "en": "We reached 0: there were <b>3</b> ones. It loops as many times as there are ones, not bits."
+       }
+      }
+     ]
+    },
+    {
+     "type": "number",
+     "prompt": {
+      "es": "¿Cuánto es <code>1 << 4</code>?",
+      "en": "What is <code>1 << 4</code>?"
+     },
+     "answer": 16,
+     "explain": {
+      "es": "Recorrer a la izquierda multiplica por 2 cada vez: 1 → 2 → 4 → 8 → 16. En binario: 10000.",
+      "en": "Shifting left doubles each time: 1 → 2 → 4 → 8 → 16. In binary: 10000."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>singleNumber(nums)</code>: todos aparecen dos veces menos uno. Regresa ese uno, con O(1) de memoria.",
+      "en": "Write <code>singleNumber(nums)</code>: every number appears twice except one. Return that one, using O(1) memory."
+     },
+     "fnName": "singleNumber",
+     "starter": "function singleNumber(nums) {\n  let acc = 0;\n  \n  return acc;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         2,
+         2,
+         1
+        ]
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        [
+         4,
+         1,
+         2,
+         1,
+         2
+        ]
+       ],
+       "expect": 4
+      },
+      {
+       "args": [
+        [
+         0,
+         5,
+         0
+        ]
+       ],
+       "expect": 5
+      },
+      {
+       "args": [
+        [
+         7
+        ]
+       ],
+       "expect": 7
+      }
+     ],
+     "hint": {
+      "es": "Un <code>for...of</code> que haga <code>acc ^= x</code>. Nada más.",
+      "en": "A <code>for...of</code> doing <code>acc ^= x</code>. That’s it."
+     },
+     "solution": "function singleNumber(nums) {\n  let acc = 0;\n  for (const x of nums) acc ^= x;\n  return acc;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(1)"
+     },
+     "explain": {
+      "es": "Con un Set también sale, pero usa O(n) de memoria. El entrevistador pide justo esta versión.",
+      "en": "A Set works too, but uses O(n) memory. Interviewers ask for exactly this version."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>countBits(n)</code>: cuántos bits prendidos tiene <code>n</code> (n ≥ 0).",
+      "en": "Write <code>countBits(n)</code>: how many bits are on in <code>n</code> (n ≥ 0)."
+     },
+     "fnName": "countBits",
+     "starter": "function countBits(n) {\n  let count = 0;\n  \n  return count;\n}\n",
+     "tests": [
+      {
+       "args": [
+        11
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        128
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        255
+       ],
+       "expect": 8
+      },
+      {
+       "args": [
+        0
+       ],
+       "expect": 0
+      }
+     ],
+     "hint": {
+      "es": "<code>while (n !== 0)</code>: apaga el 1 de la derecha con <code>n = n & (n - 1)</code> y suma uno a <code>count</code>.",
+      "en": "<code>while (n !== 0)</code>: turn off the rightmost 1 with <code>n = n & (n - 1)</code> and add one to <code>count</code>."
+     },
+     "solution": "function countBits(n) {\n  let count = 0;\n  while (n !== 0) {\n    n = n & (n - 1);\n    count++;\n  }\n  return count;\n}",
+     "complexity": {
+      "time": "O(log n)",
+      "space": "O(1)"
+     },
+     "explain": {
+      "es": "Un número n tiene unos log₂ n bits, así que nunca da más vueltas que eso. Es LeetCode 191.",
+      "en": "A number n has about log₂ n bits, so it never loops more than that. It’s LeetCode 191."
+     }
+    }
+   ]
+  },
+  {
+   "id": "bst",
+   "unit": 7,
+   "icon": "🌲",
+   "title": {
+    "es": "Árboles de búsqueda (BST)",
+    "en": "Binary search trees (BST)"
+   },
+   "blurb": {
+    "es": "Búsqueda binaria hecha árbol",
+    "en": "Binary search shaped like a tree"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Menores a la izquierda",
+      "en": "Smaller ones on the left"
+     },
+     "code": "//        8\n//      /   \\\n//     3     10\n//    / \\      \\\n//   1   6      14\n//      / \\    /\n//     4   7  13",
+     "body": {
+      "es": "<p>Un <b>árbol binario de búsqueda</b> (BST) tiene una regla: todo lo de la izquierda de un nodo es <b>menor</b>, y todo lo de la derecha es <b>mayor</b>.</p><p>Para buscar, comparas y bajas por un solo lado: es búsqueda binaria en forma de árbol. Si está balanceado, cuesta O(log n).</p>",
+      "en": "<p>A <b>binary search tree</b> (BST) has one rule: everything to the left of a node is <b>smaller</b>, and everything to the right is <b>bigger</b>.</p><p>To search, you compare and go down one side only: it’s binary search shaped like a tree. If it’s balanced, it costs O(log n).</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "Buscamos el 7 y luego metemos el 5.",
+      "en": "We search for 7 and then insert 5."
+     },
+     "graph": {
+      "h": 120,
+      "nodes": {
+       "1": [
+        12,
+        68
+       ],
+       "3": [
+        25,
+        34
+       ],
+       "4": [
+        28,
+        100
+       ],
+       "5": [
+        38,
+        128
+       ],
+       "6": [
+        38,
+        68
+       ],
+       "7": [
+        50,
+        100
+       ],
+       "8": [
+        50,
+        0
+       ],
+       "10": [
+        75,
+        34
+       ],
+       "13": [
+        78,
+        100
+       ],
+       "14": [
+        88,
+        68
+       ]
+      },
+      "edges": [
+       [
+        8,
+        3
+       ],
+       [
+        8,
+        10
+       ],
+       [
+        3,
+        1
+       ],
+       [
+        3,
+        6
+       ],
+       [
+        10,
+        14
+       ],
+       [
+        6,
+        4
+       ],
+       [
+        6,
+        7
+       ],
+       [
+        14,
+        13
+       ],
+       [
+        4,
+        5
+       ]
+      ]
+     },
+     "frames": [
+      {
+       "graph": {
+        "show": [
+         "8",
+         "3",
+         "10",
+         "1",
+         "6",
+         "14",
+         "4",
+         "7",
+         "13"
+        ],
+        "hl": {
+         "8": "cur"
+        }
+       },
+       "note": {
+        "es": "Buscamos el <b>7</b>. Empezamos en la raíz: 7 &lt; 8 → izquierda.",
+        "en": "We look for <b>7</b>. Start at the root: 7 &lt; 8 → left."
+       }
+      },
+      {
+       "graph": {
+        "show": [
+         "8",
+         "3",
+         "10",
+         "1",
+         "6",
+         "14",
+         "4",
+         "7",
+         "13"
+        ],
+        "hl": {
+         "3": "cur",
+         "8": "dim",
+         "10": "dim",
+         "13": "dim",
+         "14": "dim"
+        },
+        "ehl": {
+         "8-3": "cur"
+        }
+       },
+       "note": {
+        "es": "7 &gt; 3 → derecha. Todo el lado del 10 ya ni lo vemos.",
+        "en": "7 &gt; 3 → right. We don’t even look at the 10 side."
+       }
+      },
+      {
+       "graph": {
+        "show": [
+         "8",
+         "3",
+         "10",
+         "1",
+         "6",
+         "14",
+         "4",
+         "7",
+         "13"
+        ],
+        "hl": {
+         "1": "dim",
+         "3": "dim",
+         "6": "cur",
+         "8": "dim",
+         "10": "dim",
+         "13": "dim",
+         "14": "dim"
+        },
+        "ehl": {
+         "8-3": "cur",
+         "3-6": "cur"
+        }
+       },
+       "note": {
+        "es": "7 &gt; 6 → derecha.",
+        "en": "7 &gt; 6 → right."
+       }
+      },
+      {
+       "graph": {
+        "show": [
+         "8",
+         "3",
+         "10",
+         "1",
+         "6",
+         "14",
+         "4",
+         "7",
+         "13"
+        ],
+        "hl": {
+         "7": "good"
+        },
+        "ehl": {
+         "8-3": "good",
+         "3-6": "good",
+         "6-7": "good"
+        }
+       },
+       "note": {
+        "es": "¡Ahí está! 4 comparaciones en vez de revisar los 9 nodos.",
+        "en": "There it is! 4 comparisons instead of checking all 9 nodes."
+       }
+      },
+      {
+       "graph": {
+        "show": [
+         "8",
+         "3",
+         "10",
+         "1",
+         "6",
+         "14",
+         "4",
+         "7",
+         "13"
+        ],
+        "hl": {
+         "3": "cur",
+         "4": "cur",
+         "6": "cur",
+         "8": "cur"
+        },
+        "ehl": {
+         "8-3": "cur",
+         "3-6": "cur",
+         "6-4": "cur"
+        }
+       },
+       "note": {
+        "es": "Meter el <b>5</b>: se busca igual. 5 &lt; 8, 5 &gt; 3, 5 &lt; 6, 5 &gt; 4… y la derecha del 4 está vacía.",
+        "en": "Insert <b>5</b>: search the same way. 5 &lt; 8, 5 &gt; 3, 5 &lt; 6, 5 &gt; 4… and 4’s right is empty."
+       }
+      },
+      {
+       "graph": {
+        "hl": {
+         "5": "good"
+        },
+        "ehl": {
+         "4-5": "good"
+        }
+       },
+       "note": {
+        "es": "Ahí se cuelga el 5. La regla se sigue cumpliendo sin mover a nadie.",
+        "en": "5 hangs there. The rule still holds without moving anyone."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Si recorres un BST <b>en orden</b> (izquierda, nodo, derecha), ¿qué sale?",
+      "en": "If you traverse a BST <b>in order</b> (left, node, right), what comes out?"
+     },
+     "options": [
+      {
+       "es": "Los números ordenados de menor a mayor",
+       "en": "The numbers sorted from smallest to largest"
+      },
+      {
+       "es": "Los números por niveles",
+       "en": "The numbers level by level"
+      },
+      {
+       "es": "El orden en que se insertaron",
+       "en": "The order they were inserted"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Primero todo lo menor, luego el nodo, luego todo lo mayor: sale ordenado. Así se resuelve “el k-ésimo más chico”.",
+      "en": "First everything smaller, then the node, then everything bigger: it comes out sorted. That’s how you solve “the k-th smallest”."
+     }
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Para validar un BST, ¿basta revisar que cada hijo izquierdo sea menor que su papá y cada derecho mayor?",
+      "en": "To validate a BST, is it enough to check that each left child is smaller than its parent and each right child bigger?"
+     },
+     "options": [
+      {
+       "es": "No: un nieto puede romper la regla con el abuelo (ej. un 6 a la izquierda del 5, colgando de un 3)",
+       "en": "No: a grandchild can break the rule with the grandparent (e.g. a 6 on the left of 5, hanging from a 3)"
+      },
+      {
+       "es": "Sí, con eso basta",
+       "en": "Yes, that’s enough"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Cada nodo tiene un <b>rango</b> permitido que hereda de todos sus ancestros: al bajar a la izquierda, el máximo baja; a la derecha, el mínimo sube.",
+      "en": "Each node has an allowed <b>range</b> inherited from all its ancestors: going left lowers the max; going right raises the min."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>isValidBST(node)</code>: <code>true</code> si el árbol cumple la regla (sin repetidos). Cada nodo es <code>{ value, left, right }</code>.",
+      "en": "Write <code>isValidBST(node)</code>: <code>true</code> if the tree follows the rule (no duplicates). Each node is <code>{ value, left, right }</code>."
+     },
+     "fnName": "isValidBST",
+     "starter": "function isValidBST(node, min = -Infinity, max = Infinity) {\n  if (!node) return true;\n  \n}\n",
+     "tests": [
+      {
+       "args": [
+        {
+         "value": 2,
+         "left": {
+          "value": 1
+         },
+         "right": {
+          "value": 3
+         }
+        }
+       ],
+       "expect": true,
+       "label": "isValidBST(2 → [1, 3])"
+      },
+      {
+       "args": [
+        {
+         "value": 5,
+         "left": {
+          "value": 1
+         },
+         "right": {
+          "value": 4,
+          "left": {
+           "value": 3
+          },
+          "right": {
+           "value": 6
+          }
+         }
+        }
+       ],
+       "expect": false,
+       "label": "isValidBST(5 → [1, 4 → [3, 6]])"
+      },
+      {
+       "args": [
+        {
+         "value": 5,
+         "left": {
+          "value": 3,
+          "right": {
+           "value": 6
+          }
+         },
+         "right": {
+          "value": 7
+         }
+        }
+       ],
+       "expect": false,
+       "label": "isValidBST(5 → [3 → [_, 6], 7])"
+      },
+      {
+       "args": [
+        {
+         "value": 8,
+         "left": {
+          "value": 3,
+          "left": {
+           "value": 1
+          },
+          "right": {
+           "value": 6
+          }
+         },
+         "right": {
+          "value": 10
+         }
+        }
+       ],
+       "expect": true,
+       "label": "isValidBST(8 → [3 → [1, 6], 10])"
+      },
+      {
+       "args": [
+        {
+         "value": 2,
+         "left": {
+          "value": 2
+         }
+        }
+       ],
+       "expect": false,
+       "label": "isValidBST(2 → [2, _])"
+      },
+      {
+       "args": [
+        null
+       ],
+       "expect": true,
+       "label": "isValidBST(null)"
+      }
+     ],
+     "hint": {
+      "es": "Si <code>node.value</code> no está estrictamente entre <code>min</code> y <code>max</code>, es <code>false</code>. Luego revisa la izquierda con <code>max = node.value</code> y la derecha con <code>min = node.value</code>.",
+      "en": "If <code>node.value</code> isn’t strictly between <code>min</code> and <code>max</code>, it’s <code>false</code>. Then check the left with <code>max = node.value</code> and the right with <code>min = node.value</code>."
+     },
+     "solution": "function isValidBST(node, min = -Infinity, max = Infinity) {\n  if (!node) return true;\n  if (node.value <= min || node.value >= max) return false;\n  return isValidBST(node.left, min, node.value) && isValidBST(node.right, node.value, max);\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+     },
+     "explain": {
+      "es": "El tercer caso es la trampa: el 6 es mayor que su papá (3), pero está a la izquierda del 5. Es LeetCode 98.",
+      "en": "The third case is the trap: 6 is bigger than its parent (3), but it’s on the left of 5. It’s LeetCode 98."
+     }
+    }
+   ]
+  },
+  {
+   "id": "grids",
+   "unit": 7,
+   "icon": "🏝️",
+   "title": {
+    "es": "Cuadrículas: contar islas",
+    "en": "Grids: counting islands"
+   },
+   "blurb": {
+    "es": "Una matriz también es un grafo",
+    "en": "A matrix is a graph too"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Cada casilla es un nodo",
+      "en": "Every cell is a node"
+     },
+     "code": "const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];\nfor (const [dr, dc] of dirs) {\n  const r2 = r + dr, c2 = c + dc;\n  if (r2 >= 0 && r2 < rows && c2 >= 0 && c2 < cols) {\n    // (r2, c2) es vecino\n  }\n}",
+     "body": {
+      "es": "<p>Mapas, laberintos, imágenes: muchas preguntas vienen en una <b>cuadrícula</b>. Es un grafo disfrazado: cada casilla es un nodo y sus vecinos son arriba, abajo, izquierda y derecha.</p><p>Con BFS o DFS de la lección de grafos ya puedes recorrerla. Solo cuida no salirte de los bordes.</p>",
+      "en": "<p>Maps, mazes, images: many questions come as a <b>grid</b>. It’s a graph in disguise: every cell is a node and its neighbors are up, down, left and right.</p><p>With BFS or DFS from the graphs lesson you can already walk it. Just be careful not to go off the edges.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "¿Cuántas islas hay? Cada vez que encontramos tierra nueva, la “hundimos” completa con DFS.",
+      "en": "How many islands are there? Each time we find new land, we “sink” all of it with DFS."
+     },
+     "frames": [
+      {
+       "grid": {
+        "cells": [
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        }
+       },
+       "vars": {
+        "islas": 0
+       },
+       "note": {
+        "es": "1 es tierra 🌴, 0 es agua. Recorremos fila por fila buscando tierra que no hayamos visitado.",
+        "en": "1 is land 🌴, 0 is water. We scan row by row looking for land we haven’t visited."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "cur"
+        }
+       },
+       "vars": {
+        "islas": 1
+       },
+       "note": {
+        "es": "¡Tierra nueva en (0, 0)! Isla A. Ahora la “hundimos” toda con DFS para no contarla dos veces.",
+        "en": "New land at (0, 0)! Island A. Now we “sink” all of it with DFS so we don’t count it twice."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "1",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "cur"
+        }
+       },
+       "vars": {
+        "islas": 1
+       },
+       "note": {
+        "es": "Visita (0, 0) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (0, 0) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "1",
+          "1",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "cur"
+        }
+       },
+       "vars": {
+        "islas": 1
+       },
+       "note": {
+        "es": "Visita (0, 1) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (0, 1) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "1",
+          "A",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,1": "cur"
+        }
+       },
+       "vars": {
+        "islas": 1
+       },
+       "note": {
+        "es": "Visita (1, 1) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (1, 1) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "cur",
+         "1,1": "good"
+        }
+       },
+       "vars": {
+        "islas": 1
+       },
+       "note": {
+        "es": "Visita (1, 0) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (1, 0) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "1,4": "cur"
+        }
+       },
+       "vars": {
+        "islas": 2
+       },
+       "note": {
+        "es": "¡Tierra nueva en (1, 4)! Isla B. Ahora la “hundimos” toda con DFS para no contarla dos veces.",
+        "en": "New land at (1, 4)! Island B. Now we “sink” all of it with DFS so we don’t count it twice."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "1"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "cur"
+        }
+       },
+       "vars": {
+        "islas": 2
+       },
+       "note": {
+        "es": "Visita (1, 4) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (1, 4) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "1"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "good",
+         "2,4": "cur"
+        }
+       },
+       "vars": {
+        "islas": 2
+       },
+       "note": {
+        "es": "Visita (2, 4) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (2, 4) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "1",
+          "B"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "good",
+         "2,4": "good",
+         "3,4": "cur"
+        }
+       },
+       "vars": {
+        "islas": 2
+       },
+       "note": {
+        "es": "Visita (3, 4) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (3, 4) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "B",
+          "B"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "good",
+         "2,4": "good",
+         "3,3": "cur",
+         "3,4": "good"
+        }
+       },
+       "vars": {
+        "islas": 2
+       },
+       "note": {
+        "es": "Visita (3, 3) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (3, 3) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "1",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "B",
+          "B"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "2,2": "cur"
+        }
+       },
+       "vars": {
+        "islas": 3
+       },
+       "note": {
+        "es": "¡Tierra nueva en (2, 2)! Isla C. Ahora la “hundimos” toda con DFS para no contarla dos veces.",
+        "en": "New land at (2, 2)! Island C. Now we “sink” all of it with DFS so we don’t count it twice."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "C",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "B",
+          "B"
+         ]
+        ],
+        "colors": {
+         "0": "dim",
+         "1": "cmp"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "good",
+         "2,2": "cur",
+         "2,4": "good",
+         "3,3": "good",
+         "3,4": "good"
+        }
+       },
+       "vars": {
+        "islas": 3
+       },
+       "note": {
+        "es": "Visita (2, 2) y mete a sus vecinos de tierra (arriba, abajo, izquierda, derecha).",
+        "en": "Visit (2, 2) and push its land neighbors (up, down, left, right)."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "0"
+         ],
+         [
+          "A",
+          "A",
+          "0",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "C",
+          "0",
+          "B"
+         ],
+         [
+          "0",
+          "0",
+          "0",
+          "B",
+          "B"
+         ]
+        ],
+        "colors": {
+         "0": "dim"
+        },
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "1,0": "good",
+         "1,1": "good",
+         "1,4": "good",
+         "2,2": "good",
+         "2,4": "good",
+         "3,3": "good",
+         "3,4": "good"
+        }
+       },
+       "vars": {
+        "islas": 3
+       },
+       "note": {
+        "es": "<b>3</b> islas. Cada casilla se visitó una vez: <b>O(filas × columnas)</b>.",
+        "en": "<b>3</b> islands. Each cell was visited once: <b>O(rows × columns)</b>."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "¿Por qué “hundimos” (marcamos) cada casilla al visitarla?",
+      "en": "Why do we “sink” (mark) each cell when we visit it?"
+     },
+     "options": [
+      {
+       "es": "Para no volver a contarla ni dar vueltas para siempre entre vecinos",
+       "en": "So we don’t count it again or bounce between neighbors forever"
+      },
+      {
+       "es": "Para que el mapa se vea bonito",
+       "en": "So the map looks nice"
+      },
+      {
+       "es": "Porque JavaScript no deja leer la misma casilla dos veces",
+       "en": "Because JavaScript won’t let you read the same cell twice"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Es el <code>visited</code> de los grafos, pero guardado en la misma cuadrícula: cambiar el 1 por 0 cuesta O(1) de memoria extra.",
+      "en": "It’s the graphs’ <code>visited</code>, but stored in the grid itself: changing the 1 to 0 costs O(1) extra memory."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>numIslands(grid)</code>: cuántas islas de 1 hay (conectadas arriba, abajo, izquierda o derecha).",
+      "en": "Write <code>numIslands(grid)</code>: how many islands of 1s there are (connected up, down, left or right)."
+     },
+     "fnName": "numIslands",
+     "starter": "function numIslands(grid) {\n  const rows = grid.length;\n  const cols = rows ? grid[0].length : 0;\n  const sink = (r, c) => {\n    // si está fuera o es agua, regresa; si no, márcala con 0 y hunde a sus 4 vecinos\n    \n  };\n  let count = 0;\n  for (let r = 0; r < rows; r++) {\n    for (let c = 0; c < cols; c++) {\n      if (grid[r][c] === 1) {\n        count++;\n        sink(r, c);\n      }\n    }\n  }\n  return count;\n}\n",
+     "tests": [
+      {
+       "args": [
+        [
+         [
+          1,
+          1,
+          0,
+          0,
+          0
+         ],
+         [
+          1,
+          1,
+          0,
+          0,
+          1
+         ],
+         [
+          0,
+          0,
+          1,
+          0,
+          1
+         ],
+         [
+          0,
+          0,
+          0,
+          1,
+          1
+         ]
+        ]
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        [
+         [
+          1,
+          1,
+          1
+         ],
+         [
+          0,
+          1,
+          0
+         ],
+         [
+          1,
+          1,
+          1
+         ]
+        ]
+       ],
+       "expect": 1
+      },
+      {
+       "args": [
+        [
+         [
+          1,
+          0,
+          1
+         ],
+         [
+          0,
+          1,
+          0
+         ],
+         [
+          1,
+          0,
+          1
+         ]
+        ]
+       ],
+       "expect": 5
+      },
+      {
+       "args": [
+        [
+         [
+          0,
+          0
+         ],
+         [
+          0,
+          0
+         ]
+        ]
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        [
+         [
+          1
+         ]
+        ]
+       ],
+       "expect": 1
+      }
+     ],
+     "hint": {
+      "es": "En <code>sink</code>: si <code>r</code> o <code>c</code> se salen, o <code>grid[r][c] !== 1</code>, <code>return</code>. Si no, <code>grid[r][c] = 0</code> y llama a <code>sink</code> con los 4 vecinos.",
+      "en": "In <code>sink</code>: if <code>r</code> or <code>c</code> go out of bounds, or <code>grid[r][c] !== 1</code>, <code>return</code>. Otherwise <code>grid[r][c] = 0</code> and call <code>sink</code> on the 4 neighbors."
+     },
+     "solution": "function numIslands(grid) {\n  const rows = grid.length;\n  const cols = rows ? grid[0].length : 0;\n  const sink = (r, c) => {\n    if (r < 0 || r >= rows || c < 0 || c >= cols || grid[r][c] !== 1) return;\n    grid[r][c] = 0;\n    sink(r + 1, c);\n    sink(r - 1, c);\n    sink(r, c + 1);\n    sink(r, c - 1);\n  };\n  let count = 0;\n  for (let r = 0; r < rows; r++) {\n    for (let c = 0; c < cols; c++) {\n      if (grid[r][c] === 1) {\n        count++;\n        sink(r, c);\n      }\n    }\n  }\n  return count;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+     },
+     "explain": {
+      "es": "Aquí n es el número de casillas: cada una se visita una vez. Es LeetCode 200, de los más preguntados en FAANG.",
+      "en": "Here n is the number of cells: each is visited once. It’s LeetCode 200, one of the most asked at FAANG."
+     }
+    }
+   ]
+  },
+  {
+   "id": "topo-sort",
+   "unit": 7,
+   "icon": "🧭",
+   "title": {
+    "es": "Orden topológico",
+    "en": "Topological sort"
+   },
+   "blurb": {
+    "es": "¿En qué orden tomo las materias?",
+    "en": "In what order do I take the classes?"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Requisitos",
+      "en": "Prerequisites"
+     },
+     "code": "// para tomar React necesitas DOM y Async\nconst edges = [\n  ['JS', 'DOM'], ['JS', 'Async'],\n  ['DOM', 'React'], ['Async', 'React'],\n  ['Async', 'Node'],\n];",
+     "body": {
+      "es": "<p>Materias con requisitos, tareas que dependen de otras, paquetes de npm: son grafos dirigidos sin ciclos (<b>DAG</b>). Un <b>orden topológico</b> es una fila donde cada cosa va después de sus requisitos.</p><p>Algoritmo de <b>Kahn</b>: cuenta cuántos requisitos le faltan a cada uno; los que tienen 0 se pueden hacer ya.</p>",
+      "en": "<p>Classes with prerequisites, tasks that depend on others, npm packages: they’re directed graphs with no cycles (<b>DAG</b>). A <b>topological order</b> is a line where everything comes after its prerequisites.</p><p><b>Kahn’s</b> algorithm: count how many prerequisites each one still needs; the ones at 0 can be done now.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "Mira la cola: entra quien ya no debe requisitos.",
+      "en": "Watch the queue: whoever owes no more prerequisites gets in."
+     },
+     "code": "const indeg = contarRequisitos(edges);\nconst order = [];\nconst queue = nodos.filter((n) => indeg[n] === 0);\nwhile (queue.length) {\n  const u = queue.shift();\n  order.push(u);\n  for (const v of siguientes(u)) {\n    if (--indeg[v] === 0) queue.push(v);\n  }\n}\nreturn order;",
+     "graph": {
+      "h": 64,
+      "directed": true,
+      "nodes": {
+       "JS": [
+        0,
+        32
+       ],
+       "DOM": [
+        35,
+        0
+       ],
+       "Async": [
+        35,
+        64
+       ],
+       "React": [
+        70,
+        20
+       ],
+       "Node": [
+        100,
+        64
+       ]
+      },
+      "edges": [
+       [
+        "JS",
+        "DOM"
+       ],
+       [
+        "JS",
+        "Async"
+       ],
+       [
+        "DOM",
+        "React"
+       ],
+       [
+        "Async",
+        "React"
+       ],
+       [
+        "Async",
+        "Node"
+       ]
+      ]
+     },
+     "frames": [
+      {
+       "line": 2,
+       "graph": {
+        "labels": {
+         "JS": "0",
+         "DOM": "1",
+         "Async": "1",
+         "React": "2",
+         "Node": "1"
+        },
+        "hl": {
+         "JS": "cmp"
+        }
+       },
+       "queue": {
+        "items": [
+         "JS"
+        ]
+       },
+       "vars": {
+        "orden": []
+       },
+       "note": {
+        "es": "El número de cada nodo es cuántos requisitos le faltan. Los que tienen <b>0</b> ya se pueden tomar: van a la cola.",
+        "en": "Each node’s number is how many prerequisites it still needs. The ones with <b>0</b> can be taken now: they go in the queue."
+       }
+      },
+      {
+       "line": 5,
+       "graph": {
+        "labels": {
+         "DOM": "0",
+         "Async": "0",
+         "React": "2",
+         "Node": "1"
+        },
+        "hl": {
+         "JS": "good",
+         "DOM": "cmp",
+         "Async": "cmp"
+        },
+        "ehl": {
+         "JS-DOM": "cur",
+         "JS-Async": "cur"
+        }
+       },
+       "queue": {
+        "items": [
+         "DOM",
+         "Async"
+        ]
+       },
+       "vars": {
+        "orden": [
+         "JS"
+        ]
+       },
+       "note": {
+        "es": "Sale <b>JS</b> de la cola. A sus siguientes les falta un requisito menos; DOM y Async quedan en 0 y entran a la cola.",
+        "en": "<b>JS</b> leaves the queue. Its dependents need one prerequisite fewer; DOM and Async reach 0 and join the queue."
+       }
+      },
+      {
+       "line": 5,
+       "graph": {
+        "labels": {
+         "Async": "0",
+         "React": "1",
+         "Node": "1"
+        },
+        "hl": {
+         "JS": "good",
+         "DOM": "good",
+         "Async": "cmp"
+        },
+        "ehl": {
+         "DOM-React": "cur"
+        }
+       },
+       "queue": {
+        "items": [
+         "Async"
+        ]
+       },
+       "vars": {
+        "orden": [
+         "JS",
+         "DOM"
+        ]
+       },
+       "note": {
+        "es": "Sale <b>DOM</b> de la cola. A los demás todavía les falta algo.",
+        "en": "<b>DOM</b> leaves the queue. The others still need something."
+       }
+      },
+      {
+       "line": 5,
+       "graph": {
+        "labels": {
+         "React": "0",
+         "Node": "0"
+        },
+        "hl": {
+         "JS": "good",
+         "DOM": "good",
+         "Async": "good",
+         "React": "cmp",
+         "Node": "cmp"
+        },
+        "ehl": {
+         "Async-React": "cur",
+         "Async-Node": "cur"
+        }
+       },
+       "queue": {
+        "items": [
+         "React",
+         "Node"
+        ]
+       },
+       "vars": {
+        "orden": [
+         "JS",
+         "DOM",
+         "Async"
+        ]
+       },
+       "note": {
+        "es": "Sale <b>Async</b> de la cola. A sus siguientes les falta un requisito menos; React y Node quedan en 0 y entran a la cola.",
+        "en": "<b>Async</b> leaves the queue. Its dependents need one prerequisite fewer; React and Node reach 0 and join the queue."
+       }
+      },
+      {
+       "line": 5,
+       "graph": {
+        "labels": {
+         "Node": "0"
+        },
+        "hl": {
+         "JS": "good",
+         "DOM": "good",
+         "Async": "good",
+         "React": "good",
+         "Node": "cmp"
+        },
+        "ehl": {}
+       },
+       "queue": {
+        "items": [
+         "Node"
+        ]
+       },
+       "vars": {
+        "orden": [
+         "JS",
+         "DOM",
+         "Async",
+         "React"
+        ]
+       },
+       "note": {
+        "es": "Sale <b>React</b> de la cola. No desbloquea a nadie.",
+        "en": "<b>React</b> leaves the queue. It doesn’t unlock anyone."
+       }
+      },
+      {
+       "line": 5,
+       "graph": {
+        "labels": {},
+        "hl": {
+         "JS": "good",
+         "DOM": "good",
+         "Async": "good",
+         "React": "good",
+         "Node": "good"
+        },
+        "ehl": {}
+       },
+       "queue": {
+        "items": []
+       },
+       "vars": {
+        "orden": [
+         "JS",
+         "DOM",
+         "Async",
+         "React",
+         "Node"
+        ]
+       },
+       "note": {
+        "es": "Sale <b>Node</b> de la cola. No desbloquea a nadie.",
+        "en": "<b>Node</b> leaves the queue. It doesn’t unlock anyone."
+       }
+      },
+      {
+       "line": 10,
+       "graph": {
+        "hl": {
+         "JS": "good",
+         "DOM": "good",
+         "Async": "good",
+         "React": "good",
+         "Node": "good"
+        }
+       },
+       "queue": {
+        "items": []
+       },
+       "vars": {
+        "orden": [
+         "JS",
+         "DOM",
+         "Async",
+         "React",
+         "Node"
+        ]
+       },
+       "note": {
+        "es": "Orden válido: JS → DOM → Async → React → Node. Si al final faltaran nodos, habría un <b>ciclo</b> (nadie llega a 0).",
+        "en": "A valid order: JS → DOM → Async → React → Node. If some nodes were missing at the end, there’d be a <b>cycle</b> (nobody reaches 0)."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Si A necesita a B y B necesita a A, ¿qué pasa con Kahn?",
+      "en": "If A needs B and B needs A, what happens with Kahn?"
+     },
+     "options": [
+      {
+       "es": "Ninguno llega a 0: el orden sale incompleto y así detectas el ciclo",
+       "en": "Neither reaches 0: the order comes out incomplete, and that’s how you detect the cycle"
+      },
+      {
+       "es": "Se queda en un loop infinito",
+       "en": "It gets stuck in an infinite loop"
+      },
+      {
+       "es": "Los pone en cualquier orden",
+       "en": "It puts them in any order"
+      }
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Si <code>order.length &lt; n</code>, hay un ciclo: es imposible cumplir todos los requisitos. Esa es la pregunta “¿puedes terminar todas las materias?”.",
+      "en": "If <code>order.length &lt; n</code>, there’s a cycle: it’s impossible to satisfy every prerequisite. That’s the question “can you finish all the courses?”."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>canFinish(n, prereqs)</code>: hay materias de 0 a n−1 y cada <code>[a, b]</code> dice que para tomar <code>a</code> necesitas <code>b</code>. ¿Se pueden tomar todas?",
+      "en": "Write <code>canFinish(n, prereqs)</code>: there are classes 0 to n−1 and each <code>[a, b]</code> says that to take <code>a</code> you need <code>b</code>. Can you take them all?"
+     },
+     "fnName": "canFinish",
+     "starter": "function canFinish(n, prereqs) {\n  const indeg = Array(n).fill(0);\n  const next = Array.from({ length: n }, () => []);\n  for (const [a, b] of prereqs) {\n    next[b].push(a);\n    indeg[a]++;\n  }\n  const queue = [];\n  for (let i = 0; i < n; i++) if (indeg[i] === 0) queue.push(i);\n  let taken = 0;\n  \n  return taken === n;\n}\n",
+     "tests": [
+      {
+       "args": [
+        2,
+        [
+         [
+          1,
+          0
+         ]
+        ]
+       ],
+       "expect": true
+      },
+      {
+       "args": [
+        2,
+        [
+         [
+          1,
+          0
+         ],
+         [
+          0,
+          1
+         ]
+        ]
+       ],
+       "expect": false
+      },
+      {
+       "args": [
+        4,
+        [
+         [
+          1,
+          0
+         ],
+         [
+          2,
+          1
+         ],
+         [
+          3,
+          2
+         ]
+        ]
+       ],
+       "expect": true
+      },
+      {
+       "args": [
+        3,
+        [
+         [
+          0,
+          1
+         ],
+         [
+          1,
+          2
+         ],
+         [
+          2,
+          0
+         ]
+        ]
+       ],
+       "expect": false
+      },
+      {
+       "args": [
+        3,
+        []
+       ],
+       "expect": true
+      }
+     ],
+     "hint": {
+      "es": "Mientras haya cola: saca uno, suma a <code>taken</code>, y a cada <code>v</code> de <code>next[u]</code> réstale uno a <code>indeg[v]</code>; si llega a 0, a la cola.",
+      "en": "While the queue has items: take one out, add to <code>taken</code>, and for each <code>v</code> in <code>next[u]</code> subtract one from <code>indeg[v]</code>; if it hits 0, into the queue."
+     },
+     "solution": "function canFinish(n, prereqs) {\n  const indeg = Array(n).fill(0);\n  const next = Array.from({ length: n }, () => []);\n  for (const [a, b] of prereqs) {\n    next[b].push(a);\n    indeg[a]++;\n  }\n  const queue = [];\n  for (let i = 0; i < n; i++) if (indeg[i] === 0) queue.push(i);\n  let taken = 0;\n  while (queue.length) {\n    const u = queue.shift();\n    taken++;\n    for (const v of next[u]) {\n      indeg[v]--;\n      if (indeg[v] === 0) queue.push(v);\n    }\n  }\n  return taken === n;\n}",
+     "complexity": {
+      "time": "O(n)",
+      "space": "O(n)"
+     },
+     "explain": {
+      "es": "Cada materia y cada requisito se tocan una vez: O(V + E). Es LeetCode 207, “Course Schedule”.",
+      "en": "Every class and every prerequisite is touched once: O(V + E). It’s LeetCode 207, “Course Schedule”."
+     }
+    }
+   ]
+  },
+  {
+   "id": "dp-2d",
+   "unit": 7,
+   "icon": "🧩",
+   "title": {
+    "es": "Programación dinámica en 2D",
+    "en": "Dynamic programming in 2D"
+   },
+   "blurb": {
+    "es": "Tablas para caminos y textos",
+    "en": "Tables for paths and strings"
+   },
+   "steps": [
+    {
+     "type": "read",
+     "title": {
+      "es": "Cuando un índice no alcanza",
+      "en": "When one index isn’t enough"
+     },
+     "code": "// dp[i][j] = la respuesta usando\n//   las primeras i filas / letras de a\n//   y las primeras j columnas / letras de b",
+     "body": {
+      "es": "<p>En la DP de 1D cada casilla dependía de las anteriores en una fila. Cuando el problema tiene <b>dos</b> cosas que avanzan (fila y columna, o dos textos), la tabla es de 2D.</p><p>Misma receta: define qué significa <code>dp[i][j]</code>, llena los bordes y calcula cada casilla con sus vecinas ya resueltas.</p>",
+      "en": "<p>In 1D DP each cell depended on earlier ones in a row. When the problem has <b>two</b> things advancing (row and column, or two strings), the table is 2D.</p><p>Same recipe: define what <code>dp[i][j]</code> means, fill the edges and compute each cell from its already-solved neighbors.</p>"
+     }
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "¿De cuántas formas llegas de la esquina de arriba a la de abajo, solo yendo → o ↓?",
+      "en": "How many ways can you get from the top corner to the bottom one, going only → or ↓?"
+     },
+     "frames": [
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          "",
+          "",
+          ""
+         ],
+         [
+          1,
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "0,0": "good",
+         "0,1": "good",
+         "0,2": "good",
+         "0,3": "good",
+         "1,0": "good",
+         "2,0": "good"
+        }
+       },
+       "note": {
+        "es": "Solo puedes ir a la derecha o abajo. A la primera fila y a la primera columna se llega de <b>una</b> sola forma.",
+        "en": "You can only go right or down. The first row and first column can be reached in just <b>one</b> way."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          "",
+          ""
+         ],
+         [
+          1,
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "1,1": "cur",
+         "0,1": "cmp",
+         "1,0": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (1) o desde la izquierda (1): 1 + 1 = <b>2</b>.",
+        "en": "You arrive from above (1) or from the left (1): 1 + 1 = <b>2</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          ""
+         ],
+         [
+          1,
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "1,2": "cur",
+         "0,2": "cmp",
+         "1,1": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (1) o desde la izquierda (2): 1 + 2 = <b>3</b>.",
+        "en": "You arrive from above (1) or from the left (2): 1 + 2 = <b>3</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         [
+          1,
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "1,3": "cur",
+         "0,3": "cmp",
+         "1,2": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (1) o desde la izquierda (3): 1 + 3 = <b>4</b>.",
+        "en": "You arrive from above (1) or from the left (3): 1 + 3 = <b>4</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         [
+          1,
+          3,
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "2,1": "cur",
+         "1,1": "cmp",
+         "2,0": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (2) o desde la izquierda (1): 2 + 1 = <b>3</b>.",
+        "en": "You arrive from above (2) or from the left (1): 2 + 1 = <b>3</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         [
+          1,
+          3,
+          6,
+          ""
+         ]
+        ],
+        "hl": {
+         "2,2": "cur",
+         "1,2": "cmp",
+         "2,1": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (3) o desde la izquierda (3): 3 + 3 = <b>6</b>.",
+        "en": "You arrive from above (3) or from the left (3): 3 + 3 = <b>6</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         [
+          1,
+          3,
+          6,
+          10
+         ]
+        ],
+        "hl": {
+         "2,3": "cur",
+         "1,3": "cmp",
+         "2,2": "cmp"
+        }
+       },
+       "note": {
+        "es": "Llegas desde arriba (4) o desde la izquierda (6): 4 + 6 = <b>10</b>.",
+        "en": "You arrive from above (4) or from the left (6): 4 + 6 = <b>10</b>."
+       }
+      },
+      {
+       "grid": {
+        "cells": [
+         [
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          1,
+          2,
+          3,
+          4
+         ],
+         [
+          1,
+          3,
+          6,
+          10
+         ]
+        ],
+        "hl": {
+         "2,3": "good"
+        }
+       },
+       "note": {
+        "es": "<b>10</b> caminos distintos a la esquina. Cada casilla se calcula una vez con las dos de antes: O(filas × columnas).",
+        "en": "<b>10</b> different paths to the corner. Each cell is computed once from the two before it: O(rows × columns)."
+       }
+      }
+     ]
+    },
+    {
+     "type": "viz",
+     "prompt": {
+      "es": "La <b>subsecuencia común más larga</b> de <code>\"ace\"</code> y <code>\"abcde\"</code> (letras en orden, no necesariamente juntas).",
+      "en": "The <b>longest common subsequence</b> of <code>\"ace\"</code> and <code>\"abcde\"</code> (letters in order, not necessarily adjacent)."
+     },
+     "code": "for (let i = 1; i <= a.length; i++) {\n  for (let j = 1; j <= b.length; j++) {\n    if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n    else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n  }\n}\nreturn dp[a.length][b.length];",
+     "frames": [
+      {
+       "line": 0,
+       "grid": {
+        "rows": [
+         "",
+         "a",
+         "c",
+         "e"
+        ],
+        "cols": [
+         "",
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
+        ],
+        "cells": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ]
+        ],
+        "colors": {
+         "0": "dim"
+        }
+       },
+       "note": {
+        "es": "dp[i][j] = la subsecuencia común más larga entre los primeros i de \"ace\" y los primeros j de \"abcde\". Con un texto vacío es 0.",
+        "en": "dp[i][j] = the longest common subsequence between the first i of \"ace\" and the first j of \"abcde\". With an empty string it’s 0."
+       }
+      },
+      {
+       "line": 2,
+       "grid": {
+        "rows": [
+         "",
+         "a",
+         "c",
+         "e"
+        ],
+        "cols": [
+         "",
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
+        ],
+        "cells": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "1,1": "good",
+         "1,2": "cur",
+         "1,3": "cur",
+         "1,4": "cur",
+         "1,5": "cur"
+        }
+       },
+       "note": {
+        "es": "Fila de la <b>a</b>: donde las letras coinciden (verde) vale la diagonal + 1. Donde no, el mayor entre arriba e izquierda.",
+        "en": "Row for <b>a</b>: where the letters match (green) it’s the diagonal + 1. Elsewhere, the larger of above and left."
+       }
+      },
+      {
+       "line": 2,
+       "grid": {
+        "rows": [
+         "",
+         "a",
+         "c",
+         "e"
+        ],
+        "cols": [
+         "",
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
+        ],
+        "cells": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+         ],
+         [
+          0,
+          "",
+          "",
+          "",
+          "",
+          ""
+         ]
+        ],
+        "hl": {
+         "2,3": "good",
+         "2,1": "cur",
+         "2,2": "cur",
+         "2,4": "cur",
+         "2,5": "cur"
+        }
+       },
+       "note": {
+        "es": "Fila de la <b>c</b>: donde las letras coinciden (verde) vale la diagonal + 1. Donde no, el mayor entre arriba e izquierda.",
+        "en": "Row for <b>c</b>: where the letters match (green) it’s the diagonal + 1. Elsewhere, the larger of above and left."
+       }
+      },
+      {
+       "line": 2,
+       "grid": {
+        "rows": [
+         "",
+         "a",
+         "c",
+         "e"
+        ],
+        "cols": [
+         "",
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
+        ],
+        "cells": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+         ],
+         [
+          0,
+          1,
+          1,
+          2,
+          2,
+          3
+         ]
+        ],
+        "hl": {
+         "3,5": "good",
+         "3,1": "cur",
+         "3,2": "cur",
+         "3,3": "cur",
+         "3,4": "cur"
+        }
+       },
+       "note": {
+        "es": "Fila de la <b>e</b>: donde las letras coinciden (verde) vale la diagonal + 1. Donde no, el mayor entre arriba e izquierda.",
+        "en": "Row for <b>e</b>: where the letters match (green) it’s the diagonal + 1. Elsewhere, the larger of above and left."
+       }
+      },
+      {
+       "line": 6,
+       "grid": {
+        "rows": [
+         "",
+         "a",
+         "c",
+         "e"
+        ],
+        "cols": [
+         "",
+         "a",
+         "b",
+         "c",
+         "d",
+         "e"
+        ],
+        "cells": [
+         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+         ],
+         [
+          0,
+          1,
+          1,
+          1,
+          1,
+          1
+         ],
+         [
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+         ],
+         [
+          0,
+          1,
+          1,
+          2,
+          2,
+          3
+         ]
+        ],
+        "hl": {
+         "3,5": "good"
+        }
+       },
+       "note": {
+        "es": "La esquina dice <b>3</b>. Tabla de (n+1) × (m+1): O(n·m) tiempo y memoria.",
+        "en": "The corner says <b>3</b>. An (n+1) × (m+1) table: O(n·m) time and memory."
+       }
+      }
+     ]
+    },
+    {
+     "type": "choice",
+     "prompt": {
+      "es": "Para dos textos de largo n y m, ¿cuánto cuesta llenar la tabla?",
+      "en": "For two strings of length n and m, how much does filling the table cost?"
+     },
+     "options": [
+      "O(n · m)",
+      "O(n + m)",
+      "O(2ⁿ)"
+     ],
+     "answer": 0,
+     "explain": {
+      "es": "Una casilla por par (i, j), cada una en O(1). Sin la tabla, probar todas las subsecuencias sería O(2ⁿ).",
+      "en": "One cell per pair (i, j), each in O(1). Without the table, trying every subsequence would be O(2ⁿ)."
+     }
+    },
+    {
+     "type": "code",
+     "prompt": {
+      "es": "Escribe <code>lcs(a, b)</code>: el largo de la subsecuencia común más larga.",
+      "en": "Write <code>lcs(a, b)</code>: the length of the longest common subsequence."
+     },
+     "fnName": "lcs",
+     "starter": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      \n    }\n  }\n  return dp[a.length][b.length];\n}\n",
+     "tests": [
+      {
+       "args": [
+        "abcde",
+        "ace"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        "abc",
+        "abc"
+       ],
+       "expect": 3
+      },
+      {
+       "args": [
+        "abc",
+        "def"
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        "",
+        "a"
+       ],
+       "expect": 0
+      },
+      {
+       "args": [
+        "bsbininm",
+        "jmjkbkjkv"
+       ],
+       "expect": 1
+      }
+     ],
+     "hint": {
+      "es": "Si <code>a[i - 1] === b[j - 1]</code>, la casilla es la diagonal + 1. Si no, el mayor entre <code>dp[i - 1][j]</code> y <code>dp[i][j - 1]</code>.",
+      "en": "If <code>a[i - 1] === b[j - 1]</code>, the cell is the diagonal + 1. Otherwise, the larger of <code>dp[i - 1][j]</code> and <code>dp[i][j - 1]</code>."
+     },
+     "solution": "function lcs(a, b) {\n  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));\n  for (let i = 1; i <= a.length; i++) {\n    for (let j = 1; j <= b.length; j++) {\n      if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[a.length][b.length];\n}",
+     "complexity": {
+      "time": "O(n²)",
+      "space": "O(n²)"
+     },
+     "explain": {
+      "es": "Es LeetCode 1143. La misma tabla, con otra regla, resuelve “distancia de edición” (cuántos cambios para convertir un texto en otro).",
+      "en": "It’s LeetCode 1143. The same table, with another rule, solves “edit distance” (how many changes to turn one string into another)."
+     }
+    }
+   ]
   }
  ],
  "units": [
@@ -7856,6 +12460,14 @@
   {
    "es": "Grafos pro",
    "en": "Graphs, pro level"
+  },
+  {
+   "es": "Más patrones",
+   "en": "More patterns"
+  },
+  {
+   "es": "El jefe final",
+   "en": "The final boss"
   }
  ]
 }

@@ -48,7 +48,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/practice/:course/:lesson',
       pageBuilder: (context, state) => CupertinoLikePage(
-        key: state.pageKey,
+        key: ValueKey(state.uri.toString()),
         child: LessonScreen(courseId: state.pathParameters['course']!, lessonId: state.pathParameters['lesson']!, mode: PlayMode.practice),
       ),
     ),
@@ -61,7 +61,7 @@ final _router = GoRouter(
     GoRoute(
       path: '/lesson/:course/:lesson',
       pageBuilder: (context, state) => CupertinoLikePage(
-        key: state.pageKey,
+        key: ValueKey(state.uri.toString()),
         child: LessonScreen(courseId: state.pathParameters['course']!, lessonId: state.pathParameters['lesson']!),
       ),
     ),

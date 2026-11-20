@@ -34,6 +34,24 @@ class _OrderStepState extends State<OrderStep> {
       if (r.error != null) return CheckResult(false, c.t('order_broken'));
       return CheckResult(r.allPass, c.t('tests_passed', [r.passed, r.results.length]));
     };
+    c.sniff = () {
+      // El primer bloque fuera de lugar regresa al banco (con los de después) y se pone el correcto.
+      var k = 0;
+      while (k < built.length && built[k] == k) {
+        k++;
+      }
+      if (locked || k >= lines.length) return null;
+      setState(() {
+        final tail = built.sublist(k);
+        built.removeRange(k, built.length);
+        bank.addAll(tail);
+        bank.remove(k);
+        built.add(k);
+        mark = null;
+      });
+      widget.c.setReady(bank.isEmpty);
+      return c.t('hint_order');
+    };
     c.onFeedback = (ok) => setState(() {
           mark = ok ? 'good' : 'bad';
           if (ok) locked = true;

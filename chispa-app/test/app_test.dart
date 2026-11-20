@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:chispa/data/models.dart';
 import 'package:chispa/data/progress.dart';
 import 'package:chispa/main.dart';
+import 'package:chispa/screens/lesson_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,6 +99,9 @@ void main() {
     expect(saved['done']['algos/arrays']['acc'], 83);
     expect(saved['hop'], {'course': 'algos', 'from': 0, 'to': 1});
 
+    // Lección nueva: el botón principal es la siguiente.
+    expect(find.text('Siguiente lección →'), findsOneWidget);
+
     // De vuelta al camino: la lección 2 queda abierta y el salto se consume.
     await tap(find.text('Volver al camino'));
     await tester.pump(const Duration(seconds: 2));
@@ -109,11 +113,69 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('JavaScript a fondo: lección de variables con la pantalla de clasificar', (tester) async {
+  testWidgets('pista de Salsa y regresar a repasar una pantalla', (tester) async {
     tester.view.physicalSize = const Size(390 * 3, 844 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     SharedPreferences.setMockInitialValues({'chispa-progress': jsonEncode({'lang': 'es'})});
+    final prefs = await SharedPreferences.getInstance();
+    final courses = await tester.runAsync(() => loadCourses(rootBundle));
+    await tester.pumpWidget(ProviderScope(
+      overrides: [prefsProvider.overrideWithValue(prefs), coursesProvider.overrideWithValue(courses!)],
+      child: const ChispaApp(),
+    ));
+    Future<void> settle() async {
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    Future<void> tap(Finder f) async {
+      await tester.ensureVisible(f.first);
+      await settle();
+      await tester.tap(f.first, warnIfMissed: false);
+      await settle();
+    }
+
+    await settle();
+    GoRouter.of(tester.element(find.byType(Scaffold).first)).go('/lesson/algos/arrays');
+    await settle();
+    await tap(find.text('Continuar'));
+
+    // 1 · tocar: Salsa tacha casillas que no son, y la pista se usa una sola vez.
+    expect(find.text('🐾 Pista'), findsOneWidget);
+    await tap(find.text('🐾 Pista'));
+    expect(find.text('Taché las casillas que seguro no son. 🐾', findRichText: true), findsOneWidget);
+    expect(find.text('🐾 Pista'), findsNothing);
+    await tap(find.text('🌮'));
+    await tap(find.text('Comprobar'));
+    await tap(find.text('Continuar'));
+
+    // 2 · opción múltiple: empiezo a contestar y me regreso a ver la pantalla anterior.
+    await tap(find.text('\u20093\u2009', findRichText: true));
+    await tap(find.byTooltip('Pantalla anterior'));
+    expect(find.text('REPASANDO · PANTALLA 2 DE 8'), findsOneWidget);
+    expect(find.text('Comprobar'), findsNothing);
+    await tap(find.text('Volver a donde ibas'));
+    expect(find.text('REPASANDO · PANTALLA 2 DE 8'), findsNothing);
+    // Lo que había escogido sigue ahí: el botón de comprobar está activo.
+    await tap(find.text('Comprobar'));
+    expect(find.text('No exactamente'), findsOneWidget);
+
+    // La pantalla con pista no cuenta "a la primera".
+    final state = tester.state(find.byType(LessonScreen)) as dynamic;
+    expect(state.firstTry, 0);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('JavaScript a fondo: lección de variables con la pantalla de clasificar', (tester) async {
+    tester.view.physicalSize = const Size(390 * 3, 844 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    // Como si ya fueras más adelante y regresaras a repasar: al terminar, te lleva a donde ibas.
+    final ahead = {'acc': 90, 'at': 1};
+    SharedPreferences.setMockInitialValues({
+      'chispa-progress': jsonEncode({'lang': 'es', 'done': {'js/types': ahead, 'js/conversions': ahead}}),
+    });
     final prefs = await SharedPreferences.getInstance();
     final courses = await tester.runAsync(() => loadCourses(rootBundle));
     await tester.pumpWidget(ProviderScope(
@@ -181,6 +243,12 @@ void main() {
     expect(find.text('100%'), findsOneWidget);
     expect(find.text('📖 Para leer más'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
+
+    // "Seguir donde ibas" abre de verdad la otra lección (antes se quedaba en esta pantalla).
+    await tap(find.text('Seguir donde ibas: 🚪 El portero de la fiesta →'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Lección completada'), findsNothing);
+    expect(find.text('Regresan un valor, no un sí o un no'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
 

@@ -105,5 +105,15 @@ void main() {
     }
     await wait(800);
     await shot('07-hint');
+
+    // Pista en una pregunta de opción múltiple (STEP=4 en arreglos) y repasar la pantalla anterior.
+    go('/lesson/algos/arrays');
+    await wait(1000);
+    await tester.tap(find.text('🐾 Pista'));
+    await wait(900);
+    await shot('08-sniff');
+    await tester.tap(find.byTooltip('Pantalla anterior'));
+    await wait(900);
+    await shot('09-review');
   });
 }

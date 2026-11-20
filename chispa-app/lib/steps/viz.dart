@@ -22,6 +22,7 @@ import 'common.dart';
 //   queue     {items, hl}                       cola (frente a la izquierda)
 //   intervals {items, hl, merged}               intervalos sobre una recta (step.axis = [min, max])
 //   graph     {hl, ehl, labels, show, edges}    grafo o árbol (step.graph = {nodes, edges, directed, names, h})
+//   grid      {cells, hl, colors, rows, cols}   cuadrícula 2D; hl con llaves "fila,col"; colors {valor: estado}
 // hl: {índice o nodo: 'cur' | 'cmp' | 'good' | 'bad' | 'pivot' | 'dim'}.
 
 typedef _Look = ({Color fill, Color edge, Color ink, bool dim});
@@ -124,6 +125,7 @@ class _VizStepState extends State<VizStep> {
               ]),
             if (f['intervals'] != null) _Intervals(f['intervals'] as Map, axis: s['axis'] as List?, t: c.t),
             if (f['graph'] != null) _Graph(spec: s['graph'] as Map, frame: f['graph'] as Map),
+            if (f['grid'] != null) _Grid(f['grid'] as Map),
           ]),
       if (vars.isNotEmpty) ...[
         const SizedBox(height: 10),
@@ -526,6 +528,72 @@ class _ListPainter extends CustomPainter {
   bool shouldRepaint(_ListPainter old) => true;
 }
 
+// ─────────────── Cuadrícula 2D (islas, tablas de DP) ───────────────
+class _Grid extends StatelessWidget {
+  const _Grid(this.g);
+  final Map g;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.pal;
+    final cells = [for (final r in g['cells'] as List) r as List];
+    final hl = g['hl'] as Map?;
+    final colors = g['colors'] as Map?;
+    final rows = g['rows'] as List?; // etiquetas a la izquierda
+    final cols = g['cols'] as List?; // etiquetas arriba
+    final nCols = cells.isEmpty ? 0 : cells.first.length;
+    return LayoutBuilder(builder: (context, box) {
+      const gap = 4.0;
+      final labelW = rows != null ? 26.0 : 0.0;
+      final size = ((box.maxWidth - labelW - gap * (nCols - 1)) / math.max(1, nCols)).clamp(18.0, 46.0);
+      Widget label(Object? v) => SizedBox(
+            width: size,
+            height: 20,
+            child: Center(child: Text('${v ?? ''}', style: monoStyle(size: 12.5, color: p.faint, weight: FontWeight.w800))),
+          );
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (cols != null)
+            Row(children: [
+              SizedBox(width: labelW),
+              for (var c = 0; c < nCols; c++) ...[label(c < cols.length ? cols[c] : ''), if (c < nCols - 1) const SizedBox(width: gap)],
+            ]),
+          for (var r = 0; r < cells.length; r++)
+            Padding(
+              padding: const EdgeInsets.only(top: gap),
+              child: Row(children: [
+                if (rows != null)
+                  SizedBox(width: labelW, child: Text('${r < rows.length ? rows[r] : ''}', style: monoStyle(size: 12.5, color: p.faint, weight: FontWeight.w800))),
+                for (var c = 0; c < cells[r].length; c++) ...[
+                  Builder(builder: (context) {
+                    final v = cells[r][c];
+                    final l = _look(p, _hl(hl, '$r,$c') ?? colors?['$v']);
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      width: size,
+                      height: size,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: l.dim ? p.code : l.fill,
+                        borderRadius: BorderRadius.circular(size / 5),
+                        border: Border.all(color: l.dim ? p.code : l.edge, width: 2),
+                      ),
+                      child: v == null || v == ''
+                          ? null
+                          : FittedBox(child: Padding(padding: const EdgeInsets.all(2), child: Text('$v', style: monoStyle(size: 15, color: l.dim ? p.faint : l.ink, weight: FontWeight.w800)))),
+                    );
+                  }),
+                  if (c < cells[r].length - 1) const SizedBox(width: gap),
+                ],
+              ]),
+            ),
+        ]),
+      );
+    });
+  }
+}
+
 // ─────────────── Grafos y árboles ───────────────
 class _Graph extends StatelessWidget {
   const _Graph({required this.spec, required this.frame});
@@ -621,7 +689,10 @@ class _GraphPainter extends CustomPainter {
             ..color = l.edge.withValues(alpha: alpha)
             ..style = PaintingStyle.stroke
             ..strokeWidth = l.edge == pal.line ? 2 : 3);
-      text('${names?[id] ?? id}', c, monoStyle(size: 14, color: l.ink.withValues(alpha: alpha), weight: FontWeight.w800));
+      final name = '${names?[id] ?? id}';
+      // Nombres largos ("React") con letra más chica para que quepan en el círculo.
+      final fs = name.length <= 2 ? 14.0 : name.length == 3 ? 12.0 : name.length == 4 ? 10.5 : 9.0;
+      text(name, c, monoStyle(size: fs, color: l.ink.withValues(alpha: alpha), weight: FontWeight.w800));
       final lab = labels?[id];
       if (lab != null) text('$lab', c + const Offset(0, r + 10), monoStyle(size: 11.5, color: pal.accentInk, weight: FontWeight.w800), bg: pal.accent);
     }

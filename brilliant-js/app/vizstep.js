@@ -83,6 +83,23 @@
     </div>`);
   }
 
+  function gridPanel(g) {
+    const nCols = g.cells.length ? g.cells[0].length : 0;
+    const el = h(`<div class="vz-grid${g.rows ? ' has-rows' : ''}" style="--cols:${nCols}"></div>`);
+    if (g.cols) {
+      if (g.rows) el.appendChild(h('<span class="vz-gl"></span>'));
+      for (let c = 0; c < nCols; c++) el.appendChild(h(`<span class="vz-gl">${esc(String(g.cols[c] ?? ''))}</span>`));
+    }
+    g.cells.forEach((row, r) => {
+      if (g.rows) el.appendChild(h(`<span class="vz-gl">${esc(String(g.rows[r] ?? ''))}</span>`));
+      row.forEach((v, c) => {
+        const st = stOf(g.hl, `${r},${c}`) || (g.colors && g.colors[String(v)]) || '';
+        el.appendChild(h(`<div class="vz-gc ${st}">${v == null ? '' : esc(String(v))}</div>`));
+      });
+    });
+    return el;
+  }
+
   function listPanel(m) {
     const values = m.values;
     const n = values.length;
@@ -179,7 +196,9 @@
       const [cx, cy] = at(id);
       const g = svg('g', { class: `vz-gnode ${stOf(f.hl, id) || ''}` });
       g.appendChild(svg('circle', { cx, cy, r }));
-      g.appendChild(svg('text', { x: cx, y: cy + 1 }, String((spec.names && spec.names[id]) || id)));
+      const name = String((spec.names && spec.names[id]) || id);
+      const fs = name.length <= 2 ? 14 : name.length === 3 ? 12 : name.length === 4 ? 10.5 : 9;
+      g.appendChild(svg('text', { x: cx, y: cy + 1, style: `font-size:${fs}px` }, name));
       el.appendChild(g);
       const lab = f.labels && f.labels[id];
       if (lab != null) {
@@ -258,6 +277,7 @@
       }
       if (f.intervals) parts.push(intervalsPanel(f.intervals, step.axis, ctx.t));
       if (f.graph) parts.push(graphPanel(step.graph, f.graph));
+      if (f.grid) parts.push(gridPanel(f.grid));
       stage.replaceChildren(...parts);
       const vars = Object.entries(f.vars || {});
       el.querySelector('.vars').innerHTML = vars.map(([n, v]) => `<span class="var"><code>${esc(n)}</code><b>${esc(show(v))}</b></span>`).join('');

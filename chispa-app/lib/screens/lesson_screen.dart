@@ -78,6 +78,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool streakUp = false; // esta lección subió tu racha (primera del día)
   _Sheet? sheet;
   late StepController ctl = _makeController();
+  String? hintMsg; // la pista que trajo Salsa en esta pantalla
+  bool hinted = false; // con pista, la pantalla ya no cuenta "a la primera"
+  int? review; // una pantalla anterior que estás repasando
+  StepController? reviewCtl;
 
   StepController _makeController() {
     final c = StepController(step: steps[idx], lang: lang);
@@ -114,6 +118,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         return;
       }
       attempts = 0;
+      hintMsg = null;
+      hinted = false;
+      _closeReview();
       ctl.dispose();
       ctl = _makeController();
     });
@@ -135,7 +142,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (attempts == 1) {
       final key = refs[idx].key;
       if (mode == PlayMode.mission) {
-        results[key] = r.ok;
+        results[key] = r.ok && !hinted;
       } else if (!r.ok && reviewTypes.contains(step['type'])) {
         ref.read(progressProvider.notifier).noteMiss(key); // vuelve en tu misión del día
       }
@@ -143,12 +150,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     setState(() {
       checking = false;
       if (r.ok) {
-        if (attempts == 1) {
+        if (attempts == 1 && !hinted) {
           firstTry++;
           combo++;
+        } else if (hinted) {
+          combo = 0;
         }
         HapticFeedback.mediumImpact();
-        sfx.correct(attempts == 1 ? combo : 1);
+        sfx.correct(attempts == 1 && !hinted ? combo : 1);
         voice.say(attempts == 1 && combo >= 3 ? SalsaLine.combo : SalsaLine.correct, lang);
         ctl.onFeedback?.call(true);
         final praise = t('praise').split('|');
@@ -195,6 +204,43 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     });
   }
 
+  /// Salsa trae una pista: tacha una opción, acomoda una pieza o te da una idea.
+  void _useHint() {
+    final msg = ctl.sniff?.call();
+    HapticFeedback.selectionClick();
+    sfx.play(Sfx.tap);
+    setState(() {
+      hinted = msg != null;
+      hintMsg = msg ?? t('hint_none');
+    });
+    voice.speak(hintMsg!.replaceAll(RegExp(r'<[^>]+>'), '').replaceAll('🐾', ''), lang);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scroll.hasClients) scroll.animateTo(scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+    });
+  }
+
+  /// Repasar una pantalla que ya pasaste, con la respuesta a la vista. La actual se queda tal cual.
+  void _openReview(int i) {
+    if (i < 0 || i >= idx || finished || checking || sheet != null) return;
+    FocusScope.of(context).unfocus();
+    reviewCtl?.dispose();
+    final c = StepController(step: steps[i], lang: lang);
+    setState(() {
+      review = i;
+      reviewCtl = c;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && reviewCtl == c) c.onReveal?.call();
+    });
+    HapticFeedback.selectionClick();
+  }
+
+  void _closeReview() {
+    reviewCtl?.dispose();
+    reviewCtl = null;
+    review = null;
+  }
+
   void _finish() {
     finalAcc = graded == 0 ? 100 : (firstTry * 100 / graded).round();
     final notifier = ref.read(progressProvider.notifier);
@@ -220,6 +266,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   @override
   void dispose() {
     if (steps.isNotEmpty) ctl.dispose();
+    reviewCtl?.dispose();
     scroll.dispose();
     super.dispose();
   }
@@ -260,40 +307,72 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 icon: Icon(Icons.close_rounded, color: p.muted, size: 28),
                 tooltip: lang == 'es' ? 'Salir' : 'Leave',
               ),
-              const SizedBox(width: 4),
+              // Regresar a ver las pantallas que ya pasaste.
+              if (!finished && (review ?? idx) > 0 && sheet == null && !checking)
+                IconButton(
+                  onPressed: () => _openReview((review ?? idx) - 1),
+                  icon: Icon(Icons.chevron_left_rounded, color: p.muted, size: 30),
+                  tooltip: t('review_prev'),
+                  visualDensity: VisualDensity.compact,
+                )
+              else
+                const SizedBox(width: 4),
               Expanded(
                 child: Row(children: [
                   for (var i = 0; i < total; i++)
                     Expanded(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        height: 9,
-                        decoration: BoxDecoration(color: finished || i <= idx ? p.accent : p.line, borderRadius: BorderRadius.circular(99)),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: i < idx ? () => _openReview(i) : (i == idx && review != null ? () => setState(_closeReview) : null),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            height: i == review ? 12 : 9,
+                            decoration: BoxDecoration(color: i == review ? p.sel : finished || i <= idx ? p.accent : p.line, borderRadius: BorderRadius.circular(99)),
+                          ),
+                        ),
                       ),
                     ),
                 ]),
               ),
             ]),
           ),
-          Expanded(child: finished ? _finishView(p) : _stepView(p)),
+          Expanded(
+            child: finished
+                ? _finishView(p)
+                : Stack(fit: StackFit.expand, children: [
+                    // La pantalla actual sigue viva (con lo que llevabas) mientras repasas otra.
+                    Offstage(offstage: review != null, child: TickerMode(enabled: review == null, child: _stepView(p))),
+                    if (review != null) _stepView(p, at: review),
+                  ]),
+          ),
           if (!finished) _bottom(p),
         ]),
       ),
     );
   }
 
-  Widget _stepView(Palette p) {
-    final step = steps[idx];
-    final from = refs[idx];
+  Widget _stepView(Palette p, {int? at}) {
+    final i = at ?? idx;
+    final step = steps[i];
+    final from = refs[i];
+    final c = at == null ? ctl : reviewCtl!;
     return SingleChildScrollView(
-      controller: scroll,
+      key: ValueKey(at == null ? 'live' : 'review-$at'),
+      controller: at == null ? scroll : null,
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (at != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(t('review_banner', [at + 1, steps.length]), style: TextStyle(color: p.sel, fontSize: 12.5, fontWeight: FontWeight.w900, letterSpacing: 0.8)),
+              ),
             if (mode == PlayMode.mission)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -307,12 +386,32 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               ),
             if (step['prompt'] != null)
               Padding(padding: const EdgeInsets.only(bottom: 18), child: Rich(tx(step['prompt'], lang), style: const TextStyle(fontSize: 19, height: 1.4))),
-            buildStep(ctl, key: ValueKey('${mode.name}-${from.key}-$idx')),
+            buildStep(c, key: ValueKey('${mode.name}-${from.key}-$i-${at == null ? 'live' : 'review'}')),
+            if (at == null && hintMsg != null) _hintBubble(p, hintMsg!),
           ]),
         ),
       ),
     );
   }
+
+  Widget _hintBubble(Palette p, String msg) => Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          const DressedSalsa(size: 62),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              decoration: BoxDecoration(
+                color: p.surface,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomRight: Radius.circular(16), bottomLeft: Radius.circular(4)),
+                border: Border.all(color: p.accent, width: 2),
+              ),
+              child: Rich(msg, style: TextStyle(color: p.ink, fontSize: 15.5, height: 1.35)),
+            ),
+          ),
+        ]),
+      );
 
   Widget _bottom(Palette p) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
@@ -331,11 +430,28 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
-          child: s == null
-              ? ChunkyButton(
-                  label: checking ? '…' : (isGraded ? t('check') : t('next')),
-                  onPressed: ctl.ready && !checking ? _onGo : null,
-                )
+          child: s == null && review != null
+              // Repasando: sigue a la siguiente pantalla vieja, o regresa a donde ibas.
+              ? Row(children: [
+                  if (review! + 1 < idx) ...[
+                    Expanded(child: ChunkyButton(label: t('review_next'), kind: ChunkyKind.ghost, onPressed: () => _openReview(review! + 1))),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(child: ChunkyButton(label: t('review_back'), onPressed: () => setState(_closeReview))),
+                ])
+              : s == null
+              ? Row(children: [
+                  if (isGraded && hintMsg == null && ctl.sniff != null && !ctl.interview) ...[
+                    ChunkyButton(label: t('hint_btn'), kind: ChunkyKind.ghost, expand: false, onPressed: checking ? null : _useHint),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: ChunkyButton(
+                      label: checking ? '…' : (isGraded ? t('check') : t('next')),
+                      onPressed: ctl.ready && !checking ? _onGo : null,
+                    ),
+                  ),
+                ])
               : ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.55),
                   child: SingleChildScrollView(
@@ -357,7 +473,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   Widget _finishView(Palette p) {
     final i = course.lessons.indexOf(lesson);
-    final next = mode == PlayMode.lesson && i + 1 < course.lessons.length ? course.lessons[i + 1] : null;
+    final prog = ref.watch(progressProvider);
+    // A dónde seguir: la primera lección que no has terminado (tu frontera), no nada más la de al lado.
+    // Si repasabas una vieja, te regresa a donde ibas.
+    final frontier = mode == PlayMode.mission ? null : course.lessons.where((l) => !prog.isDone(course, l)).firstOrNull;
+    final next = frontier == lesson ? null : frontier;
+    final nextLabel = next == null
+        ? ''
+        : course.lessons.indexOf(next) == i + 1 && mode == PlayMode.lesson
+            ? '${t('next_lesson')} →'
+            : '${t('continue_where')}: ${next.icon} ${tx(next.title, lang)} →';
     final exit = mode == PlayMode.mission ? '/' : '/course/${course.id}';
     final title = switch (mode) {
       PlayMode.lesson => t('done_title'),
@@ -365,7 +490,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       PlayMode.mission => t('mission_done'),
     };
     final subtitle = mode == PlayMode.mission ? t('mission_sub') : '${lesson.icon}  ${tx(lesson.title, lang)}';
-    final st = ref.watch(progressProvider).streak();
+    final st = prog.streak();
     Widget stat(String big, String small) => Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -391,9 +516,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             Row(children: [stat('$finalAcc%', t('first_try')), const SizedBox(width: 12), stat('🔥 $st', t('streak_label'))]),
             if (streakUp) Padding(padding: const EdgeInsets.only(top: 16), child: StreakBurst(streak: st, lang: lang)),
             if (mode == PlayMode.lesson && lesson.more.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 16), child: _ReadMore(lesson: lesson, lang: lang, t: t)),
-            if (mode == PlayMode.lesson && next == null) Padding(padding: const EdgeInsets.only(top: 20), child: Text(t('course_done'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 17))),
+            if (mode != PlayMode.mission && frontier == null) Padding(padding: const EdgeInsets.only(top: 20), child: Text(t('course_done'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 17))),
             const SizedBox(height: 26),
-            if (next != null) ChunkyButton(label: '${t('next_lesson')} →', onPressed: () => context.go('/lesson/${course.id}/${next.id}')),
+            if (next != null) ChunkyButton(label: nextLabel, onPressed: () => context.go('/lesson/${course.id}/${next.id}')),
             const SizedBox(height: 10),
             ChunkyButton(label: mode == PlayMode.mission ? t('back_home') : t('back'), kind: next == null ? ChunkyKind.primary : ChunkyKind.ghost, onPressed: () => context.go(exit)),
           ]),

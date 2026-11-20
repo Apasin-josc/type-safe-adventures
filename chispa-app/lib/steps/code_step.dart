@@ -74,6 +74,7 @@ class _CodeStepState extends State<CodeStep> {
     c.onCheck = _run;
     c.onReveal = () => setState(() => showSolution = true);
     c.canHint = () => _canHint;
+    c.sniff = () => c.interview || c.step['hint'] == null ? null : c.tx(c.step['hint']);
     c.onHint = _askHint;
     c.setReady(true);
     focus.addListener(() => setState(() {}));

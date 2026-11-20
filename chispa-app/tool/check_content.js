@@ -42,7 +42,7 @@ for (const c of global.COURSES) {
       if (s.type === 'viz') {
         if (!Array.isArray(s.frames) || !s.frames.length) bad(w, 'sin cuadros');
         const lines = s.code ? s.code.split('\n').length : 0;
-        const PANELS = ['array', 'bars', 'list', 'stack', 'queue', 'intervals', 'graph'];
+        const PANELS = ['array', 'bars', 'list', 'stack', 'queue', 'intervals', 'graph', 'grid'];
         (s.frames || []).forEach((f, k) => {
           const fw = `${w} cuadro ${k}`;
           bilingual(fw, f.note);
@@ -55,6 +55,14 @@ for (const c of global.COURSES) {
             for (const [lab, i] of Object.entries(f[p]?.ptrs || {})) if (!(i >= 0 && i < n)) bad(fw, `${p}.ptrs.${lab} = ${i} fuera de rango`);
           }
           for (const [a, b] of f.list?.links || []) if (!(a >= 0 && a < f.list.values.length) || !(b >= -1 && b < f.list.values.length)) bad(fw, `flecha ${a}→${b} inválida`);
+          if (f.grid) {
+            const R = f.grid.cells.length;
+            const C = R ? f.grid.cells[0].length : 0;
+            for (const k2 of Object.keys(f.grid.hl || {})) {
+              const [r, c2] = k2.split(',').map(Number);
+              if (!(r >= 0 && r < R && c2 >= 0 && c2 < C)) bad(fw, `grid.hl ${k2} fuera de rango`);
+            }
+          }
           if (f.graph) {
             if (!s.graph?.nodes) bad(fw, 'falta step.graph.nodes');
             const has = (id) => s.graph?.nodes && String(id) in s.graph.nodes;

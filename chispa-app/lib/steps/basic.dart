@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -45,6 +47,7 @@ class ChoiceStep extends StatefulWidget {
 class _ChoiceStepState extends State<ChoiceStep> {
   int? sel;
   final Map<int, String> marks = {};
+  final Set<int> struck = {}; // tachadas por la pista de Salsa
   bool locked = false;
 
   @override
@@ -53,6 +56,21 @@ class _ChoiceStepState extends State<ChoiceStep> {
     final c = widget.c;
     final answer = (c.step['answer'] as num).toInt();
     c.onCheck = () async => CheckResult(sel == answer, _why(sel));
+    c.sniff = () {
+      final n = (c.step['options'] as List).length;
+      final wrong = [for (var i = 0; i < n; i++) if (i != answer && !struck.contains(i)) i];
+      // Con dos opciones, tachar una sería darte la respuesta: ahí no hay pista.
+      if (locked || n <= 2 || wrong.isEmpty) return null;
+      final i = wrong[math.Random().nextInt(wrong.length)];
+      setState(() {
+        struck.add(i);
+        if (sel == i) {
+          sel = null;
+          c.setReady(false);
+        }
+      });
+      return c.t('hint_choice');
+    };
     c.onFeedback = (ok) => setState(() {
           marks[sel!] = ok ? 'good' : 'bad';
           if (ok) locked = true;
@@ -79,9 +97,11 @@ class _ChoiceStepState extends State<ChoiceStep> {
       for (var i = 0; i < opts.length; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Tile(
+          child: Opacity(
+            opacity: struck.contains(i) ? 0.35 : 1,
+            child: Tile(
             state: marks[i] ?? (sel == i ? 'sel' : null),
-            onTap: locked
+            onTap: locked || struck.contains(i)
                 ? null
                 : () => setState(() {
                       sel = i;
@@ -89,7 +109,11 @@ class _ChoiceStepState extends State<ChoiceStep> {
                       c.setReady(true);
                     }),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-            child: SizedBox(width: double.infinity, child: Rich(c.tx(opts[i]), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
+            child: SizedBox(
+              width: double.infinity,
+              child: Rich('${struck.contains(i) ? '✗ ' : ''}${c.tx(opts[i])}', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, decoration: struck.contains(i) ? TextDecoration.lineThrough : null)),
+            ),
+          ),
           ),
         ),
     ]);
@@ -108,12 +132,27 @@ class _TapStepState extends State<TapStep> {
   int? sel;
   String? mark;
   bool locked = false;
+  final Set<int> struck = {};
 
   @override
   void initState() {
     super.initState();
     final c = widget.c;
     final answer = (c.step['answer'] as num).toInt();
+    c.sniff = () {
+      final n = (c.step['values'] as List).length;
+      final wrong = [for (var i = 0; i < n; i++) if (i != answer && !struck.contains(i)) i]..shuffle();
+      if (locked || wrong.isEmpty) return null;
+      setState(() {
+        struck.addAll(wrong.take((wrong.length / 2).ceil()));
+        if (sel != null && struck.contains(sel)) {
+          sel = null;
+          mark = null;
+          c.setReady(false);
+        }
+      });
+      return c.t('hint_tap');
+    };
     c.onCheck = () async {
       final why = c.step['why'];
       final msg = (why is Map && why['$sel'] != null) ? c.tx(why['$sel']) : null;
@@ -138,10 +177,10 @@ class _TapStepState extends State<TapStep> {
       ArrayView(
         values: c.step['values'] as List,
         indices: c.step['indices'] != false,
-        look: (i) => CellLook(state: i == sel ? (mark ?? 'sel') : null),
+        look: (i) => CellLook(state: i == sel ? (mark ?? 'sel') : null, dim: struck.contains(i)),
         onTap: locked
             ? null
-            : (i) => setState(() {
+            : (i) => struck.contains(i) ? null : setState(() {
                   sel = i;
                   mark = null;
                   c.setReady(true);
@@ -175,6 +214,14 @@ class _NumberStepState extends State<NumberStep> {
     c.onCheck = () async {
       final n = int.tryParse(ctl.text.replaceAll(RegExp(r'[,\s]'), ''));
       return CheckResult(n == answer, c.step['hint'] == null ? null : c.tx(c.step['hint']));
+    };
+    c.sniff = () {
+      if (mark == 'good') return null;
+      if (c.step['hint'] != null) return c.tx(c.step['hint']);
+      final a = answer.abs();
+      if (answer < 0) return c.t('hint_neg');
+      if (a < 10) return c.t(a.isEven ? 'hint_num_even' : 'hint_num_odd');
+      return c.t('hint_num', ['$a'.length, '$a'[0]]);
     };
     c.onFeedback = (ok) => setState(() => mark = ok ? 'good' : 'bad');
     c.onReveal = () => setState(() {
@@ -241,6 +288,19 @@ class _FillStepState extends State<FillStep> {
     final c = widget.c;
     bool right() => [for (var i = 0; i < filled.length; i++) chips[filled[i]!] == answers[i]].every((x) => x);
     c.onCheck = () async => CheckResult(right(), c.step['hint'] == null ? null : c.tx(c.step['hint']));
+    c.sniff = () {
+      // Pon bien el primer hueco que esté vacío o mal.
+      final k = [for (var i = 0; i < filled.length; i++) i].where((i) => filled[i] == null || chips[filled[i]!] != answers[i]).firstOrNull;
+      if (locked || k == null) return null;
+      setState(() {
+        final chip = chips.indexOf(answers[k]);
+        final other = filled.indexOf(chip);
+        if (other != -1) filled[other] = null; // si esa ficha estaba en otro hueco, se mueve
+        filled[k] = chip;
+        _changed();
+      });
+      return c.t('hint_fill');
+    };
     c.onFeedback = (ok) => setState(() {
           marks = [for (var i = 0; i < filled.length; i++) chips[filled[i]!] == answers[i] ? 'good' : 'bad'];
           if (ok) locked = true;
@@ -344,6 +404,18 @@ class _ClassifyStepState extends State<ClassifyStep> {
     c.onCheck = () async {
       final wrong = [for (var i = 0; i < items.length; i++) if (picked[i] != _bin(i)) i].length;
       return CheckResult(wrong == 0, c.lang == 'es' ? 'Tienes $wrong mal. Las que están en rojo van en la otra caja.' : 'You have $wrong wrong. The red ones belong in the other box.');
+    };
+    c.sniff = () {
+      final todo = [for (var i = 0; i < items.length; i++) if (picked[i] != _bin(i)) i];
+      if (locked || todo.isEmpty) return null;
+      final i = todo.first;
+      setState(() {
+        picked[i] = _bin(i);
+        marks = null;
+      });
+      c.setReady(picked.every((x) => x != null));
+      final label = c.tx((items[i] as Map)['label']).replaceAll(RegExp(r'<[^>]+>'), '');
+      return c.t('hint_classify', [label, c.tx(bins[_bin(i)])]);
     };
     c.onFeedback = (ok) => setState(() {
           marks = [for (var i = 0; i < items.length; i++) picked[i] == _bin(i)];

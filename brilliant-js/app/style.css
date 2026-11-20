@@ -515,3 +515,13 @@ button.cell:hover { border-color: var(--ink); }
 .vz-dots i.now { width: 18px; }
 .vz-nav { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { .vz-bar i, .vz-dots i { transition: none; } }
+.vz-grid { display: grid; grid-template-columns: repeat(var(--cols), minmax(18px, 46px)); gap: 4px; margin: 6px 0; }
+.vz-grid.has-rows { grid-template-columns: 26px repeat(var(--cols), minmax(18px, 46px)); }
+.vz-gl { display: grid; place-items: center; font: 800 0.78rem var(--mono); color: var(--faint); min-height: 20px; }
+.vz-gc { aspect-ratio: 1; display: grid; place-items: center; border-radius: 9px; border: 2px solid var(--line); background: var(--surface); font: 800 0.95rem var(--mono); transition: background 0.25s, border-color 0.25s; }
+.vz-gc.cur { border-color: var(--sel); background: var(--sel-soft); }
+.vz-gc.cmp { border-color: var(--accent); background: var(--accent-soft); }
+.vz-gc.good { border-color: var(--good); background: var(--good-soft); }
+.vz-gc.bad { border-color: var(--bad); background: var(--bad-soft); }
+.vz-gc.pivot { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.vz-gc.dim { border-color: var(--code); background: var(--code); color: var(--faint); }
