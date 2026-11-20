@@ -133,6 +133,15 @@ const server = http.createServer((req, res) => {
   });
 });
 
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`\n  🐾 Ya hay un servidor de pistas corriendo en el puerto ${PORT}: no necesitas otro.`);
+    console.log(`     ¿Quieres reiniciarlo? Apaga el otro con:  kill $(lsof -ti :${PORT})  y vuelve a correr npm start.\n`);
+    process.exit(0);
+  }
+  throw err;
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   const host = (() => {
     try {
